@@ -26,3 +26,25 @@ class UserCreationForm(admin_forms.UserCreationForm):
         except User.DoesNotExist:
             return email
         raise forms.ValidationError(self.error_messages["duplicate_email"])
+
+from django import forms
+
+class RegistrationForm(forms.Form):
+    name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'yourName'})
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'id': 'yourEmail'})
+    )
+    username = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'yourUsername'})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'id': 'yourPassword'})
+    )
+    terms = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'acceptTerms'}),
+        required=True
+    )

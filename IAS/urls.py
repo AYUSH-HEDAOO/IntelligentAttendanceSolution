@@ -15,8 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('',include('core_apps.users.urls'))
 ]
+
+admin.site.site_header = "IAS Admin" # Text will display at admin site
+
+admin.site.site_title = "IAS Admin Portal" # displayed on browser tab
+
+admin.site.index_title = "Welcome to IAS Portal" # display at admin index page
