@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-b$^zrht1=1!_j7v7oqqw393!b25mkc-(5nc3i9k#$l49se8k*w
 APP_DIR = BASE_DIR / "core_apps"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
@@ -149,15 +149,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "users.User"
 
-# Static Files Settings
+# Static Files Settings Publice files
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
+# Media Files Settings for User Uploaded content
+MEDIA_ROOT = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# Media Files Settings
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
-# Production settings
-if not DEBUG:
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if DEBUG:
+    STATICFILES_DIRS = (
+        os.path.join(BASE_DIR, "staticfiles"),
+    )
+else:
+    # Production settings
+    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"

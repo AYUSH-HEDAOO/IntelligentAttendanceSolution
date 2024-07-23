@@ -9,9 +9,6 @@ def index(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             # Handle form data here
-            # For example, save user details, send confirmation email, etc.
-            
-            # For demonstration, we'll just show a success message
             messages.success(request, 'Account created successfully!')
             return redirect(reverse('/'))  # Replace 'success_page' with your success page URL name
     else:
