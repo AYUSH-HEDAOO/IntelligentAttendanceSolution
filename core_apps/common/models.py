@@ -7,6 +7,7 @@ class IASModel(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False) # Soft delete
 
     class Meta:
         abstract = True
