@@ -68,7 +68,7 @@ class RegistrationForm(forms.Form):
                 )
 
                 # Split the owner name
-                first_name, last_name = self.cleaned_data['institute_owner_name'].split(' ', 1)
+                first_name, last_name = self.cleaned_data['institute_owner_name'].split(' ', 1) if " " in self.cleaned_data["institute_owner_name"] else (self.cleaned_data['institute_owner_name'],"")
 
                 # Create the User
                 user = User.objects.create(
@@ -88,6 +88,7 @@ class RegistrationForm(forms.Form):
             return True, "Institute and user created successfully"
         
         except Exception as e:
+            print(e)
             return False, f"An error occurred: {e}"
     
 class LoginForm(forms.Form):
