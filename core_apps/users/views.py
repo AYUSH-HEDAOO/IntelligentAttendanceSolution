@@ -29,8 +29,13 @@ def login(request):
         if form.is_valid():
             # Handle form data here
             messages.success(request, 'You logged in successfully!')
-            return redirect(reverse('/'))  # Replace 'success_page' with your success page URL name
+            return redirect(reverse('/institute/dashboard'))  # Replace 'success_page' with your success page URL name
     else:
         form = LoginForm()
     context = {'form': form}
     return render(request,"users/login.html",context)
+
+
+
+
+
