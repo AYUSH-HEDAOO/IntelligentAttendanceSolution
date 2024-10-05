@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import make_password
 from core_apps.users.models import Role
 from core_apps.institutes.models import Institute
 from django.db import models, transaction
+from django.contrib.auth import authenticate, login
 
 User = get_user_model()
 
@@ -88,7 +89,6 @@ class RegistrationForm(forms.Form):
             return True, "Institute and user created successfully"
         
         except Exception as e:
-            print(e)
             return False, f"An error occurred: {e}"
     
 class LoginForm(forms.Form):
@@ -98,3 +98,11 @@ class LoginForm(forms.Form):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'id': 'Password'})
     )
+
+    def make_user_session(self, request):
+        username = self.cleaned_data['email']
+        password = self.cleaned_data['password']
+        user = authenticate(request,username=username,password=password)
+        if user is not None:
+            login(request,user)
+        return user
