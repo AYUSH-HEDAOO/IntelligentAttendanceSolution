@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect
 from django.urls import reverse
+from django.contrib.auth import logout
 from django.contrib import messages
 from .forms import RegistrationForm, LoginForm
 # Create your views here.
@@ -28,14 +29,18 @@ def login(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             # Handle form data here
-            messages.success(request, 'You logged in successfully!')
-            return redirect(reverse('/institute/dashboard'))  # Replace 'success_page' with your success page URL name
+            user_session = form.make_user_session(request)
+            messages.success(request, f'Welcome {user_session.first_name} {user_session.last_name}!')
+            return redirect(reverse('InstituteDashboard'))
     else:
         form = LoginForm()
     context = {'form': form}
     return render(request,"users/login.html",context)
 
 
-
+def user_logout(request):
+    logout(request)
+    messages.info(request,"Logged Out Successfully!")
+    return redirect("Login")
 
 
