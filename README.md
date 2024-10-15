@@ -16,4 +16,4 @@ I am building one web app to manage institute attandence and send notification t
 2. `python manage.py migrate` to migrate the changes to database
 
 # Commands to create super user (For Development)
-1. `python manage.py createsuperuser` to create super user
+1. `` to create super user
