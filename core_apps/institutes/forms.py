@@ -13,7 +13,7 @@ class DepartmentForm(forms.Form):
         department_name = self.cleaned_data['department_name']
         department = Department.is_department_exists(department_name, institute)
 
-        if not department:
+        if department:
             return False, "Department already exists!"
 
         try:
