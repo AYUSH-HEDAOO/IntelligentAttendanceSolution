@@ -6,8 +6,7 @@ from core_apps.users.models import Role
 from core_apps.institutes.models import Institute
 from django.db import models, transaction
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import Group, GroupManager
-from core_apps.common.models import ROLE_URL_MAP
+from core_apps.common.models import ROLE_URL_MAP, RoleType
 
 AUTH_USER = get_user_model()
 
@@ -73,7 +72,7 @@ class RegistrationForm(forms.Form):
                 Role.objects.create(
                     user=user,
                     institute=institute,
-                    role_type='owner'
+                    role_type=RoleType.OWNER
                 )
 
             return True, "Institute and user created successfully"
@@ -100,7 +99,6 @@ class LoginForm(forms.Form):
             _message = f'Welcome {user.first_name} {user.last_name}!'
             try:
                 role = Role.objects.get(user=user)
-                request.session["role"] = role
                 url_name = ROLE_URL_MAP[role.role_type]
             except Role.DoesNotExist:
                 _message = 'Not allowed to access!'
