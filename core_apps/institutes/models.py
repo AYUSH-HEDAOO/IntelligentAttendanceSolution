@@ -9,13 +9,36 @@ from core_apps.common.models import IASModel
 class Institute(IASModel):
     institute_name = models.CharField(max_length=200)
     institute_reg_number = models.CharField(max_length=100,null=True, blank=True)
-    phone_number = PhoneNumberField(verbose_name=_("phone number"), max_length=30, default="")
+    phone_number = PhoneNumberField(verbose_name=_("phone number"), max_length=30, default="", region="IN")
     address = models.TextField(verbose_name=_("address"), default="")
     city = models.CharField(verbose_name=_("city"), max_length=180, default="Nagpur", blank=False, null=False)
     institute_image = models.ImageField(verbose_name=_("institute image"), default="/profile_default.png")
 
     def __str__(self):
-        return self.institute_name
+        return f"{self.institute_name}"
+    
+
+class Department(IASModel):
+    """
+    Department model to store Institute Departments
+    """
+    department_name = models.CharField(max_length=200)
+    institute = models.ForeignKey(
+        Institute,
+        on_delete=models.CASCADE,
+        related_name="departments"
+    )
 
     def __str__(self):
-        return f"{self.institute_name}"
+        return f"{self.department_name} - {self.institute.institute_name}"
+
+    @staticmethod
+    def is_department_exists(department_name, institute):
+        try:
+            Department.objects.get(department_name=department_name, institute=institute)
+            return True
+        except Exception:
+            return False
+
+    def __str__(self):
+        return f"{self.department_name}"

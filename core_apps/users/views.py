@@ -12,8 +12,8 @@ def register(request):
             # Handle form data here
             status, _message = form.save()
             if status:
-                messages.success(request, 'Account created successfully!')
-                return redirect(reverse('Login'))  # Replace 'success_page' with your success page URL name
+                messages.success(request, _message)
+                return redirect(reverse('Login'))
             messages.warning(request, f'{_message}')
             return redirect(reverse('Register'))
         else:
@@ -29,9 +29,9 @@ def login(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             # Handle form data here
-            user_session = form.make_user_session(request)
-            messages.success(request, f'Welcome {user_session.first_name} {user_session.last_name}!')
-            return redirect(reverse('InstituteDashboard'))
+            _, url_name, _message = form.make_user_session(request)
+            messages.success(request, _message)
+            return redirect(reverse(f'{url_name}'))
     else:
         form = LoginForm()
     context = {'form': form}

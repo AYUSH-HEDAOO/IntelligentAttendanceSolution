@@ -6,31 +6,21 @@ from core_apps.users.models import Role
 from core_apps.institutes.models import Institute
 from django.db import models, transaction
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import Group, GroupManager
+from core_apps.common.models import ROLE_URL_MAP
 
-User = get_user_model()
+AUTH_USER = get_user_model()
 
 
 class UserChangeForm(admin_forms.UserChangeForm):
     class Meta(admin_forms.UserChangeForm.Meta):
-        model = User
+        model = AUTH_USER
 
 
 class UserCreationForm(admin_forms.UserCreationForm):
     class Meta(admin_forms.UserCreationForm.Meta):
-        model = User
+        model = AUTH_USER
         fields = ("first_name", "last_name", "email")
-
-    error_messages = {
-        "duplicate_email": "A user with this email already exists.",
-    }
-
-    def clean_email(self):
-        email = self.cleaned_data["email"]
-        try:
-            User.objects.get(email=email)
-        except User.DoesNotExist:
-            return email
-        raise forms.ValidationError(self.error_messages["duplicate_email"])
 
 
 class RegistrationForm(forms.Form):
@@ -56,10 +46,10 @@ class RegistrationForm(forms.Form):
     
     def save(self):
         owner_email = self.cleaned_data['institute_owner_email']
-        check_email = User.objects.email_validator(email=owner_email)
+        check_email = AUTH_USER.objects.email_validator(email=owner_email)
 
         if not check_email:
-            return False, "Invalid email, please try another email"
+            return False, "Email already exists!"
 
         try:
             with transaction.atomic():
@@ -72,7 +62,7 @@ class RegistrationForm(forms.Form):
                 first_name, last_name = self.cleaned_data['institute_owner_name'].split(' ', 1) if " " in self.cleaned_data["institute_owner_name"] else (self.cleaned_data['institute_owner_name'],"")
 
                 # Create the User
-                user = User.objects.create(
+                user = AUTH_USER.objects.create(
                     first_name=first_name,
                     last_name=last_name,
                     email=owner_email,
@@ -99,10 +89,21 @@ class LoginForm(forms.Form):
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'id': 'Password'})
     )
 
-    def make_user_session(self, request):
+    def make_user_session(self, request) -> tuple:
         username = self.cleaned_data['email']
         password = self.cleaned_data['password']
         user = authenticate(request,username=username,password=password)
+        _message = None
+        url_name = "Login"
         if user is not None:
             login(request,user)
-        return user
+            _message = f'Welcome {user.first_name} {user.last_name}!'
+            try:
+                role = Role.objects.get(user=user)
+                request.session["role"] = role
+                url_name = ROLE_URL_MAP[role.role_type]
+            except Role.DoesNotExist:
+                _message = 'Not allowed to access!'
+        else:
+            _message = "Invalid Email or Password!"
+        return user, url_name, _message
