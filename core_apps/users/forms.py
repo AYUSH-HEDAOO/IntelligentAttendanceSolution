@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from core_apps.users.models import Role
 from core_apps.institutes.models import Institute
-from django.db import models, transaction
+from django.db import  transaction
 from django.contrib.auth import authenticate, login
 from core_apps.common.models import ROLE_URL_MAP, RoleType
 

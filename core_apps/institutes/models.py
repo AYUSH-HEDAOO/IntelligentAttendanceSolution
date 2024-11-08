@@ -42,3 +42,31 @@ class Department(IASModel):
 
     def __str__(self):
         return f"{self.department_name}"
+    
+    
+class Designation(IASModel):
+    """
+    Department model to store Institute Departments
+    """
+    designation_name = models.CharField(max_length=200)
+    institute = models.ForeignKey(
+        Institute,
+        on_delete=models.CASCADE,
+        related_name="designation"
+    )
+
+    def __str__(self):
+        return f"{self.designation_name} - {self.institute.institute_name}"
+
+    @staticmethod
+    def is_designation_exists(designation_name, institute):
+        try:
+            Designation.objects.get(designation_name=designation_name, institute=institute)
+            return True
+        except Exception:
+            return False
+
+    def __str__(self):
+        return f"{self.designation_name}"
+    
+    

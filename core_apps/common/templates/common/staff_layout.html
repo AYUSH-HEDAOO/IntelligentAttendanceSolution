@@ -269,7 +269,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="{% url 'InstituteDashboard' %}">
+        <a class="nav-link " href="{% url 'StaffDashboard' %}">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -277,23 +277,12 @@
 
       <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#manage-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-menu-button-wide"></i><span>Manage Institute</span><i class="bi bi-chevron-down ms-auto"></i>
+          <i class="bi bi-menu-button-wide"></i><span>Manage Students</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="manage-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
           <li>
             <a href="{% url 'CreateReadDepartment' %}">
-              <i class="bi bi-circle"></i><span>Manage Departments</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'CreateReadDesignation' %}">
-              <i class="bi bi-circle"></i><span>Manage Designation</span>
-            </a>
-          </li>
-          
-          <li>
-            <a href="{% url 'CreateReadStaff' %}">
-              <i class="bi bi-circle"></i><span>Manage Staff</span>
+              <i class="bi bi-circle"></i><span>Students</span>
             </a>
           </li>
         </ul>
@@ -331,7 +320,7 @@
     </div>
     <div class="credits">
       
-      Designed by <a href="{% url 'InstituteDashboard' %}">Aysuh Headoo</a>
+      Designed by <a href="{% url 'StaffDashboard' %}">Aysuh Headoo</a>
     </div>
   </footer><!-- End Footer -->
 

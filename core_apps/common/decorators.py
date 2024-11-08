@@ -1,7 +1,4 @@
-from django.http import HttpResponse
 from django.shortcuts import redirect
-from core_apps.users.models import Role
-
 
 def allowed_users(allowed_roles=[]):
     def decorator(view_func):
