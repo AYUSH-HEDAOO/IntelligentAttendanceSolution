@@ -20,7 +20,9 @@ from django.urls import path,include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('core_apps.users.urls')),
-    path('institutes/',include('core_apps.institutes.urls'))
+    path('institutes/',include('core_apps.institutes.urls')),
+    path('staff/',include('core_apps.staffs.urls')),
+
 ]
 
 admin.site.site_header = "IAS Admin" # Text will display at admin site
