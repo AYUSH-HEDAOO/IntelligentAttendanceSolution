@@ -1,18 +1,18 @@
 {% extends "common/institute_layout.html" %} 
 {% load static %} 
 {% block title %}
-Admin | Academic Section
+Admin | Academic Class
 {% endblock title %} 
 {% block breadcrumb %}
 <div class="pagetitle">
-  <h1>Academic Section</h1>
+  <h1> Academic Class</h1>
   <nav>
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <a href="{% url 'InstituteDashboard' %}">Home</a>
       </li>
       <li class="breadcrumb-item">Manage Institute</li>
-      <li class="breadcrumb-item active">Academic Section</li>
+      <li class="breadcrumb-item active"> Academic Class</li>
     </ol>
   </nav>
 </div>
@@ -26,14 +26,14 @@ Admin | Academic Section
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title">AcademicSection</h5>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#DesignationModal">
+            <h5 class="card-title">Academic Classes</h5>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ClassesModal">
               Create
             </button>
 
           </div>
 
-          <p>Academic Section information.</p>
+          <p>Academic Class information.</p>
 
           <!-- Table with stripped rows -->
           <table class="table datatable">
@@ -45,11 +45,10 @@ Admin | Academic Section
               </tr>
             </thead>
             <tbody>
-              {% for academicSection in academicSections %}
+              {% for academic_class in  academic_classes %}
               <tr>
-                <td>{{academicSection.pkid}}</td>
-                <td>{{academicSection.academicSection_name}}</td>
-                <td>0</td>
+                <td>{{academic_class.pkid}}</td>
+                <td>{{academic_class.class_name}}</td>
                 <td>
                   <button type="button" class="btn btn-danger"><i class="bi bi-exclamation-octagon"></i></button>
                 </td>
@@ -63,11 +62,11 @@ Admin | Academic Section
   </div>
 </section>
 
-<div class="modal fade" id="AcademicSectionModal" tabindex="-1">
+<div class="modal fade" id="ClassesModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Create AcademicSection</h5>
+        <h5 class="modal-title">Create Academic Class</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -75,9 +74,9 @@ Admin | Academic Section
         <form class="row g-3" method="POST">
           {% csrf_token %}
           <div class="col-12">
-            <label for="{{ form.academicSection_name.id_for_label }}" class="form-label">Academic Section </label>
+            <label for="{{ form.class_name.id_for_label }}" class="form-label">Academic Class </label>
             {% comment %} <input type="text" class="form-control" id="inputNanme4"> {% endcomment %}
-            {{ form.academicSection_name }}
+            {{ form.class_name }}
           </div>
           
           <div class="text-center">
