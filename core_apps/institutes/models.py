@@ -69,4 +69,56 @@ class Designation(IASModel):
     def __str__(self):
         return f"{self.designation_name}"
     
-    
+
+class AcademicSection(IASModel):
+    """
+    AcademicSection model to store Institute AcademicSection
+    """
+    academicSection_name = models.CharField(max_length=200)
+    institute = models.ForeignKey(
+        Institute,
+        on_delete=models.CASCADE,
+        related_name="academicSection"
+    )
+
+    def __str__(self):
+        return f"{self.academicSection_name} - {self.institute.institute_name}"
+
+    @staticmethod
+    def is_academicSection_exists(academicSection_name, institute):
+        try:
+            AcademicSection.objects.get(academicSection_name=academicSection_name, institute=institute)
+            return True
+        except Exception:
+            return False
+
+    def __str__(self):
+        return f"{self.academicSection_name}"
+      
+
+
+class AcademicClass(IASModel):
+    """
+    AcademicClass model to store Institute AcademicClass
+    """
+    academicClass_name = models.CharField(max_length=200)
+    institute = models.ForeignKey(
+        Institute,
+        on_delete=models.CASCADE,
+        related_name="academicClass"
+    )
+
+    def __str__(self):
+        return f"{self.academicClass_name} - {self.institute.institute_name}"
+
+    @staticmethod
+    def is_academicClass_exists(academicClass_name, institute):
+        try:
+            AcademicClass.objects.get(academicClass_name=academicClass_name, institute=institute)
+            return True
+        except Exception:
+            return False
+
+    def __str__(self):
+        return f"{self.academicClass_name}"
+      
