@@ -22,7 +22,8 @@ urlpatterns = [
     path('',include('core_apps.users.urls')),
     path('institutes/',include('core_apps.institutes.urls')),
     path('staff/',include('core_apps.staffs.urls')),
-
+    path('student/',include('core_apps.students.urls')),
+    
 ]
 
 admin.site.site_header = "IAS Admin" # Text will display at admin site
