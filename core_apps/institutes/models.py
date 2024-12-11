@@ -69,4 +69,85 @@ class Designation(IASModel):
     def __str__(self):
         return f"{self.designation_name}"
     
+
+class AcademicSection(IASModel):
+    """
+    AcademicSection model to store Institute AcademicSection
+    """
+    section_name = models.CharField(max_length=200)
+    institute = models.ForeignKey(
+        Institute,
+        on_delete=models.CASCADE,
+        related_name="academic_section"
+    )
+
+    def __str__(self):
+        return f"{self.section_name} - {self.institute.institute_name}"
+
+    @staticmethod
+    def is_section_exists(section_name, institute):
+        try:
+            AcademicSection.objects.get(section_name=section_name, institute=institute)
+            return True
+        except Exception:
+            return False
+
+    def __str__(self):
+        return f"{self.section_name}"
+      
+
+
+class AcademicClass(IASModel):
+    """
+    AcademicClass model to store Institute AcademicClass
+    """
+    class_name = models.CharField(max_length=200)
+    institute = models.ForeignKey(
+        Institute,
+        on_delete=models.CASCADE,
+        related_name="academic_class"
+    )
+
+    def __str__(self):
+        return f"{self.class_name} - {self.institute.institute_name}"
+
+    @staticmethod
+    def is_class_exists(class_name, institute):
+        try:
+            AcademicClass.objects.get(class_name=class_name, institute=institute)
+            return True
+        except Exception:
+            return False
+
+    def __str__(self):
+        return f"{self.class_name}"
+
+
+class AcademicSession(IASModel):
+    """
+    AcademicSession model to store Institute Session
+    """
+    session_name = models.CharField(max_length=200)
+    is_current_session = models.BooleanField(default=False)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    institute = models.ForeignKey(
+        Institute,
+        on_delete=models.CASCADE,
+        related_name="academic_session"
+    )
+
+    def __str__(self):
+        return f"{self.session_name} - {self.institute.institute_name}"
+
+    @staticmethod
+    def is_session_exists(start_date, end_date, institute):
+        try:
+            AcademicSession.objects.get(start_date=start_date, end_date=end_date, institute=institute)
+            return True
+        except Exception:
+            return False
+
+    def __str__(self):
+        return f"{self.session_name} is currently {'not' if not self.is_current_session else ''} active"
     
