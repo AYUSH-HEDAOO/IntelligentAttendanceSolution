@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from core_apps.common.models import IASModel
 from core_apps.users.models import Role
@@ -23,9 +24,11 @@ class Student(IASModel):
         related_name="student_department",
         null=True,
     )
+    created_by_uuid_role = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.role.user.full_name} - Student"
+    
 
 
 class AcademicInfo(IASModel):

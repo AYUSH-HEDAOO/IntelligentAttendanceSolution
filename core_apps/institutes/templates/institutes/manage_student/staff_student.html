@@ -1,18 +1,18 @@
-{% extends "common/institute_layout.html" %} 
+{% extends "common/staff_layout.html" %} 
 {% load static %} 
 {% block title %}
-Admin | Academic Session
+Admin | Students
 {% endblock title %} 
 {% block breadcrumb %}
 <div class="pagetitle">
-  <h1>Academic Session</h1>
+  <h1>Student</h1>
   <nav>
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <a href="{% url 'InstituteDashboard' %}">Home</a>
       </li>
       <li class="breadcrumb-item">Manage Institute</li>
-      <li class="breadcrumb-item active">Academic Session</li>
+      <li class="breadcrumb-item active">Student</li>
     </ol>
   </nav>
 </div>
@@ -26,39 +26,37 @@ Admin | Academic Session
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title">Academic Session</h5>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#SessionModal">
+            <h5 class="card-title">Students</h5>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staffModal">
               Create
             </button>
 
           </div>
 
-          <p>Academic Session information</p>
+          <p>Student information.</p>
 
           <!-- Table with stripped rows -->
           <table class="table datatable">
             <thead>
               <tr>
+                <th>Id</th>
                 <th>Name</th>
-                <th data-type="date" data-format="YYYY/DD/MM ">start Date</th>
-                <th data-type="date" data-format="YYYY/DD/MM ">End Date</th>
-                <th>Status</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Enrolment number</th>
+                <th data-type="date" data-format="YYYY/DD/MM, HH:MM ">Create At</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {% for academic_session in academic_sessions %}
+              {% for student in students %}
               <tr>
-                <td>{{academic_session.session_name}}</td>
-                <td>{{academic_session.start_date}}</td>
-                <td>{{academic_session.end_date}}</td>
-                <td>
-                  {% if academic_session.is_current_session %} 
-                    Active 
-                  {% else %} 
-                    Inactive 
-                  {% endif %}
-                </td>
+                <td>{{student.pkid}}</td>
+                <td>{{student.role.user.full_name}}</td>
+                <td>{{student.role.user.email}}</td>
+                <td>{{student.department.department_name}}</td>
+                <td>{{student.enrollment_number}}</td>
+                <td>{{student.created_at}}</td>
                 <td>
                   <button type="button" class="btn btn-danger"><i class="bi bi-exclamation-octagon"></i></button>
                 </td>
@@ -72,11 +70,11 @@ Admin | Academic Session
   </div>
 </section>
 
-<div class="modal fade" id="SessionModal" tabindex="-1">
+<div class="modal fade" id="staffModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Create Academic Session</h5>
+        <h5 class="modal-title">Create Student</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -84,12 +82,28 @@ Admin | Academic Session
         <form class="row g-3" method="POST">
           {% csrf_token %}
           <div class="col-6">
-            <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date</label>
-            {{ form.start_date }}
+            <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+            {{ form.first_name }}
           </div>
           <div class="col-6">
-            <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date</label>
-            {{ form.end_date }}
+            <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+            {{ form.last_name }}
+          </div>
+          <div class="col-6">
+            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+            {{ form.email }}
+          </div>
+          <div class="col-6">
+            <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+            {{ form.password }}
+          </div>
+          <div class="col-6">
+            <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+            {{ form.department }}
+          </div>
+          <div class="col-6">
+              <label for="{{ form.enrollment.id_for_label }}" class="form-label">Enrollment Number</label>
+              {{ form.enrollment }}
           </div>
           
           <div class="text-center">

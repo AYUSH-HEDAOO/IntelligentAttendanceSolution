@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 
 
-# This model is abstract model which will be inherit by other models accross all the core apps
+# This model is abstract model which will be inherit by other models across all the core apps
 class IASModel(models.Model):
     pkid = models.BigAutoField(primary_key=True, editable=False)
     id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -27,4 +27,9 @@ ROLE_URL_MAP = {
     RoleType.STAFF: "StaffDashboard",
     RoleType.STUDENT: "StudentDashboard",
     RoleType.ANONYMOUS: "Login",
+}
+
+STUDENT_CRUD_URL_MAP = {
+    RoleType.OWNER: "CreateReadStudent",
+    RoleType.STAFF: "StaffCreateReadStudent"
 }
