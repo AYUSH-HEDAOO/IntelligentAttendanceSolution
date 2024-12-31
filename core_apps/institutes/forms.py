@@ -209,12 +209,7 @@ class StudentForm(forms.Form):
                 role = Role.objects.create(
                     user=user, institute=self.institute, role_type=RoleType.STUDENT
                 )
-                if self.current_user.role_data.role_type == RoleType.STAFF:
-                    created_by_uuid_role = f"{self.current_user.staff.id} - {RoleType.STAFF}"
-                elif self.current_user.role_data.role_type == RoleType.OWNER:
-                    created_by_uuid_role = f"{self.current_user.institute.id} - {RoleType.OWNER}"
-                else:
-                    created_by_uuid_role = f"{self.current_user.user.id} - {RoleType.ANONYMOUS}"
+                created_by_uuid_role = f"{self.current_user.user.id}/{self.current_user.role_type}"
 
                 # Create the Student
                 Student.objects.create(

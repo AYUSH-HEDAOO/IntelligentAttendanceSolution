@@ -1,0 +1,104 @@
+{% extends "common/student_layout.html" %} 
+{% load static %} 
+{% block title %}
+Student | Attendance
+{% endblock title %} 
+{% block breadcrumb %}
+<div class="pagetitle">
+  <h1>Student</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'InstituteDashboard' %}">Home</a>
+      </li>
+      <li class="breadcrumb-item">Manage Academics</li>
+      <li class="breadcrumb-item active">Attendance</li>
+    </ol>
+  </nav>
+</div>
+<!-- End Page Title -->
+{% endblock breadcrumb %} 
+{% block content %}
+
+<section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title">Attendance</h5>
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staffModal">
+                Create
+              </button>
+  
+            </div>
+  
+            <p>Attendance information.</p>
+  
+            <!-- Table with stripped rows -->
+            <table class="table datatable">
+              <thead>
+                <tr>
+                  <th data-type="date" data-format="YYYY/DD/MM">Date</th>
+                  <th>In - Out Time</th>
+                  <th>Status</th>
+                  <th>Create By</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for data in attendances %}
+                <tr>
+                  <td>{{data.a_date}}</td>
+                  <td>{{data.a_in_time}} - {{data.a_out_time}}</td>
+                  <td>
+                    <span class="badge bg-{{data.badge_color}}">{{data.a_status}}</span>
+                  </td>
+                  <td>{{data.created_by_name}}</td>
+                  <td>
+                    <button type="button" class="btn btn-danger"><i class="bi bi-exclamation-octagon"></i></button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <div class="modal fade" id="staffModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create Student</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Vertical Form -->
+          <form class="row g-3" method="POST">
+            {% csrf_token %}
+            <div class="col-6">
+              <label for="{{ form.enter_date.id_for_label }}" class="form-label">Select Date</label>
+              {{ form.enter_date }}
+            </div>
+            <div class="col-6">
+              <label for="{{ form.in_time.id_for_label }}" class="form-label">In Time</label>
+              {{ form.in_time }}
+            </div>
+            
+            <div class="text-center">
+              <button type="submit" class="btn btn-success">Submit</button>
+            </div>
+          </form><!-- Vertical Form -->
+        </div>
+        {% comment %} <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div> {% endcomment %}
+      </div>
+    </div>
+  </div><!-- End Large Modal-->
+
+{% endblock content %}

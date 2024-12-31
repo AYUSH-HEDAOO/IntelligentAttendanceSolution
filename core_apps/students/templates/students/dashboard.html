@@ -1,4 +1,4 @@
-{% extends "common/staff_layout.html" %}
+{% extends "common/student_layout.html" %}
 {% load static %}
 {% block title %} Student | Dashboard {% endblock title %}
 
@@ -7,7 +7,7 @@
       <h1>Dashboard</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'InstituteDashboard' %}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'StudentDashboard' %}">Home</a></li>
           <li class="breadcrumb-item active">Dashboard</li>
         </ol>
       </nav>
@@ -22,116 +22,6 @@
         <!-- Left side columns -->
         <div class="col-lg-8">
           <div class="row">
-
-            <!-- Sales Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card sales-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Students <span>| Today</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-mortarboard"></i> <!-- Replaced with mortarboard icon (graduation cap) -->
-
-                    </div>
-                    <div class="ps-3">
-                      <h6>145</h6>
-                      {% comment %} <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">increase</span> {% endcomment %}
-
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div><!-- End Sales Card -->
-
-            <!-- Revenue Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card revenue-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Staff<span>| This Month</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-person"></i> <!-- Replaced with person icon -->
-
-                    </div>
-                    <div class="ps-3">
-                      <h6>10</h6>
-                      {% comment %} <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">increase</span> {% endcomment %}
-
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div><!-- End Revenue Card -->
-
-            <!-- Customers Card -->
-            <div class="col-xxl-4 col-xl-12">
-
-              <div class="card info-card customers-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Attendance <span>| This Year</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-people"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>155</h6>
-                      {% comment %} <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span> {% endcomment %}
-
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-            </div><!-- End Customers Card -->
-
             
             <!-- Recent Sales -->
             <div class="col-12">
@@ -156,43 +46,21 @@
                   <table class="table table-borderless datatable">
                     <thead>
                       <tr>
-                        <th scope="col">ID NO</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Email</th>
+                        <th scope="col" datatype="date" format="YYYY/MM/DD">Date</th>
+                        <th scope="col">In - Out Time</th>
                         <th scope="col">Status</th>
                       </tr>
                     </thead>
                     <tbody>
+                      {% for data in attendances %}
                       <tr>
-                        <th scope="row"><a href="ID NO">210044</a></th>
-                        <td>krunal Dhoble</td>
-                        <td><a href="ID NO" class="text-primary">krunaldhoble@gmail.com</a></td>
-                        <td><span class="badge bg-success">Present</span></td>
+                        <th >{{data.a_date}}</th>
+                        <td>{{data.a_in_time}} - {{data.a_out_time}}</td>
+                        <td>
+                          <span class="badge bg-{{data.badge_color}}">{{data.a_status}}</span>
+                        </td>
                       </tr>
-                      <tr>
-                        <th scope="row"><a href="ID NO">21038</a></th>
-                        <td>Ayush Hedaoo</td>
-                        <td><a href="ID NO" class="text-primary">ayushhedaoo1203@gmail.com</a></td>
-                        <td><span class="badge bg-warning">Leave</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="ID NO">21052</a></th>
-                        <td>Pritish Dighore</td>
-                        <td><a href="ID NO" class="text-primary">pritishdighore@gmail.com</a></td>
-                        <td><span class="badge bg-success">Present</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="ID NO">21054</a></th>
-                        <td>Kunal Paunikar</td>
-                        <td><a href="ID NO" class="text-primar">kunalpaunikar@gmail.com</a></td>
-                        <td><span class="badge bg-danger">Absent</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#">21018</a></th>
-                        <td>Riya Patil</td>
-                        <td><a href="#" class="text-primary">riyapatil001@gmail.com</a></td>
-                        <td><span class="badge bg-success">Present</span></td>
-                      </tr>
+                      {% endfor %}
                     </tbody>
                   </table>
 

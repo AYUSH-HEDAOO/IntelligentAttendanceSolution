@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from .managers import CustomUserManager
-from core_apps.common.models import RoleType, IASModel
+from core_apps.common.models import RoleType
 from core_apps.institutes.models import Institute
 
 class User(AbstractBaseUser,PermissionsMixin):
@@ -46,13 +46,21 @@ class User(AbstractBaseUser,PermissionsMixin):
         return Role.objects.get(user=self)
 
 
-class Role(IASModel):
+class Role(models.Model):
     """
     Role Model 
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_roles")
     institute = models.ForeignKey(Institute, on_delete=models.CASCADE, related_name="institute_roles")
     role_type = models.CharField(max_length=10, choices=RoleType.choices, default=RoleType.STAFF)
+    pkid = models.BigAutoField(primary_key=True, editable=False)
+    id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)  # Soft delete
 
     class Meta:
         unique_together = ('user', 'institute')
+    
+    def __str__(self) -> str:
+        return f"{self.id} - {self.role_type}"

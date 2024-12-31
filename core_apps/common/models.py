@@ -33,3 +33,11 @@ STUDENT_CRUD_URL_MAP = {
     RoleType.OWNER: "CreateReadStudent",
     RoleType.STAFF: "StaffCreateReadStudent"
 }
+
+class AttendanceStatus(models.TextChoices):
+    PRESENT = "present", "Present"
+    ABSENT = "absent", "Absent"
+    ON_LEAVE = "on leave", "On Leave"
+    NOT_MARKED = "not marked", "Not Marked"
+    HOLIDAY = "holiday", "Holiday"
+    weekend = "weekend", "Weekend"

@@ -115,8 +115,8 @@ def create_read_staff(request):
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])
 def create_read_student(request):
-    # session_institute is the logged in user's institute
     current_user = request.user.role_data
+    # session_institute is the logged in user's institute
     session_institute = current_user.institute
     current_user_role = current_user.role_type
     redirect_url_name = STUDENT_CRUD_URL_MAP.get(current_user_role)
