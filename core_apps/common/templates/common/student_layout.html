@@ -269,7 +269,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="{% url 'InstituteDashboard' %}">
+        <a class="nav-link " href="{% url 'StudentDashboard' %}">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -277,48 +277,12 @@
 
       <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#manage-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-menu-button-wide"></i><span>Manage Institute</span><i class="bi bi-chevron-down ms-auto"></i>
+          <i class="bi bi-menu-button-wide"></i><span>Manage Students</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="manage-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="{% url 'CreateReadDepartment' %}">
-              <i class="bi bi-circle"></i><span>Manage Departments</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'CreateReadDesignation' %}">
-              <i class="bi bi-circle"></i><span>Manage Designation</span>
-            </a>
-          </li>
-          
-          <li>
-            <a href="{% url 'CreateReadStaff' %}">
-              <i class="bi bi-circle"></i><span>Manage Staff</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'CreateReadStudent' %}">
-              <i class="bi bi-circle"></i><span>Manage Students</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'CreateReadAcademicSection' %}">
-              <i class="bi bi-circle"></i><span>Academic Section</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'CreateReadAcademicClass' %}">
-              <i class="bi bi-circle"></i><span>Academic Classes</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'CreateReadAcademicSession' %}">
-              <i class="bi bi-circle"></i><span>Academic Session</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'CreateReadAcademicInfo' %}">
-              <i class="bi bi-circle"></i><span>Academic Information</span>
+            <a href="{% url 'StudentAttendanceCreateRead' %}">
+              <i class="bi bi-circle"></i><span>Mark Attendance</span>
             </a>
           </li>
         </ul>
@@ -356,7 +320,7 @@
     </div>
     <div class="credits">
       
-      Designed by <a href="{% url 'InstituteDashboard' %}">Aysuh Headoo</a>
+      Designed by <a href="{% url 'StudentDashboard' %}">Aysuh Headoo</a>
     </div>
   </footer><!-- End Footer -->
 

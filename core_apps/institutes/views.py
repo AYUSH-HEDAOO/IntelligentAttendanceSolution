@@ -9,19 +9,22 @@ from .forms import (
     AcademicSectionForm,
     AcademicClassForm,
     AcademicSessionForm,
+    AcademicInfoForm,
+    
 )
 from core_apps.common.decorators import allowed_users
 from django.contrib.auth.decorators import login_required
-from core_apps.common.models import RoleType, ROLE_URL_MAP
+from core_apps.common.models import RoleType, ROLE_URL_MAP, STUDENT_CRUD_URL_MAP
 from .models import (
     Department,
     Designation,
     AcademicSection,
     AcademicClass,
     AcademicSession,
+    
 )
 from core_apps.staffs.models import Staff
-from core_apps.students.models import Student
+from core_apps.students.models import Student,AcademicInfo
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -110,12 +113,15 @@ def create_read_staff(request):
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
-@allowed_users(allowed_roles=[RoleType.OWNER])
+@allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])
 def create_read_student(request):
+    current_user = request.user.role_data
     # session_institute is the logged in user's institute
-    session_institute = request.user.role_data.institute
+    session_institute = current_user.institute
+    current_user_role = current_user.role_type
+    redirect_url_name = STUDENT_CRUD_URL_MAP.get(current_user_role)
     if request.method == "POST":
-        form = StudentForm(request.POST, institute=session_institute)
+        form = StudentForm(request.POST, current_user=current_user)
         if form.is_valid():
             # Handle form data here
             status, _message = form.save()
@@ -123,15 +129,19 @@ def create_read_student(request):
                 messages.success(request, f"{_message}")
             else:
                 messages.warning(request, f"{_message}")
-            return redirect(reverse("CreateReadStudent"))
+            return redirect(reverse(redirect_url_name))
         else:
             messages.warning(request, f"{form.errors}")
-            return redirect(reverse("CreateReadStudent"))
+            return redirect(reverse(redirect_url_name))
     else:
-        form = StudentForm(institute=session_institute)
+        form = StudentForm(current_user=current_user)
     students = Student.objects.filter(institute=session_institute).order_by("pkid")
     context = {"form": form, "students": students}
-    return render(request, "institutes/manage_student/student.html", context)
+    if current_user_role == RoleType.OWNER:
+        return render(request, "institutes/manage_student/student.html", context)
+    else:
+        return render(request, "institutes/manage_student/staff_student.html", context)
+        
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -219,3 +229,28 @@ def create_read_academic_session(request):
     return render(
         request, "institutes/manage_academic_session/academic_session.html", context
     )
+
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.OWNER])
+def create_read_academic_info(request):
+    # session_institute is the logged in user's institute
+    session_institute = request.user.role_data.institute
+    if request.method == "POST":
+        form = AcademicInfoForm(request.POST, institute=session_institute)
+        if form.is_valid():
+            # Handle form data here
+            status, _message = form.save()
+            if status:
+                messages.success(request, f"{_message}")
+            else:
+                messages.warning(request, f"{_message}")
+            return redirect(reverse("CreateReadAcademicInfo"))
+        else:
+            messages.warning(request, f"{form.errors}")
+            return redirect(reverse("CreateReadAcademicInfo"))
+    else:
+        form = AcademicInfoForm(institute=session_institute)
+    academic_information = AcademicInfo.objects.filter(institute=session_institute).order_by("pkid")
+    context = {"form": form, "academic_info": academic_information}
+    return render(request, "institutes/manage_academic_info/academic_info.html", context)

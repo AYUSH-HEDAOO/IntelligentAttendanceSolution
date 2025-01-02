@@ -12,7 +12,7 @@ from django.contrib.auth import get_user_model
 from core_apps.users.models import Role
 from django.contrib.auth.hashers import make_password
 from core_apps.common.models import RoleType
-from core_apps.students.models import Student
+from core_apps.students.models import Student,AcademicInfo
 
 AUTH_USER = get_user_model()
 
@@ -178,7 +178,8 @@ class StudentForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        self.institute = kwargs.pop("institute", None)
+        self.current_user = kwargs.pop("current_user", None)
+        self.institute = self.current_user.institute
         super().__init__(*args, **kwargs)  # Call the parent class initializer
 
         if self.institute:
@@ -208,6 +209,7 @@ class StudentForm(forms.Form):
                 role = Role.objects.create(
                     user=user, institute=self.institute, role_type=RoleType.STUDENT
                 )
+                created_by_uuid_role = f"{self.current_user.user.id}/{self.current_user.role_type}"
 
                 # Create the Student
                 Student.objects.create(
@@ -215,6 +217,7 @@ class StudentForm(forms.Form):
                     department=department,
                     enrollment_number=enrollment,
                     institute=self.institute,
+                    created_by_uuid_role=created_by_uuid_role
                 )
 
             return True, "Student created successfully"
@@ -310,3 +313,72 @@ class AcademicSessionForm(forms.Form):
 
         except Exception as e:
             return False, f"Something went wrong: {e}"
+
+
+
+class AcademicInfoForm(forms.Form):
+    
+    student = forms.ModelChoiceField(
+        queryset=Student.objects.none(),
+        widget=forms.Select(attrs={"class": "form-control", "id": "student"}),
+        empty_label="Select Student",
+    )
+    academic_class = forms.ModelChoiceField(
+        queryset=AcademicClass.objects.none(),
+        widget=forms.Select(attrs={"class": "form-control", "id": "academic_class"}),
+        empty_label="Select Class",)
+    
+    academic_section = forms.ModelChoiceField(
+        queryset=AcademicSection.objects.none(),
+        widget=forms.Select(attrs={"class": "form-control", "id": "academic_section"}),
+        empty_label="Select Section",)
+    
+    academic_session = forms.ModelChoiceField(
+        queryset=AcademicSession.objects.none(),
+        widget=forms.Select(attrs={"class": "form-control", "id": "academic_session"}),
+        empty_label="Select Session",
+    )
+    def __init__(self, *args, **kwargs):
+        self.institute = kwargs.pop("institute", None)
+        super().__init__(*args, **kwargs)  # Call the parent class initializer
+
+        if self.institute:
+            self.fields["student"].queryset = Student.objects.filter(
+                is_deleted=False, institute=self.institute
+            )
+            self.fields["academic_class"].queryset = AcademicClass.objects.filter(
+                is_deleted=False, institute=self.institute
+            )
+            self.fields["academic_section"].queryset = AcademicSection.objects.filter(
+                is_deleted=False, institute=self.institute
+            )
+            self.fields["academic_session"].queryset = AcademicSession.objects.filter(
+                is_deleted=False, institute=self.institute
+            )
+
+
+    def save(self):
+        student = self.cleaned_data["student"]
+        academic_class = self.cleaned_data["academic_class"]
+        academic_section = self.cleaned_data["academic_section"]
+        academic_session = self.cleaned_data["academic_session"]
+        try:
+
+            AcademicInfo.objects.create(
+            student=student,
+            academic_class=academic_class,
+            academic_section=academic_section,
+            session=academic_session,
+            institute=self.institute
+            )
+
+            return True, "Class-Section alloted successfully"
+
+        except Exception as e:
+            return False, f"Something went wrong: {e}"
+        
+        
+        
+        
+
+       

@@ -1,0 +1,46 @@
+{% extends "common/student_layout.html" %} 
+{% load static %} 
+{% block title %}
+Student | Attendance
+{% endblock title %} 
+{% block breadcrumb %}
+<div class="pagetitle">
+  <h1>Student</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'InstituteDashboard' %}">Home</a>
+      </li>
+      <li class="breadcrumb-item">Manage Academics</li>
+      <li class="breadcrumb-item active">Attendance</li>
+    </ol>
+  </nav>
+</div>
+<!-- End Page Title -->
+{% endblock breadcrumb %} 
+{% block content %}
+
+<section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title">Attendance</h5>
+              <button type="button" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#verticalycentered">
+                View Today's Timeline
+              </button>
+  
+            </div>
+  
+            <p>Attendance information.</p>
+  
+            {% include "students/manage_attendance/attendance_table.html" %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  {% include "students/manage_attendance/todays_timeline_modal.html" %}
+{% endblock content %}
