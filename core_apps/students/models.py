@@ -33,10 +33,12 @@ class Student(IASModel):
     
     @property
     def created_by_name(self):
-        uuid, role = str(self.created_by_uuid_role).split('/')
-        created_user = AUTH_USER.objects.get(id=uuid)
-        
-        return f"{created_user.first_name} {created_user.last_name} ({role})"
+        created_name = ""
+        if self.created_by_uuid_role and "/" in self.created_by_uuid_role:
+            uuid, role = str(self.created_by_uuid_role).split('/')
+            created_user = AUTH_USER.objects.get(id=uuid)
+            created_name = f"{created_user.first_name} {created_user.last_name} ({role})"
+        return created_name
     
 
 
@@ -107,7 +109,18 @@ class Attendance(IASModel):
             return "secondary"
         else:
             return "info"
+        
+    @property
+    def in_time(self):
+        if self.a_in_time:
+            return self.a_in_time.strftime("%H:%M:%S")
+        return "Not Yet"
     
+    @property
+    def out_time(self):
+        if self.a_out_time:
+            return self.a_out_time.strftime("%H:%M:%S")
+        return "Not Yet"
     
     def __str__(self):
         return f"{self.academic_info.student.role.user.first_name} was {self.a_status} for date {self.a_date}"
