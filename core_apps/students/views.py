@@ -3,8 +3,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from core_apps.common.decorators import allowed_users
 from django.contrib.auth.decorators import login_required
-from core_apps.common.models import RoleType, ROLE_URL_MAP, AttendanceStatus
-from .forms import AttendanceForm
+from core_apps.common.models import RoleType, ROLE_URL_MAP, AttendanceStatus, BloodGroup, Gender
 from .models import Attendance, AcademicInfo, Student
 from datetime import date, datetime
 from django.db import transaction
@@ -75,6 +74,40 @@ def dashboard(request):
         "attendance_status": AttendanceStatus,
     }
     return render(request, "students/dashboard.html", context)
+
+
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.STUDENT])
+def profile(request):
+    current_user = request.user.role_data
+    student = Student.objects.get(role=current_user)
+    if request.method == 'POST':
+        dob = request.POST.get('dob')
+        state = request.POST.get('state', "")
+        about = request.POST.get('about', "")
+        gender = request.POST.get('gender',"")
+        address = request.POST.get('address',"")
+        blood_group = request.POST.get('blood_group',"")
+        profile_image = request.FILES.get('profile_image', "")
+        print("profile_image", profile_image)
+        mobile_no = request.POST.get('mobile_no',"")
+
+        student.dob = dob
+        student.state = state
+        student.about = about
+        student.gender = gender
+        student.address = address
+        student.blood_group = blood_group
+        student.profile_image = profile_image
+        student.mobile_no = mobile_no
+        student.save()
+        messages.success(request, 'Profile updated successfully.')
+        return redirect(reverse('StudentProfileUpdateRead'))
+
+    context = {"student": student, "blood_groups": BloodGroup, "genders": Gender}
+    return render(request, "students/manage_profile/profile.html", context)
+
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])

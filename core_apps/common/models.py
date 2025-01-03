@@ -41,3 +41,22 @@ class AttendanceStatus(models.TextChoices):
     NOT_MARKED = "not marked", "Not Marked"
     HOLIDAY = "holiday", "Holiday"
     weekend = "weekend", "Weekend"
+
+class BloodGroup(models.TextChoices):
+    A_POSITIVE = "A+", "A+"
+    B_POSITIVE = "B+", "B+"
+    AB_POSITIVE = "AB+", "AB+"
+    O_POSITIVE = "O+", "O+"
+    A_NEGATIVE = "A-", "A-"
+    B_NEGATIVE = "B-", "B-"
+    AB_NEGATIVE = "AB-", "AB-"
+    O_NEGATIVE = "O-", "O-"
+    OTHER = "Other", "Other"
+
+class Gender(models.TextChoices):
+    MALE = "male", "Male"
+    FEMALE = "female", "Female"
+    OTHER = "other", "Other"
+    TRANSGENDER = "transgender", "Transgender"
+    PREFER_NOT_TO_ANSWER = "prefer not to answer", "Prefer not to answer"
+    
