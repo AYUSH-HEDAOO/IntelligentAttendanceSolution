@@ -251,6 +251,23 @@ def create_read_academic_info(request):
             return redirect(reverse("CreateReadAcademicInfo"))
     else:
         form = AcademicInfoForm(institute=session_institute)
-    academic_information = AcademicInfo.objects.filter(institute=session_institute).order_by("pkid")
+    academic_information = AcademicInfo.objects.filter(institute=session_institute, is_deleted=False).order_by("pkid")
     context = {"form": form, "academic_info": academic_information}
     return render(request, "institutes/manage_academic_info/academic_info.html", context)
+
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.OWNER])
+def delete_academic_info(request):
+    if request.method == "POST":
+        academic_info_id = request.POST.get("academic_info_id")
+        academic_info = AcademicInfo.objects.filter(id=academic_info_id).first()
+        if academic_info:
+            academic_info.soft_delete()
+            messages.success(request, "Academic information deleted successfully.")
+        else:
+            messages.warning(request, "Academic information not found.")
+    return redirect(reverse("CreateReadAcademicInfo"))
+
+
+
