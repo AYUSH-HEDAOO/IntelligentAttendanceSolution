@@ -60,7 +60,9 @@ Admin | Academic information.
                 <td>{{data.academic_class.class_name}} - {{data.academic_section.section_name}}</td>
                 <td>{{data.created_at}}</td>
                 <td>
-                  <button type="button" class="btn btn-danger"><i class="bi bi-exclamation-octagon"></i></button>
+                  <button type="button" class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#deleteAcademicInfo-{{data.id}}">
+                    <i class="bi bi-trash"></i>
+                  </button>
                 </td>
               </tr>
               {% endfor %}
@@ -106,12 +108,33 @@ Admin | Academic information.
           </div>
         </form><!-- Vertical Form -->
       </div>
-      {% comment %} <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div> {% endcomment %}
     </div>
   </div>
 </div><!-- End Large Modal-->
+{% for data in academic_info %}
+
+<div class="modal fade" id="deleteAcademicInfo-{{data.id}}" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Academic Info</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="{% url 'DeleteAcademicInfo' %}">
+        {% csrf_token %}
+      <div class="modal-body">
+        <p>Are you sure ?</p>
+            <input type="hidden" name="academic_info_id" value="{{data.id}}" />
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </div>
+    </form>
+
+    </div>
+  </div>
+</div>
+{% endfor %}
+
 
 {% endblock content %}
