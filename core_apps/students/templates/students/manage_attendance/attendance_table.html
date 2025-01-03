@@ -4,6 +4,7 @@
         <th scope="col" datatype="date" format="YYYY/MM/DD">Date</th>
         <th scope="col">In - Out Time</th>
         <th scope="col">Status</th>
+        <th scope="col">Marked By</th>
       </tr>
     </thead>
     <tbody>
@@ -13,6 +14,9 @@
         <td>{{data.in_time}} - {{data.out_time}}</td>
         <td>
           <span class="badge bg-{{data.badge_color}}">{{data.a_status}}</span>
+        </td>
+        <td>
+          {{data.created_by_name}}
         </td>
       </tr>
       {% endfor %}

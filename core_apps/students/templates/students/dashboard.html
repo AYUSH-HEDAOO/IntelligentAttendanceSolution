@@ -155,7 +155,7 @@
 
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-secondary text-white">
-                      <i class="bi bi-emoji-angry-fill"></i>
+                      <i class="bi bi-emoji-laughing"></i>
                     </div>
                     <div class="ps-3">
                       <h6>{{leave_count}}</h6>
@@ -242,12 +242,12 @@
                 {% elif not todays_attendance.a_out_time %}
                 <button type="submit" class="btn btn-danger"> Clock Out </button>
                 {% else %}
-                <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Since you marked today's attendance">
-                   Clock In not allowed
+                <button type="button" class="btn btn-secondary " data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Since you marked today's attendance">
+                   Bye Bye!
                 </button>
                 {% endif %}
-                <button type="button" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#verticalycentered">
-                  View Today's Timeline
+                <button type="button" class="btn btn-info text-white ml-3" data-bs-toggle="modal" data-bs-target="#verticalycentered">
+                  View Timeline
                 </button>
                 
                 {% include "students/manage_attendance/todays_timeline_modal.html" %}
