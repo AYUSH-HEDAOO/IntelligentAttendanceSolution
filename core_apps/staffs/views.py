@@ -8,3 +8,9 @@ from core_apps.common.models import RoleType, ROLE_URL_MAP
 @allowed_users(allowed_roles=[RoleType.STAFF])
 def dashboard(request):
     return render(request, "staffs/dashboard.html")
+
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.STAFF])
+def profile(request):
+    return render(request, "staffs/manage_profile/profile.html")

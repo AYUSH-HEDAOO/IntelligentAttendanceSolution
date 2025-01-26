@@ -90,32 +90,36 @@ def create_read_designation(request):
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.OWNER])
 def create_read_staff(request):
+    state = False
     # session_institute is the logged in user's institute
     session_institute = request.user.role_data.institute
     if request.method == "POST":
         form = StaffForm(request.POST, institute=session_institute)
         if form.is_valid():
+            state = True
             # Handle form data here
-            status, _message = form.save()
-            if status:
-                messages.success(request, f"{_message}")
-            else:
-                messages.warning(request, f"{_message}")
-            return redirect(reverse("CreateReadStaff"))
+            # status, _message = form.save()
+            # if status:
+            #     messages.success(request, f"{_message}")
+            # else:
+            #     messages.warning(request, f"{_message}")
+            # return redirect(reverse("CreateReadStaff"))
         else:
             messages.warning(request, f"{form.errors}")
             return redirect(reverse("CreateReadStaff"))
     else:
         form = StaffForm(institute=session_institute)
     staffs = Staff.objects.filter(institute=session_institute).order_by("pkid")
-    context = {"form": form, "staffs": staffs}
+    context = {"form": form, "staffs": staffs ,"state": state}
     return render(request, "institutes/manage_staff/staff.html", context)
+
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])
 def create_read_student(request):
     current_user = request.user.role_data
+    state = False
     # session_institute is the logged in user's institute
     session_institute = current_user.institute
     current_user_role = current_user.role_type
@@ -123,20 +127,21 @@ def create_read_student(request):
     if request.method == "POST":
         form = StudentForm(request.POST, current_user=current_user)
         if form.is_valid():
-            # Handle form data here
-            status, _message = form.save()
-            if status:
-                messages.success(request, f"{_message}")
-            else:
-                messages.warning(request, f"{_message}")
-            return redirect(reverse(redirect_url_name))
+            state = True
+        #     # Handle form data here
+        #     status, _message = form.save()
+        #     if status:
+        #         messages.success(request, f"{_message}")
+        #     else:
+        #         messages.warning(request, f"{_message}")
+        #     return redirect(reverse(redirect_url_name))
         else:
             messages.warning(request, f"{form.errors}")
             return redirect(reverse(redirect_url_name))
     else:
         form = StudentForm(current_user=current_user)
     students = Student.objects.filter(institute=session_institute).order_by("pkid")
-    context = {"form": form, "students": students}
+    context = {"form": form, "students": students, "state": state}
     if current_user_role == RoleType.OWNER:
         return render(request, "institutes/manage_student/student.html", context)
     else:

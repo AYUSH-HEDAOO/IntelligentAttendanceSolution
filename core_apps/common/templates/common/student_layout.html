@@ -66,7 +66,14 @@
         <li class="nav-item dropdown pe-3">
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="{% url 'StudentProfileUpdateRead' %}" data-bs-toggle="dropdown">
+            {% if request.user.role_data.student.profile_image %}
+            <img src="{{request.user.role_data.student.profile_image.url}}" alt="Profile" class="rounded-circle">
+
+            {% else %}
             <img src="{% static '/assets/img/default_profile.png' %}" alt="Profile" class="rounded-circle">
+
+            {% endif %}
+
             <span class="d-none d-md-block dropdown-toggle ps-2">{{request.user.full_name}} </span>
           </a><!-- End Profile Iamge Icon -->
 

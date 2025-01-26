@@ -80,6 +80,10 @@ class StaffForm(forms.Form):
         max_length=200,
         widget=forms.TextInput(attrs={"class": "form-control", "id": "last_name"}),
     )
+    staff_id = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={"class": "form-control", "id": "staff_id"}),
+    )
     email = forms.CharField(
         max_length=200,
         widget=forms.TextInput(attrs={"class": "form-control", "id": "email"}),
