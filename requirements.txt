@@ -1,4 +1,4 @@
-Django==5.0.7
+Django==4.2.18
 pillow==10.4.0
 gunicorn==22.0.0
 mysqlclient==2.2.4
