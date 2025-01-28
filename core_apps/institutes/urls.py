@@ -7,6 +7,7 @@ urlpatterns = [
     path('designation/create_read/', views.create_read_designation, name="CreateReadDesignation" ),
     path('staff/create_read/', views.create_read_staff, name="CreateReadStaff" ),
     path('student/create_read/', views.create_read_student, name="CreateReadStudent" ),
+    path('video_feed/<str:name>/', views.video_feed, name='video_feed'),
     path('academic/section/create_read/', views.create_read_academic_section, name="CreateReadAcademicSection" ),
     path('academic/class/create_read/', views.create_read_academic_class, name="CreateReadAcademicClass" ),
     path('academic/session/create_read/', views.create_read_academic_session, name="CreateReadAcademicSession" ),
