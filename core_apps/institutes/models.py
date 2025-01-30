@@ -5,6 +5,13 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from core_apps.common.models import IASModel
 
+class Attendance(IASModel):
+    enrollment_number = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    email = models.CharField(max_length=100)
+    date = models.DateField()
+    status = models.BooleanField(default=False)
+
 # Institute model
 class Institute(IASModel):
     institute_name = models.CharField(max_length=200)

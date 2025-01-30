@@ -34,13 +34,81 @@ import pickle
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 from keras_facenet import FaceNet
+from threading import Thread
+from django.http import JsonResponse
+from .models import Attendance
+from datetime import date, datetime
 
+CAM = 0
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.OWNER])
 def dashboard(request):
     return render(request, "institutes/dashboard.html")
 
+def face_recognition_thread():
+    facenet = FaceNet()
+    faces_embeddings = np.load(os.path.join(settings.BASE_DIR, 'staticfiles', 'assets', 'camassets', 'faces_embeddings_done_4classes.npz'))
+    Y = faces_embeddings['arr_1']
+    encoder = LabelEncoder()
+    encoder.fit(Y)
+    haarcascade = cv.CascadeClassifier(os.path.join(settings.BASE_DIR, 'staticfiles', 'assets', 'camassets', 'haarcascade_frontalface_default.xml'))
+    model = pickle.load(open(os.path.join(settings.BASE_DIR, 'staticfiles', 'assets', 'camassets', 'svm_model_160x160.pkl'), 'rb'))
+
+    cap = cv.VideoCapture(CAM)
+
+    while cap.isOpened():
+        _, frame = cap.read()
+        rgb_img = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+        gray_img = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        faces = haarcascade.detectMultiScale(gray_img, 1.3, 5)
+        for x,y,w,h in faces:
+            img = rgb_img[y:y+h, x:x+w]
+            img = cv.resize(img, (160,160)) # 1x160x160x3
+            img = np.expand_dims(img,axis=0)
+            ypred = facenet.embeddings(img)
+            
+            decision_values = model.decision_function(ypred)
+            confidence = str(np.max(decision_values))
+
+            face_name = model.predict(ypred)
+            final_name = encoder.inverse_transform(face_name)[0]
+
+            # Check last attendance time
+            last_attendance = Attendance.objects.filter(enrollment_number=final_name).order_by('-date').first()
+            if last_attendance:
+                # Convert last_attendance.date to a datetime object
+                last_attendance_datetime = datetime.combine(last_attendance.date, datetime.min.time())
+                time_difference = datetime.now() - last_attendance_datetime
+                if time_difference.total_seconds() < 3600:
+                    print(f"Attendance for {final_name} already marked within the last hour.")
+                    continue
+
+            # get data from student table
+            student = Student.objects.filter(enrollment_number=final_name).first()
+            print(student.role.user.full_name)
+            model = Attendance(enrollment_number=final_name, name=student.role.user.full_name, email=student.role.user.email, date=datetime.now(), status=True)
+            model.save()
+            
+            # cv.rectangle(frame, (x,y), (x+w,y+h), (255,0,255), 5)
+            # cv.putText(frame, str(final_name), (x,y-10), cv.FONT_HERSHEY_SIMPLEX,
+            #         1, (0,0,255), 2, cv.LINE_AA)
+
+        # cv.imshow("Face Recognition", frame)
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv.destroyAllWindows()
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.OWNER])
+def start_face_recognition(request):
+    if request.method == "POST":
+        thread = Thread(target=face_recognition_thread)
+        thread.start()
+        return JsonResponse({"status": "Face recognition started in background."})
+    return JsonResponse({"error": "Invalid request method."}, status=400)
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.OWNER])
@@ -154,8 +222,7 @@ def video_stream(name):
     if len(Y) > 0:
         encoder.fit(Y)
 
-
-    cap = cv.VideoCapture(0)
+    cap = cv.VideoCapture(CAM)
     while cap.isOpened():
         _, frame = cap.read()
         rgb_img = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
