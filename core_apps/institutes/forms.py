@@ -155,6 +155,7 @@ class StaffForm(forms.Form):
 
 
 class StudentForm(forms.Form):
+    state = forms.BooleanField(required=False)
     first_name = forms.CharField(
         max_length=200,
         widget=forms.TextInput(attrs={"class": "form-control", "id": "first_name"}),

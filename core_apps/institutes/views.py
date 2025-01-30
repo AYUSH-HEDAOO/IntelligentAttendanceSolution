@@ -155,7 +155,7 @@ def video_stream(name):
         encoder.fit(Y)
 
 
-    cap = cv.VideoCapture(1)
+    cap = cv.VideoCapture(0)
     while cap.isOpened():
         _, frame = cap.read()
         rgb_img = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
@@ -230,13 +230,14 @@ def create_read_student(request):
         form = StudentForm(request.POST, current_user=current_user)
         if form.is_valid():
             state = True
-        #     # Handle form data here
-        #     status, _message = form.save()
-        #     if status:
-        #         messages.success(request, f"{_message}")
-        #     else:
-        #         messages.warning(request, f"{_message}")
-        #     return redirect(reverse(redirect_url_name))
+            if form.cleaned_data['state']:
+            # Handle form data here
+                status, _message = form.save()
+                if status:
+                    messages.success(request, f"{_message}")
+                else:
+                    messages.warning(request, f"{_message}")
+                return redirect(reverse(redirect_url_name))
         else:
             messages.warning(request, f"{form.errors}")
             return redirect(reverse(redirect_url_name))
