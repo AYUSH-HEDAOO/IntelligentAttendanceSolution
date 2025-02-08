@@ -3,10 +3,6 @@
 install:
 	poetry install
 
-.PHONY: install-pre-commit
-install-pre-commit:
-	poetry run pre-commit uninstall; poetry run pre-commit install
-
 .PHONY: migrations
 migrations:
 	poetry run python -m ias.manage makemigrations
@@ -14,7 +10,6 @@ migrations:
 .PHONY: migrate
 migrate:
 	poetry run python -m ias.manage migrate
-
 
 .PHONY: runserver
 runserver:
@@ -24,8 +19,17 @@ runserver:
 superuser:
 	poetry run python -m ias.manage createsuperuser
 
+.PHONY: train-model
+train-model:
+	poetry run python -m ias.scripts.train_face_recognization_model
+
 .PHONY: update
-update: install migrate install-pre-commit;
+update: install migrate;
+
+# Below commands will not work now, we will enable them later
+.PHONY: install-pre-commit
+install-pre-commit:
+	poetry run pre-commit uninstall; poetry run pre-commit install
 
 .PHONY: flake8
 flake8:
@@ -53,15 +57,4 @@ docker-prod-up:
 docker-prod-down:
 	docker-compose -f docker-compose.yml down
 
-.PHONY: shell
-shell:
-	poetry run python -m ias.manage shell
 
-.PHONY: test
-test:
-	poetry run pytest -v
-
-
-.PHONY: train_model
-train_model:
-	poetry run python -m ias.scripts.train_face_recognization_model

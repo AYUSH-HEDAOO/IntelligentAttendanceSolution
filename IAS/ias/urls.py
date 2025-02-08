@@ -22,6 +22,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('ias.core_apps.users.urls')),
+    path('common/',include('ias.core_apps.common.urls')),
     path('institutes/',include('ias.core_apps.institutes.urls')),
     path('staff/',include('ias.core_apps.staffs.urls')),
     path('student/',include('ias.core_apps.students.urls')),

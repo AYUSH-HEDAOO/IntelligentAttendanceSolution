@@ -3,14 +3,20 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from ias.core_apps.common.decorators import allowed_users
 from django.contrib.auth.decorators import login_required
-from ias.core_apps.common.models import RoleType, ROLE_URL_MAP, AttendanceStatus, BloodGroup, Gender
+from ias.core_apps.common.models import (
+    RoleType,
+    ROLE_URL_MAP,
+    AttendanceStatus,
+    BloodGroup,
+    Gender,
+)
 from .models import Attendance, AcademicInfo, Student
 from datetime import date, datetime
 from django.db import transaction
+from ias.core_apps.common.views import create_dataset, mark_student_attendance, get_attendance_data
 
 
-def get_current_time():
-    return datetime.now().strftime("%H:%M:%S")
+
 
 
 def get_months_map():
@@ -36,29 +42,31 @@ def dashboard(request):
     )  # Get the month from query params
     if filter_month and filter_month.isdigit():  # Validate that the month is a number
         filter_month = int(filter_month)
-    present_count = attendances.filter(
-        a_date__month=filter_month, a_status=AttendanceStatus.PRESENT
-    ).count() if attendances else 0
-    absent_count = attendances.filter(
-        a_date__month=filter_month, a_status=AttendanceStatus.ABSENT
-    ).count() if attendances else 0
-    leave_count = attendances.filter(
-        a_date__month=filter_month, a_status=AttendanceStatus.ON_LEAVE
-    ).count() if attendances else 0
+    present_count = (
+        attendances.filter(
+            a_date__month=filter_month, a_status=AttendanceStatus.PRESENT
+        ).count()
+        if attendances
+        else 0
+    )
+    absent_count = (
+        attendances.filter(
+            a_date__month=filter_month, a_status=AttendanceStatus.ABSENT
+        ).count()
+        if attendances
+        else 0
+    )
+    leave_count = (
+        attendances.filter(
+            a_date__month=filter_month, a_status=AttendanceStatus.ON_LEAVE
+        ).count()
+        if attendances
+        else 0
+    )
 
     if request.method == "POST":
-        with transaction.atomic():
-            created_by_uuid_role = f"{current_user.user.id}/{current_user.role_type}"
-            current_time = get_current_time()
-            if not todays_attendance.a_in_time:
-                todays_attendance.a_in_time = current_time
-                todays_attendance.a_status = AttendanceStatus.PRESENT
-                todays_attendance.created_by_uuid_role = created_by_uuid_role
-            else:
-                todays_attendance.a_out_time = current_time
-                todays_attendance.a_status = AttendanceStatus.PRESENT
-            todays_attendance.save()
-            messages.success(request, "Attendance updated successfully.")
+        todays_attendance = mark_student_attendance(current_user, todays_attendance)
+        messages.success(request, "Attendance updated successfully.")
         todays_attendance = Attendance.objects.get(id=todays_attendance.id)
 
     context = {
@@ -76,21 +84,20 @@ def dashboard(request):
     return render(request, "students/dashboard.html", context)
 
 
-
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.STUDENT])
 def profile(request):
     current_user = request.user.role_data
     student = Student.objects.get(role=current_user)
-    if request.method == 'POST':
-        dob = request.POST.get('dob')
-        state = request.POST.get('state', "")
-        about = request.POST.get('about', "")
-        gender = request.POST.get('gender',"")
-        address = request.POST.get('address',"")
-        blood_group = request.POST.get('blood_group',"")
-        profile_image = request.FILES.get('profile_image', "")
-        mobile_no = request.POST.get('mobile_no',"")
+    if request.method == "POST":
+        dob = request.POST.get("dob")
+        state = request.POST.get("state", "")
+        about = request.POST.get("about", "")
+        gender = request.POST.get("gender", "")
+        address = request.POST.get("address", "")
+        blood_group = request.POST.get("blood_group", "")
+        profile_image = request.FILES.get("profile_image", "")
+        mobile_no = request.POST.get("mobile_no", "")
 
         student.dob = dob
         student.state = state
@@ -101,41 +108,35 @@ def profile(request):
         student.profile_image = profile_image
         student.mobile_no = mobile_no
         student.save()
-        messages.success(request, 'Profile updated successfully.')
-        return redirect(reverse('StudentProfileUpdateRead'))
+        messages.success(request, "Profile updated successfully.")
+        return redirect(reverse("StudentProfileUpdateRead"))
 
     context = {"blood_groups": BloodGroup, "genders": Gender}
     return render(request, "students/manage_profile/profile.html", context)
-
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.STUDENT, RoleType.OWNER, RoleType.STAFF])
 def attendance_create_read(request):
     current_user = request.user.role_data
-    attendances, todays_attendance = get_attendance_data(current_user, filter_date=date.today())
+    attendances, todays_attendance = get_attendance_data(
+        current_user, filter_date=date.today()
+    )
     context = {"attendances": attendances, "todays_attendance": todays_attendance}
     return render(request, "students/manage_attendance/attendance.html", context)
 
 
-def get_attendance_data(current_user, filter_date):
-    session_institute = current_user.institute
-    attendances = []
-    todays_attendance = Attendance.objects.none()
 
-    student = Student.objects.get(role=current_user, institute=session_institute)
-    academic_info = AcademicInfo.objects.filter(student=student).order_by("pkid")
-    if academic_info:
-        academic_info = academic_info[0]
-        attendances = Attendance.objects.filter(
-            academic_info=academic_info, a_date__lt=filter_date
-        ).order_by("-a_date")
-        todays_attendance, is_created = Attendance.objects.get_or_create(
-            a_date=filter_date,
-            institute=session_institute,
-            academic_info=academic_info,
-            academic_class=academic_info.academic_class,
-            academic_section=academic_info.academic_section,
-            session=academic_info.session,
-        )
-    return attendances, todays_attendance
+
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.STUDENT])
+def add_photos(request):
+    current_user = request.user.role_data
+    status = create_dataset(current_user, max_sample_count=29)
+    url_name = ROLE_URL_MAP[current_user.role_type]
+    if status:
+        messages.success(request, "Photos added successfully.")
+    else:
+        messages.error(request, "Failed to add photos.")
+    return redirect(reverse(url_name))
