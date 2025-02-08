@@ -12,10 +12,10 @@ urlpatterns = [
     path('academic/session/create_read/', views.create_read_academic_session, name="CreateReadAcademicSession" ),
     path('academic/Info/create_read/', views.create_read_academic_info, name="CreateReadAcademicInfo" ),
     path('academic/Info/delete/', views.delete_academic_info, name="DeleteAcademicInfo" ),
+
+    path('train/data/', views.train_model, name="InstituteTrainModel" ),
     
-    # TODO: add route for update and delete departments
-    # TODO: add route for designation
-    # TODO: add route for staff 
+    
     
    
 ]

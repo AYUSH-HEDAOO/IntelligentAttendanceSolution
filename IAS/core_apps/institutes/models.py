@@ -7,8 +7,8 @@ from ias.core_apps.common.models import IASModel
 
 # Institute model
 class Institute(IASModel):
-    institute_name = models.CharField(max_length=200)
     institute_reg_number = models.CharField(max_length=100,null=True, blank=True)
+    institute_name = models.CharField(max_length=200)
     phone_number = PhoneNumberField(verbose_name=_("phone number"), max_length=30, default="", region="IN")
     address = models.TextField(verbose_name=_("address"), default="")
     city = models.CharField(verbose_name=_("city"), max_length=180, default="Nagpur", blank=False, null=False)

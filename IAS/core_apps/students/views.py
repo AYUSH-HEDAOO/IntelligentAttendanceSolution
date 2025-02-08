@@ -29,7 +29,6 @@ def dashboard(request):
     current_user = request.user.role_data
     todays_date = date.today()
     attendances, todays_attendance = get_attendance_data(current_user, todays_date)
-    print("attendances", attendances)
     months_map = get_months_map()
     filter_status = request.GET.get("status")
     filter_month = request.GET.get(
@@ -91,7 +90,6 @@ def profile(request):
         address = request.POST.get('address',"")
         blood_group = request.POST.get('blood_group',"")
         profile_image = request.FILES.get('profile_image', "")
-        print("profile_image", profile_image)
         mobile_no = request.POST.get('mobile_no',"")
 
         student.dob = dob
@@ -106,7 +104,7 @@ def profile(request):
         messages.success(request, 'Profile updated successfully.')
         return redirect(reverse('StudentProfileUpdateRead'))
 
-    context = {"student": student, "blood_groups": BloodGroup, "genders": Gender}
+    context = {"blood_groups": BloodGroup, "genders": Gender}
     return render(request, "students/manage_profile/profile.html", context)
 
 

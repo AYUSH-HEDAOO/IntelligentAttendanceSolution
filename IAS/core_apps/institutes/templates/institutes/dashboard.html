@@ -213,21 +213,17 @@
 
           <!-- Recent Activity -->
           <div class="card">
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
+            <a  href="{% url 'InstituteTrainModel' %}" class="btn btn-warning text-white btn-md ">Train</a>
 
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
+             
 
-            <div class="card-body">
-              <h5 class="card-title">Recent Activity <span>| Today</span></h5>
+            <div class="card-body ">
+              
+              
+                <h5 class="card-title">Recent Activity <span>| Today</span></h5>
+
+        
+
 
               <div class="activity">
 
@@ -294,8 +290,6 @@
         
 
       </div>
-      <div text align=center >
-        <button type="button" class="btn btn-primary" style="padding: 10px 20px;  margin-bottom: 20px; font-size: 16px;">Start</button>
-       </div>
+
     </section>
 {% endblock content %}

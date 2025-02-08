@@ -19,7 +19,7 @@ def student_directory_path(instance, filename):
 
 # Create your models here.
 class Student(IASModel):
-    role = models.OneToOneField(Role, on_delete=models.CASCADE)
+    role = models.OneToOneField(Role, on_delete=models.CASCADE, related_name="role_student")
     enrollment_number = models.CharField(max_length=100, unique=True)
     institute = models.ForeignKey(
         Institute, on_delete=models.CASCADE, related_name="institute_student", null=True

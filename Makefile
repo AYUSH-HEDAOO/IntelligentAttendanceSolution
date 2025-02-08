@@ -60,3 +60,8 @@ shell:
 .PHONY: test
 test:
 	poetry run pytest -v
+
+
+.PHONY: train_model
+train_model:
+	poetry run python -m ias.scripts.train_face_recognization_model

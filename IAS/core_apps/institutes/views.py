@@ -20,11 +20,11 @@ from .models import (
     Designation,
     AcademicSection,
     AcademicClass,
-    AcademicSession,
-    
+    AcademicSession,    
 )
 from ias.core_apps.staffs.models import Staff
 from ias.core_apps.students.models import Student,AcademicInfo
+from ias.scripts.train_face_recognization_model import start_training
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -274,4 +274,14 @@ def delete_academic_info(request):
     return redirect(reverse("CreateReadAcademicInfo"))
 
 
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.OWNER])
+def train_model(request):
+    institute = request.user.role_data.institute
+    status = start_training(institute)
+    if status:
+        messages.success(request, "Model trained successfully.")
+    else:
+        messages.warning(request, "Model training failed.")
+    return redirect(reverse("InstituteDashboard"))
 
