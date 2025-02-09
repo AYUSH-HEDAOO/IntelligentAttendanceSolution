@@ -15,7 +15,8 @@ import face_recognition
 from django.db import transaction
 from .models import AttendanceStatus
 from ias.core_apps.users.models import Role
-from ias.core_apps.students.models import Student, AcademicInfo, Attendance
+from ias.core_apps.students.models import Student, AcademicInfo
+from ias.core_apps.attendance.models import Attendance
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -27,6 +28,7 @@ MEDIA_ROOT = settings.MEDIA_ROOT
 # Add path to the shape predictor
 SHAPE_PREDICTOR_PATH = f"{BASE_DIR}\\shape_predictor_68_face_landmarks.dat"
 
+
 def get_current_time():
     return datetime.now().strftime("%H:%M:%S")
 
@@ -34,8 +36,8 @@ def get_current_time():
 def mark_attendance(request):
 
     detector = dlib.get_frontal_face_detector()
-    
-    predictor = dlib.shape_predictor(SHAPE_PREDICTOR_PATH)  
+
+    predictor = dlib.shape_predictor(SHAPE_PREDICTOR_PATH)
     svc_save_path = f"{BASE_DIR}\\ias\\face_recognition_data\\svc.sav"
 
     with open(svc_save_path, "rb") as f:
@@ -57,7 +59,7 @@ def mark_attendance(request):
 
     iterations = 0
     while iterations < 5:
-    # while True:
+        # while True:
         frame = vs.read()
         frame = imutils.resize(frame, width=800)
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -82,20 +84,35 @@ def mark_attendance(request):
                 else:
                     present[pred] = True
                     count[pred] = count.get(pred, 0) + 1
-                    print("Found Data",pred, present[pred], count[pred])
+                    print("Found Data", pred, present[pred], count[pred])
 
-                cv2.putText(frame, str(user_id) + str(prob), (x + 6, y + h - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                cv2.putText(
+                    frame,
+                    str(user_id) + str(prob),
+                    (x + 6, y + h - 6),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (0, 255, 0),
+                    1,
+                )
                 break
 
             else:
                 user_id = "unknown"
-                cv2.putText(frame, str(user_id), (x + 6, y + h - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-
+                cv2.putText(
+                    frame,
+                    str(user_id),
+                    (x + 6, y + h - 6),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (0, 255, 0),
+                    1,
+                )
 
         # Showing the image in another window
         # Creates a window with window name "Face" and with the image img
         cv2.imshow("Mark Attendance - In - Press q to exit", frame)
-    
+
         # To get out of the loop
         key = cv2.waitKey(50) & 0xFF
         if key == ord("q"):
@@ -111,6 +128,7 @@ def mark_attendance(request):
     update_attendance_in_db_in(present)
     print(present)
     return redirect("Login")
+
 
 def predict(face_aligned, svc, threshold=0.7):
     face_encodings = np.zeros((1, 128))
@@ -133,8 +151,10 @@ def predict(face_aligned, svc, threshold=0.7):
 
     return (result[0], prob[0][result[0]])
 
+
 def get_user_ids_with_true_values(input_dict):
     return [key for key, value in input_dict.items() if value]
+
 
 def get_attendance_data(current_user, filter_date):
     session_institute = current_user.institute
@@ -157,6 +177,7 @@ def get_attendance_data(current_user, filter_date):
             session=academic_info.session,
         )
     return attendances, todays_attendance
+
 
 def update_attendance_in_db_in(clock_in_data):
     user_ids = get_user_ids_with_true_values(clock_in_data)
@@ -183,8 +204,8 @@ def create_dataset(role_data, max_sample_count=30):
 
         # print("[INFO] Loading the facial detector")
         detector = dlib.get_frontal_face_detector()
-        
-        predictor = dlib.shape_predictor(SHAPE_PREDICTOR_PATH)  
+
+        predictor = dlib.shape_predictor(SHAPE_PREDICTOR_PATH)
         fa = FaceAligner(predictor, desiredFaceWidth=96)
         # capture images from the webcam and process and detect the face
         # Initialize the video stream
@@ -259,7 +280,7 @@ def create_dataset(role_data, max_sample_count=30):
     except Exception as e:
         print("Error", e)
         return False
-    
+
 
 def mark_student_attendance(current_user, todays_attendance):
     with transaction.atomic():
@@ -269,8 +290,10 @@ def mark_student_attendance(current_user, todays_attendance):
             todays_attendance.a_in_time = current_time
             todays_attendance.a_status = AttendanceStatus.PRESENT
             todays_attendance.created_by_uuid_role = created_by_uuid_role
+            todays_attendance.a_type = (current_user.role_type,)
         else:
             todays_attendance.a_out_time = current_time
+            todays_attendance.a_type = current_user.role_type
             todays_attendance.a_status = AttendanceStatus.PRESENT
         todays_attendance.save()
     return todays_attendance

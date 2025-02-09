@@ -1,3 +1,4 @@
+from datetime import date
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
@@ -10,27 +11,55 @@ from .forms import (
     AcademicClassForm,
     AcademicSessionForm,
     AcademicInfoForm,
-    
 )
 from ias.core_apps.common.decorators import allowed_users
 from django.contrib.auth.decorators import login_required
-from ias.core_apps.common.models import RoleType, ROLE_URL_MAP, STUDENT_CRUD_URL_MAP
+from ias.core_apps.common.models import (
+    RoleType,
+    ROLE_URL_MAP,
+    STUDENT_CRUD_URL_MAP,
+    AttendanceStatus,
+)
 from .models import (
     Department,
     Designation,
     AcademicSection,
     AcademicClass,
-    AcademicSession,    
+    AcademicSession,
 )
 from ias.core_apps.staffs.models import Staff
-from ias.core_apps.students.models import Student,AcademicInfo
+from ias.core_apps.students.models import (
+    Student,
+    AcademicInfo,
+)
+from ias.core_apps.attendance.models import Attendance
 from ias.scripts.train_face_recognization_model import start_training
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.OWNER])
 def dashboard(request):
-    return render(request, "institutes/dashboard.html")
+    institute = request.user.role_data.institute
+    student_count = Student.objects.filter(
+        institute=institute, is_deleted=False
+    ).count()
+    staff_count = Staff.objects.filter(institute=institute, is_deleted=False).count()
+    todays_date = date.today()
+    todays_attendance = Attendance.objects.filter(
+        institute=institute,
+        is_deleted=False,
+        a_date=todays_date,
+    )
+    present_count = todays_attendance.filter(a_status=AttendanceStatus.PRESENT).count()
+    absent_count = todays_attendance.filter(a_status=AttendanceStatus.ABSENT).count()
+    context = {
+        "student_count": student_count,
+        "staff_count": staff_count,
+        "present_count": present_count,
+        "absent_count": absent_count,
+        "todays_attendance": todays_attendance,
+    }
+    return render(request, "institutes/dashboard.html", context)
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -96,23 +125,21 @@ def create_read_staff(request):
     if request.method == "POST":
         form = StaffForm(request.POST, institute=session_institute)
         if form.is_valid():
-            state = True
             # Handle form data here
-            # status, _message = form.save()
-            # if status:
-            #     messages.success(request, f"{_message}")
-            # else:
-            #     messages.warning(request, f"{_message}")
-            # return redirect(reverse("CreateReadStaff"))
+            status, _message = form.save()
+            if status:
+                messages.success(request, f"{_message}")
+            else:
+                messages.warning(request, f"{_message}")
+            return redirect(reverse("CreateReadStaff"))
         else:
             messages.warning(request, f"{form.errors}")
             return redirect(reverse("CreateReadStaff"))
     else:
         form = StaffForm(institute=session_institute)
     staffs = Staff.objects.filter(institute=session_institute).order_by("pkid")
-    context = {"form": form, "staffs": staffs ,"state": state}
+    context = {"form": form, "staffs": staffs, "state": state}
     return render(request, "institutes/manage_staff/staff.html", context)
-
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -145,7 +172,6 @@ def create_read_student(request):
         return render(request, "institutes/manage_student/student.html", context)
     else:
         return render(request, "institutes/manage_student/staff_student.html", context)
-        
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -255,9 +281,13 @@ def create_read_academic_info(request):
             return redirect(reverse("CreateReadAcademicInfo"))
     else:
         form = AcademicInfoForm(institute=session_institute)
-    academic_information = AcademicInfo.objects.filter(institute=session_institute, is_deleted=False).order_by("pkid")
+    academic_information = AcademicInfo.objects.filter(
+        institute=session_institute, is_deleted=False
+    ).order_by("pkid")
     context = {"form": form, "academic_info": academic_information}
-    return render(request, "institutes/manage_academic_info/academic_info.html", context)
+    return render(
+        request, "institutes/manage_academic_info/academic_info.html", context
+    )
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -284,4 +314,3 @@ def train_model(request):
     else:
         messages.warning(request, "Model training failed.")
     return redirect(reverse("InstituteDashboard"))
-

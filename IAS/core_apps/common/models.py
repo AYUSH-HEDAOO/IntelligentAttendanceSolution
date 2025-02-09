@@ -35,8 +35,9 @@ ROLE_URL_MAP = {
 
 STUDENT_CRUD_URL_MAP = {
     RoleType.OWNER: "CreateReadStudent",
-    RoleType.STAFF: "StaffCreateReadStudent"
+    RoleType.STAFF: "StaffCreateReadStudent",
 }
+
 
 class AttendanceStatus(models.TextChoices):
     PRESENT = "present", "Present"
@@ -45,6 +46,7 @@ class AttendanceStatus(models.TextChoices):
     NOT_MARKED = "not marked", "Not Marked"
     HOLIDAY = "holiday", "Holiday"
     weekend = "weekend", "Weekend"
+
 
 class BloodGroup(models.TextChoices):
     A_POSITIVE = "A+", "A+"
@@ -57,10 +59,10 @@ class BloodGroup(models.TextChoices):
     O_NEGATIVE = "O-", "O-"
     OTHER = "Other", "Other"
 
+
 class Gender(models.TextChoices):
     MALE = "male", "Male"
     FEMALE = "female", "Female"
     OTHER = "other", "Other"
     TRANSGENDER = "transgender", "Transgender"
     PREFER_NOT_TO_ANSWER = "prefer not to answer", "Prefer not to answer"
-    

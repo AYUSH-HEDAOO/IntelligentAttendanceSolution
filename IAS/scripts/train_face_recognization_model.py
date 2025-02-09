@@ -17,7 +17,7 @@ BASR_DIR = settings.BASE_DIR
 MEDIA_ROOT = settings.MEDIA_ROOT
 
 
-def start_training(institute)-> bool:
+def start_training(institute) -> bool:
     print(f"Training Started for {institute.institute_name}.")
     training_dir = f"{MEDIA_ROOT}\\image_dataset\\{institute.id}"
     if not os.path.exists(training_dir):
@@ -56,7 +56,7 @@ def start_training(institute)-> bool:
     y = encoder.transform(y)
     X1 = np.array(X)
 
-    trained_data_path = f"{BASR_DIR}\\ias\\face_recognition_data" # /{institute.id}
+    trained_data_path = f"{BASR_DIR}\\ias\\face_recognition_data"  # /{institute.id}
     if not os.path.exists(trained_data_path):
         os.mkdir(trained_data_path)
     np.save(f"{trained_data_path}\\classes.npy", encoder.classes_)
@@ -66,7 +66,7 @@ def start_training(institute)-> bool:
     svc_save_path = f"{trained_data_path}\\svc.sav"
     with open(svc_save_path, "wb") as f:
         pickle.dump(svc, f)
-    
+
     return True
 
 
@@ -74,6 +74,7 @@ if __name__ == "__main__":
     from ias.core_apps.institutes.models import Institute
 
     institutes = Institute.objects.filter(is_deleted=False)
+
     for institute in institutes:
         result = start_training(institute)
         if result:

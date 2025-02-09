@@ -10,13 +10,14 @@ from ias.core_apps.common.models import (
     BloodGroup,
     Gender,
 )
-from .models import Attendance, AcademicInfo, Student
-from datetime import date, datetime
-from django.db import transaction
-from ias.core_apps.common.views import create_dataset, mark_student_attendance, get_attendance_data
-
-
-
+from .models import Student
+from datetime import date
+from ias.core_apps.common.views import (
+    create_dataset,
+    mark_student_attendance,
+    get_attendance_data,
+)
+from ias.core_apps.attendance.models import Attendance
 
 
 def get_months_map():
@@ -124,9 +125,6 @@ def attendance_create_read(request):
     )
     context = {"attendances": attendances, "todays_attendance": todays_attendance}
     return render(request, "students/manage_attendance/attendance.html", context)
-
-
-
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
