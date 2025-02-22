@@ -2,7 +2,7 @@
 I am building one web app to manage institute attandence and send notification to respected users of app, attendance by face recoginaztion and manaual marking
 
 ## Requirements
-1. Python 3.8 if you don't have that you can download from [here](https://www.python.org/downloads/release/python-381)
+1. Python 3.8 if you don't have that you can download from [here](https://www.python.org/downloads/release/python-381) or from `dependencies_for_windows` if windows os
 
 ## Installation and run locally
 1. Clone the repository
@@ -17,7 +17,9 @@ py -V:3.8 -m venv venv
 .\venv\Scripts\activate
 ```
 
-3. Use Make commands to run any command from the project if you don't have make utility then install from [here](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows)
+3. Install CMake and Visual Studio Setup for dlib from `dependencies_for_windows` folder
+
+4. Use Make commands to run any command from the project if you don't have make utility then install from [here](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows)
 - To install project packages and dependencies run `make install`
 - To update and migrate DB changes `make update`
 - Only migrate run `make migrate`
