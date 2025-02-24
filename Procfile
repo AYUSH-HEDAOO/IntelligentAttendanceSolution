@@ -1,1 +1,1 @@
-web: gunicorn 'IAS.wsgi'
+web: gunicorn 'IAS.IAS.wsgi'
