@@ -1,4 +1,8 @@
 # .PHONY is used to tell make the these are commands not files to bypass the checking file logic and imporve the performance speed
+.PHONY: venv
+venv:
+	python -m venv venv
+
 .PHONY: install
 install:
 	poetry install

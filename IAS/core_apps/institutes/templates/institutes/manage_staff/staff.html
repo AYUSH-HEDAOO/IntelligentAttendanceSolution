@@ -90,10 +90,6 @@ Admin | Staff
             {{ form.last_name }}
           </div>
           <div class="col-6">
-            <label for="{{ form.staff_id.id_for_label }}" class="form-label">Staff id</label>
-            {{ form.staff_id }}
-          </div>
-          <div class="col-6">
             <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
             {{ form.email }}
           </div>
@@ -117,41 +113,8 @@ Admin | Staff
       </div>
 
     </div>
-    <div class="modal-content" id="second">
-            
-      <div class="modal-header">
-        <h5 class="modal-title">Scan Face</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" style="display: flex; justify-content: center; align-items: center; height: 100%;">
-        <img src="{% static 'assets/img/Profile_image.jpg' %}" style="width: 30%; height: auto;">
-      </div>
-      <div text align=center >
-      <button type="button" class="btn btn-primary" style="padding: 10px 20px;  margin-bottom: 20px; font-size: 16px;">Scan Now</button>
-     </div>
-      {% comment %} <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div> {% endcomment %}
-    </div>
+    
   </div>
 </div><!-- End Large Modal-->
 
 {% endblock content %}
-
-<script>
-
-  {% if state %}
-  document.getElementById('first').style.display = 'none';
-  document.getElementById('second').style.display = 'flex';
-  document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('autoclick').click();
-  });
-  {% else %}
-  document.getElementById('first').style.display = 'flex';
-  document.getElementById('second').style.display = 'none';
-  {% endif %}
-
-  console.log('{{state}}');
-
-</script>
