@@ -1,4 +1,4 @@
-{% extends "common/institute_layout.html" %}
+{% extends "common/common_layout.html" %}
 {% load static %}
 {% block title %} Admin | Dashboard {% endblock title %}
 
@@ -220,7 +220,7 @@
                         <tr>
                           <th scope="row">{{attendance.academic_info.student.enrollment_number}}</th>
                           <td>{{attendance.a_type}}</td>
-                          <td>{{attendance.academic_info.student.role.user.full_name}} ({{attendance.academic_info.academic_class.class_name}} - {{attendance.academic_info.academic_section.section_name}})</td>
+                          <td>{{attendance.academic_info.student.role.user.full_name}} ({{attendance.academic_info.academic_class_section.class_name}} - {{attendance.academic_info.academic_class_section.section_name}})</td>
                           <td>{{attendance.academic_info.student.role.user.email}}</td>
                           <td><span class="badge bg-{{attendance.badge_color}}">{{attendance.a_status}}</span></td>
                           <td>{{attendance.in_time}} - {{attendance.out_time}}</td>
@@ -247,8 +247,6 @@
           <div class="col-xxl-3 col-md-6">
             <div class="card">
               <a  href="{% url 'InstituteTrainModel' %}" class="btn btn-primary text-white btn-md ">SYNC</a>
-
-              
 
               <div class="card-body ">
                 

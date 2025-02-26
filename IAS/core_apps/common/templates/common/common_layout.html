@@ -62,85 +62,22 @@
         </li><!-- End Search Icon-->
 
         <li class="nav-item d-block ">
-          <a href="{% url 'StudentAttendanceAddPhotos' %}" type="button" class="btn btn-outline-primary">Add Photos</a>
+          <a href="{% url 'AddImagesToDataset' %}" type="button" class="btn btn-outline-primary">Add Images</a>
         </li>
 
-        <li class="nav-item dropdown pe-3">
+        {% include 'common/nav_item_dropdown.html' %}
 
-          <a class="nav-link nav-profile d-flex align-items-center pe-0" href="{% url 'StudentProfileUpdateRead' %}" data-bs-toggle="dropdown">
-            {% if request.user.role_data.role_student.profile_image %}
-            <img src="{{request.user.role_data.role_student.profile_image.url}}" alt="Profile" class="rounded-circle">
-
-            {% else %}
-            <img src="{% static '/assets/img/default_profile.png' %}" alt="Profile" class="rounded-circle">
-
-            {% endif %}
-
-            <span class="d-none d-md-block dropdown-toggle ps-2">{{request.user.full_name}} </span>
-          </a><!-- End Profile Iamge Icon -->
-
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-            <li class="dropdown-header">
-              <h6>{{request.user.full_name}}</h6>
-              <span>{{request.user.role_data.role_type | title}} | {{request.user.role_data.role_student.department.department_name}}</span>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'StudentProfileUpdateRead' %}">
-                <i class="bi bi-person"></i>
-                <span>My Profile</span>
-              </a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'Logout' %}">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Sign Out</span>
-              </a>
-            </li>
-
-          </ul><!-- End Profile Dropdown Items -->
-        </li><!-- End Profile Nav -->
+        <!-- End Profile Nav -->
 
       </ul>
     </nav><!-- End Icons Navigation -->
 
   </header><!-- End Header -->
 
-  <!-- ======= Sidebar ======= -->
-  <aside id="sidebar" class="sidebar">
+  <!-- ======= Start Sidebar ======= -->
+  {% include 'common/sidebar.html' %}
+  <!-- ======= End Sidebar ======= -->
 
-    <ul class="sidebar-nav" id="sidebar-nav">
-
-      <li class="nav-item">
-        <a class="nav-link " href="{% url 'StudentDashboard' %}">
-          <i class="bi bi-grid"></i>
-          <span>Dashboard</span>
-        </a>
-      </li><!-- End Dashboard Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#manage-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-menu-button-wide"></i><span>Manage Students</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="manage-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{% url 'StudentAttendanceCreateRead' %}">
-              <i class="bi bi-circle"></i><span>Mark Attendance</span>
-            </a>
-          </li>
-        </ul>
-      </li><!-- End Manage Nav -->
-
-    </ul>
-
-  </aside><!-- End Sidebar-->
 
   <main id="main" class="main">
     {% comment %} To show messages {% endcomment %}
@@ -164,15 +101,9 @@
   </main><!-- End #main -->
 
   <!-- ======= Footer ======= -->
-  <footer id="footer" class="footer">
-    <div class="copyright">
-      &copy; Copyright <strong><span>IAS</span></strong>. All Rights Reserved
-    </div>
-    <div class="credits">
-      
-      Designed by <a href="{% url 'StudentDashboard' %}">Aysuh Headoo</a>
-    </div>
-  </footer><!-- End Footer -->
+    {% include 'common/footer.html' %}
+
+  <!-- End Footer -->
 
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 

@@ -1,4 +1,4 @@
-{% extends "common/staff_layout.html" %}
+{% extends "common/common_layout.html" %}
 {% load static %}
 {% block title %} staff| Dashboard {% endblock title %}
 
@@ -45,12 +45,11 @@
 
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary text-white">
-                      <i class="bi bi-mortarboard"></i> <!-- Replaced with mortarboard icon (graduation cap) -->
+                      <i class="bi bi-mortarboard"></i> 
 
                     </div>
                     <div class="ps-3">
-                      <h6>{{todays_attendance.academic_info.academic_class.class_name}} - {{todays_attendance.academic_info.academic_section.section_name}}</h6>
-                      {% comment %} <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">increase</span> {% endcomment %}
+                      <h6>{{todays_attendance.academic_info.academic_class_section.class_name}} - {{todays_attendance.academic_info.academic_class_section.section_name}}</h6>
 
                     </div>
                   </div>

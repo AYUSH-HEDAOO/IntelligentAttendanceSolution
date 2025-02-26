@@ -7,8 +7,7 @@ from .forms import (
     DesignationForm,
     StaffForm,
     StudentForm,
-    AcademicSectionForm,
-    AcademicClassForm,
+    AcademicClassSectionForm,
     AcademicSessionForm,
     AcademicInfoForm,
 )
@@ -23,8 +22,7 @@ from ias.core_apps.common.models import (
 from .models import (
     Department,
     Designation,
-    AcademicSection,
-    AcademicClass,
+    AcademicClassSection,
     AcademicSession,
 )
 from ias.core_apps.staffs.models import Staff
@@ -176,11 +174,11 @@ def create_read_student(request):
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.OWNER])
-def create_read_academic_section(request):
+def create_read_academic_class_section(request):
     # session_institute is the logged in user's institute
     session_institute = request.user.role_data.institute
     if request.method == "POST":
-        form = AcademicSectionForm(request.POST)
+        form = AcademicClassSectionForm(request.POST)
         if form.is_valid():
             # Handle form data here
             status, _message = form.save(session_institute)
@@ -188,47 +186,18 @@ def create_read_academic_section(request):
                 messages.success(request, f"{_message}")
             else:
                 messages.warning(request, f"{_message}")
-            return redirect(reverse("CreateReadAcademicSection"))
+            return redirect(reverse("CreateReadAcademicClassSection"))
         else:
             messages.warning(request, f"{form.errors}")
-            return redirect(reverse("CreateReadAcademicSection"))
+            return redirect(reverse("CreateReadAcademicClassSection"))
     else:
-        form = AcademicSectionForm()
-    academic_sections = AcademicSection.objects.filter(
-        institute=session_institute
+        form = AcademicClassSectionForm()
+    academic_cs = AcademicClassSection.objects.filter(
+        institute=session_institute, is_deleted=False
     ).order_by("pkid")
-    context = {"form": form, "academic_sections": academic_sections}
+    context = {"form": form, "academic_cs": academic_cs}
     return render(
-        request, "institutes/manage_academic_section/academic_section.html", context
-    )
-
-
-@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
-@allowed_users(allowed_roles=[RoleType.OWNER])
-def create_read_academic_class(request):
-    # session_institute is the logged in user's institute
-    session_institute = request.user.role_data.institute
-    if request.method == "POST":
-        form = AcademicClassForm(request.POST)
-        if form.is_valid():
-            # Handle form data here
-            status, _message = form.save(session_institute)
-            if status:
-                messages.success(request, f"{_message}")
-            else:
-                messages.warning(request, f"{_message}")
-            return redirect(reverse("CreateReadAcademicClass"))
-        else:
-            messages.warning(request, f"{form.errors}")
-            return redirect(reverse("CreateReadAcademicClass"))
-    else:
-        form = AcademicClassForm()
-    academic_classes = AcademicClass.objects.filter(
-        institute=session_institute
-    ).order_by("pkid")
-    context = {"form": form, "academic_classes": academic_classes}
-    return render(
-        request, "institutes/manage_academic_class/academic_classes.html", context
+        request, "institutes/manage_academic_cs/academic_class_section.html", context
     )
 
 

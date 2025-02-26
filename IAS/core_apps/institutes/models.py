@@ -70,58 +70,30 @@ class Designation(IASModel):
         return f"{self.designation_name}"
     
 
-class AcademicSection(IASModel):
+class AcademicClassSection(IASModel):
     """
-    AcademicSection model to store Institute AcademicSection
+    AcademicSection model to store Institute Class Section
     """
+    class_name = models.CharField(max_length=200)
     section_name = models.CharField(max_length=200)
     institute = models.ForeignKey(
         Institute,
         on_delete=models.CASCADE,
-        related_name="academic_section"
+        related_name="class_section"
     )
 
     def __str__(self):
         return f"{self.section_name} - {self.institute.institute_name}"
 
     @staticmethod
-    def is_section_exists(section_name, institute):
-        try:
-            AcademicSection.objects.get(section_name=section_name, institute=institute)
-            return True
-        except Exception:
-            return False
+    def is_class_section_exists(class_name, section_name, institute):
+        is_exists = AcademicClassSection.objects.filter(section_name=section_name, class_name=class_name, institute=institute).exists()
+        return is_exists
+        
 
     def __str__(self):
-        return f"{self.section_name}"
+        return f"{self.class_name} - {self.section_name}"
       
-
-
-class AcademicClass(IASModel):
-    """
-    AcademicClass model to store Institute AcademicClass
-    """
-    class_name = models.CharField(max_length=200)
-    institute = models.ForeignKey(
-        Institute,
-        on_delete=models.CASCADE,
-        related_name="academic_class"
-    )
-
-    def __str__(self):
-        return f"{self.class_name} - {self.institute.institute_name}"
-
-    @staticmethod
-    def is_class_exists(class_name, institute):
-        try:
-            AcademicClass.objects.get(class_name=class_name, institute=institute)
-            return True
-        except Exception:
-            return False
-
-    def __str__(self):
-        return f"{self.class_name}"
-
 
 class AcademicSession(IASModel):
     """

@@ -2,8 +2,7 @@ from django import forms
 from .models import (
     Department,
     Designation,
-    AcademicSection,
-    AcademicClass,
+    AcademicClassSection,
     AcademicSession,
 )
 from ias.core_apps.staffs.models import Staff
@@ -226,50 +225,29 @@ class StudentForm(forms.Form):
             return False, f"Something went wrong: {e}"
 
 
-class AcademicSectionForm(forms.Form):
+class AcademicClassSectionForm(forms.Form):
+    class_name = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(attrs={"class": "form-control", "id": "class_name"}),
+    )
     section_name = forms.CharField(
-        max_length=200,
+        max_length=10,
         widget=forms.TextInput(attrs={"class": "form-control", "id": "section_name"}),
     )
 
     def save(self, institute):
-        section_name = self.cleaned_data["section_name"]
-        academic_section = AcademicSection.is_section_exists(section_name, institute)
-
-        if academic_section:
-            return False, "Academic Section already exists!"
-
-        try:
-
-            AcademicSection.objects.create(
-                section_name=section_name, institute=institute
-            )
-
-            return True, "Academic Section created successfully"
-
-        except Exception as e:
-            return False, f"Something went wrong: {e}"
-
-
-class AcademicClassForm(forms.Form):
-    class_name = forms.CharField(
-        max_length=200,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "class_name"}),
-    )
-
-    def save(self, institute):
         class_name = self.cleaned_data["class_name"]
-        academic_class = AcademicClass.is_class_exists(class_name, institute)
+        section_name = self.cleaned_data["section_name"]
+        is_exists = AcademicClassSection.is_class_section_exists(class_name, section_name, institute)
 
-        if academic_class:
-            return False, "Academic Class already exists!"
+        if is_exists:
+            return False, "Academic Class Section already exists!"
 
         try:
-
-            AcademicClass.objects.create(class_name=class_name, institute=institute)
-
-            return True, "Academic Class created successfully"
-
+            AcademicClassSection.objects.create(
+                class_name=class_name, section_name=section_name, institute=institute
+            )
+            return True, "Academic Class Section created successfully"
         except Exception as e:
             return False, f"Something went wrong: {e}"
 
@@ -323,15 +301,10 @@ class AcademicInfoForm(forms.Form):
         widget=forms.Select(attrs={"class": "form-control", "id": "student"}),
         empty_label="Select Student",
     )
-    academic_class = forms.ModelChoiceField(
-        queryset=AcademicClass.objects.none(),
-        widget=forms.Select(attrs={"class": "form-control", "id": "academic_class"}),
-        empty_label="Select Class",)
-    
-    academic_section = forms.ModelChoiceField(
-        queryset=AcademicSection.objects.none(),
-        widget=forms.Select(attrs={"class": "form-control", "id": "academic_section"}),
-        empty_label="Select Section",)
+    academic_class_section = forms.ModelChoiceField(
+        queryset=AcademicClassSection.objects.none(),
+        widget=forms.Select(attrs={"class": "form-control", "id": "academic_class_section"}),
+        empty_label="Select Class Section",)
     
     academic_session = forms.ModelChoiceField(
         queryset=AcademicSession.objects.none(),
@@ -346,10 +319,7 @@ class AcademicInfoForm(forms.Form):
             self.fields["student"].queryset = Student.objects.filter(
                 is_deleted=False, institute=self.institute
             )
-            self.fields["academic_class"].queryset = AcademicClass.objects.filter(
-                is_deleted=False, institute=self.institute
-            )
-            self.fields["academic_section"].queryset = AcademicSection.objects.filter(
+            self.fields["academic_class_section"].queryset = AcademicClassSection.objects.filter(
                 is_deleted=False, institute=self.institute
             )
             self.fields["academic_session"].queryset = AcademicSession.objects.filter(
@@ -359,15 +329,13 @@ class AcademicInfoForm(forms.Form):
 
     def save(self):
         student = self.cleaned_data["student"]
-        academic_class = self.cleaned_data["academic_class"]
-        academic_section = self.cleaned_data["academic_section"]
+        academic_class_section = self.cleaned_data["academic_class_section"]
         academic_session = self.cleaned_data["academic_session"]
         try:
 
             AcademicInfo.objects.create(
             student=student,
-            academic_class=academic_class,
-            academic_section=academic_section,
+            academic_class_section=academic_class_section,
             session=academic_session,
             institute=self.institute
             )

@@ -1,13 +1,22 @@
 {% extends "common/common_layout.html" %}
 {% load static %}
-{% block title %} Student | Dashboard {% endblock title %}
+{% block title %} {{request.user.role_data.role_type | title}} | Dashboard {% endblock title %}
 
 {% block breadcrumb %}
     <div class="pagetitle">
       <h1>Profile</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'StudentDashboard' %}">Home</a></li>
+          <li class="breadcrumb-item">
+            {% if request.user.role_data.role_type == 'student' %}
+            <a href="{% url 'StudentDashboard' %}">Home</a>
+            {% elif request.user.role_data.role_type == 'owner' %}
+            <a href="{% url 'InstituteDashboard' %}">Home</a>
+            {% elif request.user.role_data.role_type == 'staff' %}
+            <a href="{% url 'StaffDashboard' %}">Home</a>
+            {% endif %}
+
+          </li>
           <li class="breadcrumb-item active">Profile</li>
         </ol>
       </nav>
@@ -55,14 +64,6 @@
               <li class="nav-item">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Profile</button>
               </li> 
-
-              {% comment %} <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Settings</button>
-              </li> {% endcomment %}
-
-              {% comment %} <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
-              </li> {% endcomment %}
 
             </ul>
             <div class="tab-content pt-2">

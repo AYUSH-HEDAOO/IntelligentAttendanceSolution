@@ -4,8 +4,7 @@ from ias.core_apps.institutes.models import Institute
 from ias.core_apps.staffs.models import Staff
 from ias.core_apps.students.models import (
     AcademicInfo,
-    AcademicClass,
-    AcademicSection,
+    AcademicClassSection,
     AcademicSession,
 )
 from django.contrib.auth import get_user_model
@@ -19,11 +18,8 @@ class Attendance(IASModel):
     academic_info = models.ForeignKey(
         AcademicInfo, on_delete=models.CASCADE, related_name="academic_attendance", null=True, blank=True
     )
-    academic_class = models.ForeignKey(
-        AcademicClass, on_delete=models.CASCADE, related_name="class_attendance", null=True, blank=True
-    )
-    academic_section = models.ForeignKey(
-        AcademicSection, on_delete=models.CASCADE, related_name="section_attendance", null=True, blank=True
+    academic_class_section = models.ForeignKey(
+        AcademicClassSection, on_delete=models.CASCADE, related_name="class_section_attendance", null=True, blank=True
     )
     session = models.ForeignKey(
         AcademicSession, on_delete=models.CASCADE, related_name="session_attendance", null=True, blank=True

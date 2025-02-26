@@ -2,6 +2,7 @@ from django.shortcuts import redirect
 import dlib
 import os
 from datetime import datetime, date
+from django.contrib import messages
 import pickle
 import time
 import numpy as np
@@ -13,11 +14,18 @@ import cv2
 from imutils import face_utils
 import face_recognition
 from django.db import transaction
-from .models import AttendanceStatus
+from .models import AttendanceStatus, BloodGroup, Gender
+from ias.core_apps.institutes.models import Institute
 from ias.core_apps.users.models import Role
 from ias.core_apps.students.models import Student, AcademicInfo
+from ias.core_apps.staffs.models import Staff
 from ias.core_apps.attendance.models import Attendance
+from ias.core_apps.common.models import RoleType, ROLE_URL_MAP
 from django.contrib.auth import get_user_model
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from ias.core_apps.common.decorators import allowed_users
+from django.contrib.auth.decorators import login_required
 
 User = get_user_model()
 
@@ -172,8 +180,7 @@ def get_attendance_data(current_user, filter_date):
             a_date=filter_date,
             institute=session_institute,
             academic_info=academic_info,
-            academic_class=academic_info.academic_class,
-            academic_section=academic_info.academic_section,
+            academic_class_section=academic_info.academic_class_section,
             session=academic_info.session,
         )
     return attendances, todays_attendance
@@ -297,3 +304,52 @@ def mark_student_attendance(current_user, todays_attendance):
             todays_attendance.a_status = AttendanceStatus.PRESENT
         todays_attendance.save()
     return todays_attendance
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.STUDENT])
+def add_images_to_dataset(request):
+    current_user = request.user.role_data
+    status = create_dataset(current_user, max_sample_count=29)
+    url_name = ROLE_URL_MAP[current_user.role_type]
+    if status:
+        messages.success(request, "Photos added successfully.")
+    else:
+        messages.error(request, "Failed to add photos.")
+    return redirect(reverse(url_name))
+
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.STUDENT, RoleType.OWNER, RoleType.STAFF])
+def profile(request):
+    current_user = request.user.role_data
+    if current_user.role_type == RoleType.STUDENT:
+        student = Student.objects.get(role=current_user)
+        if request.method == "POST":
+            dob = request.POST.get("dob")
+            state = request.POST.get("state", "")
+            about = request.POST.get("about", "")
+            gender = request.POST.get("gender", "")
+            address = request.POST.get("address", "")
+            blood_group = request.POST.get("blood_group", "")
+            profile_image = request.FILES.get("profile_image", "")
+            mobile_no = request.POST.get("mobile_no", "")
+
+            student.dob = dob
+            student.state = state
+            student.about = about
+            student.gender = gender
+            student.address = address
+            student.blood_group = blood_group
+            student.profile_image = profile_image
+            student.mobile_no = mobile_no
+            student.save()
+
+            messages.success(request, "Profile updated successfully.")
+            return redirect(reverse("ProfileUpdateRead"))
+    elif current_user.role_type == RoleType.OWNER:
+        institute = Institute.objects.get(id=current_user.institute.id)
+    elif current_user.role_type == RoleType.STAFF:
+        staff = Staff.objects.get(role=current_user)
+
+    context = {"blood_groups": BloodGroup, "genders": Gender}
+    return render(request, "common/manage_profile/profile.html", context)
