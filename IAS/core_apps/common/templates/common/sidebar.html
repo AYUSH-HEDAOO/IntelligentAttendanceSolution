@@ -25,9 +25,15 @@
   <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
       <li class="nav-item">
-        <a class="nav-link " href="{% url 'InstituteDashboard' %}">
+        <a class="nav-link" href="{% url 'InstituteDashboard' %}">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'AttendanceList' %}">
+          <i class="bi bi-list"></i>
+          <span>Attendance Report</span>
         </a>
       </li>
       <li class="nav-item">
@@ -107,6 +113,11 @@
           <li>
             <a href="{% url 'StaffCreateReadStudent' %}">
               <i class="bi bi-circle"></i><span>Students</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'AttendanceList' %}">
+              <i class="bi bi-circle"></i><span>Attendance</span>
             </a>
           </li>
         </ul>

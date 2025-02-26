@@ -20,6 +20,9 @@ from ias.core_apps.users.models import Role
 from ias.core_apps.students.models import Student, AcademicInfo
 from ias.core_apps.staffs.models import Staff
 from ias.core_apps.attendance.models import Attendance
+from ias.core_apps.attendance.resources import AttendanceResource
+from django.http import HttpResponse
+from ias.core_apps.attendance.filters import AttendanceFilter
 from ias.core_apps.common.models import RoleType, ROLE_URL_MAP
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, render
@@ -362,3 +365,49 @@ def profile(request):
 
     context = {"blood_groups": BloodGroup, "genders": Gender}
     return render(request, "common/manage_profile/profile.html", context)
+
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])
+def attendance_list(request):
+    # session_institute is the logged in user's institute
+    current_user = request.user.role_data
+    session_institute = request.user.role_data.institute
+    if current_user.role_type == RoleType.STAFF:
+        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False, a_type=RoleType.STUDENT)
+    else:
+        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False)
+    attendance_filter = AttendanceFilter(request.GET, queryset=attendance_queryset)
+    
+    context = {
+        "todays_attendance": attendance_filter.qs,
+        "attendance_filter": attendance_filter
+    }
+    return render(request, "attendance/manage_attendance/attendance.html", context)
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])
+def export_attendance_csv(request):
+    current_user = request.user.role_data
+    session_institute = request.user.role_data.institute
+    if current_user.role_type == RoleType.STAFF:
+        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False, a_type=RoleType.STUDENT)
+    else:
+        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False)
+    attendance_filter = AttendanceFilter(request.GET, queryset=attendance_queryset)
+    dataset = AttendanceResource().export(attendance_filter.qs)
+
+    response = HttpResponse(dataset.csv, content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="filtered_attendance.csv"'
+    return response
+
+# @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+# @allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])
+# def export_attendance_pdf(request):
+#     attendance_queryset = Attendance.objects.all()
+#     attendance_filter = AttendanceFilter(request.GET, queryset=attendance_queryset)
+#     dataset = AttendanceResource().export(attendance_filter.qs)
+
+#     response = HttpResponse(dataset.pdf, content_type="application/pdf")
+#     response["Content-Disposition"] = 'attachment; filename="filtered_attendance.pdf"'
+#     return response

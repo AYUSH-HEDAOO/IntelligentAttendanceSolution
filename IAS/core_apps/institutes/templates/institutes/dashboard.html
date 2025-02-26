@@ -203,41 +203,7 @@
               <div class="card-body">
                 <h5 class="card-title">All Attendance <span>| Today</span></h5>
 
-                <table class="table table-borderless datatable">
-                  <thead>
-                    <tr>
-                      <th scope="col">ID NO</th>
-                      <th scope="col">Type</th>
-                      <th scope="col">Name</th>
-                      <th scope="col">Email</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">In - Out Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for attendance in todays_attendance %}
-                      {% if  attendance.a_type == "student" %}
-                        <tr>
-                          <th scope="row">{{attendance.academic_info.student.enrollment_number}}</th>
-                          <td>{{attendance.a_type}}</td>
-                          <td>{{attendance.academic_info.student.role.user.full_name}} ({{attendance.academic_info.academic_class_section.class_name}} - {{attendance.academic_info.academic_class_section.section_name}})</td>
-                          <td>{{attendance.academic_info.student.role.user.email}}</td>
-                          <td><span class="badge bg-{{attendance.badge_color}}">{{attendance.a_status}}</span></td>
-                          <td>{{attendance.in_time}} - {{attendance.out_time}}</td>
-                        </tr>
-                      {% elif attendance.a_type == "staff" %}
-                        <tr>
-                          <th scope="row">{{attendance.staff.id}}</th>
-                          <td>{{attendance.a_type}}</td>
-                          <td>{{attendance.staff.role.user.full_name}}</td>
-                          <td>{{attendance.staff.role.user.email}}</td>
-                          <td><span class="badge bg-{{attendance.badge_color}}">{{attendance.a_status}}</span></td>
-                          <td>{{attendance.in_time}} - {{attendance.out_time}}</td>
-                        </tr>
-                      {% endif %}
-                    {% endfor %}
-                  </tbody>
-                </table>
+                {% include 'attendance/manage_attendance/institute_attendance_table.html' %}
 
               </div>
 

@@ -14,6 +14,4 @@ urlpatterns = [
 
     path('train/data/', views.train_model, name="InstituteTrainModel" ),
     
-    
-
 ]
