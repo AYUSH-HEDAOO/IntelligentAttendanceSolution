@@ -5,7 +5,7 @@ from ias.core_apps.institutes.models import Department, Designation,Institute
 
 # Create your models here.
 class Staff(IASModel):
-    role = models.OneToOneField(Role, on_delete=models.CASCADE)
+    role = models.OneToOneField(Role, on_delete=models.CASCADE, related_name="role_staff")
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="staff_department", null=True)
     designation = models.ForeignKey(Designation, on_delete=models.CASCADE, related_name="staff_designation", null=True)
     institute = models.ForeignKey(Institute, on_delete=models.CASCADE, related_name="institute_staff",null=True)

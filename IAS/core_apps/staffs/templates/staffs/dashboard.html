@@ -1,6 +1,6 @@
 {% extends "common/common_layout.html" %}
 {% load static %}
-{% block title %} staff| Dashboard {% endblock title %}
+{% block title %} Staff | Dashboard {% endblock title %}
 
 {% block breadcrumb %}
     <div class="pagetitle">
@@ -41,15 +41,16 @@
                 </div> {% endcomment %}
 
                 <div class="card-body">
-                  <h5 class="card-title">Staff's <span>| Class Section</span></h5>
+                  <h5 class="card-title">Staff <span>| Designation</span></h5>
 
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary text-white">
                       <i class="bi bi-mortarboard"></i> 
+                      <!-- Replaced with mortarboard icon (graduation cap) -->
 
                     </div>
                     <div class="ps-3">
-                      <h6>{{todays_attendance.academic_info.academic_class_section.class_name}} - {{todays_attendance.academic_info.academic_class_section.section_name}}</h6>
+                      <h6>{{request.user.role_data.role_staff.designation.designation_name}}</h6>
 
                     </div>
                   </div>
@@ -57,6 +58,42 @@
 
               </div>
             </div><!-- End Sales Card -->
+            <!-- Customers Card -->
+            <div class="col-xxl-3 col-xl-12">
+
+              <div class="card info-card customers-card">
+
+                {% comment %} <div class="filter">
+                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                      <h6>Filter</h6>
+                    </li>
+
+                    {% for digit, month in months_map.items %}
+                      <li><a class="dropdown-item" href="{% url 'StaffDashboard' %}?month={{digit}}">{{month}}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div> {% endcomment %}
+
+                <div class="card-body">
+                  <h5 class="card-title">Students <span>| Total</span></h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-secondary text-white">
+                      <i class="bi bi-emoji-laughing"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6>{{student_count}}</h6>
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+            <!-- End Customers Card -->
 
             <!-- Revenue Card -->
             <div class="col-xxl-3 col-xl-12">
@@ -85,7 +122,6 @@
                     </div>
                     <div class="ps-3">
                       <h6>{{present_count}}</h6>
-                      {% comment %} <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">increase</span> {% endcomment %}
 
                     </div>
                   </div>
@@ -121,7 +157,6 @@
                     </div>
                     <div class="ps-3">
                       <h6>{{absent_count}}</h6>
-                      {% comment %} <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span> {% endcomment %}
 
                     </div>
                   </div>
@@ -131,44 +166,11 @@
 
             </div><!-- End Customers Card -->
 
-            <!-- Customers Card -->
-            <div class="col-xxl-3 col-xl-12">
-
-              <div class="card info-card customers-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    {% for digit, month in months_map.items %}
-                      <li><a class="dropdown-item" href="{% url 'StaffDashboard' %}?month={{digit}}">{{month}}</a></li>
-                    {% endfor %}
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">On Leave <span>| {{current_month}}</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-secondary text-white">
-                      <i class="bi bi-emoji-laughing"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>{{leave_count}}</h6>
-                      {% comment %} <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span> {% endcomment %}
-
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-            </div><!-- End Customers Card -->
-          </div><!-- End Customers Card -->
-        </div><!-- End Customers Card -->
+            
+          </div>
+          <!-- End Customers Card -->
+        </div>
+        <!-- End Customers Card -->
        
 
         <!-- Left side columns -->
@@ -194,9 +196,9 @@
                 </div>
 
                 <div class="card-body">
-                  <h5 class="card-title">Students Attendance <span>| Till yesterday</span></h5>
+                  <h5 class="card-title">Staff Attendance <span>| Till yesterday</span></h5>
 
-                  {% include "students/manage_attendance/attendance_table.html" %}
+                  {% include "attendance/manage_attendance/attendance_table.html" %}
 
                 </div>
 
@@ -249,7 +251,7 @@
                   View Timeline
                 </button>
                 
-                {% include "students/manage_attendance/todays_timeline_modal.html" %}
+                {% include "attendance/manage_attendance/todays_timeline_modal.html" %}
                 
               </form>
 

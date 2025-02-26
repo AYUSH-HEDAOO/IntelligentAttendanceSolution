@@ -78,4 +78,4 @@ class Attendance(IASModel):
         return "Not Yet"
 
     def __str__(self):
-        return f"{self.academic_info.student.role.user.first_name} was {self.a_status} for date {self.a_date}"
+        return f"{self.a_type} of {self.a_status} for date {self.a_date}"

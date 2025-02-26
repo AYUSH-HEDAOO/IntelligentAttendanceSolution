@@ -14,7 +14,7 @@ from .models import Student
 from datetime import date
 from ias.core_apps.common.views import (
     create_dataset,
-    mark_student_attendance,
+    mark_all_attendance,
     get_attendance_data,
 )
 from ias.core_apps.attendance.models import Attendance
@@ -66,7 +66,7 @@ def dashboard(request):
     )
 
     if request.method == "POST":
-        todays_attendance = mark_student_attendance(current_user, todays_attendance)
+        todays_attendance = mark_all_attendance(current_user, todays_attendance)
         messages.success(request, "Attendance updated successfully.")
         todays_attendance = Attendance.objects.get(id=todays_attendance.id)
 
@@ -94,7 +94,7 @@ def attendance_create_read(request):
         current_user, filter_date=date.today()
     )
     context = {"attendances": attendances, "todays_attendance": todays_attendance}
-    return render(request, "students/manage_attendance/attendance.html", context)
+    return render(request, "attendance/manage_attendance/attendance.html", context)
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])

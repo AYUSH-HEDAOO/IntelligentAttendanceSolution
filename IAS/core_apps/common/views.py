@@ -168,20 +168,29 @@ def get_attendance_data(current_user, filter_date):
     session_institute = current_user.institute
     attendances = []
     todays_attendance = Attendance.objects.none()
-
-    student = Student.objects.get(role=current_user, institute=session_institute)
-    academic_info = AcademicInfo.objects.filter(student=student).order_by("pkid")
-    if academic_info:
-        academic_info = academic_info[0]
+    if current_user.role_type == RoleType.STUDENT:
+        student = Student.objects.get(role=current_user, institute=session_institute)
+        academic_info = AcademicInfo.objects.filter(student=student).order_by("pkid")
+        if academic_info:
+            academic_info = academic_info[0]
+            attendances = Attendance.objects.filter(
+                academic_info=academic_info, a_date__lt=filter_date
+            ).order_by("-a_date")
+            todays_attendance, is_created = Attendance.objects.get_or_create(
+                a_date=filter_date,
+                institute=session_institute,
+                academic_info=academic_info,
+                academic_class_section=academic_info.academic_class_section,
+                session=academic_info.session,
+                a_type=RoleType.STUDENT,
+            )
+    elif current_user.role_type == RoleType.STAFF:
+        staff = Staff.objects.get(role=current_user, institute=session_institute)
         attendances = Attendance.objects.filter(
-            academic_info=academic_info, a_date__lt=filter_date
+            staff=staff, a_date__lt=filter_date
         ).order_by("-a_date")
         todays_attendance, is_created = Attendance.objects.get_or_create(
-            a_date=filter_date,
-            institute=session_institute,
-            academic_info=academic_info,
-            academic_class_section=academic_info.academic_class_section,
-            session=academic_info.session,
+            a_date=filter_date, institute=session_institute, staff=staff, a_type=RoleType.STAFF
         )
     return attendances, todays_attendance
 
@@ -194,7 +203,7 @@ def update_attendance_in_db_in(clock_in_data):
         current_user = Role.objects.get(user=user)
         print("Marking Attendance for User", current_user.user.full_name)
         _, todays_attendance = get_attendance_data(current_user, date.today())
-        todays_attendance = mark_student_attendance(current_user, todays_attendance)
+        todays_attendance = mark_all_attendance(current_user, todays_attendance)
     return True
 
 
@@ -289,7 +298,7 @@ def create_dataset(role_data, max_sample_count=30):
         return False
 
 
-def mark_student_attendance(current_user, todays_attendance):
+def mark_all_attendance(current_user, todays_attendance):
     with transaction.atomic():
         created_by_uuid_role = f"{current_user.user.id}/{current_user.role_type}"
         current_time = get_current_time()
@@ -297,7 +306,7 @@ def mark_student_attendance(current_user, todays_attendance):
             todays_attendance.a_in_time = current_time
             todays_attendance.a_status = AttendanceStatus.PRESENT
             todays_attendance.created_by_uuid_role = created_by_uuid_role
-            todays_attendance.a_type = (current_user.role_type,)
+            todays_attendance.a_type = current_user.role_type
         else:
             todays_attendance.a_out_time = current_time
             todays_attendance.a_type = current_user.role_type

@@ -49,7 +49,7 @@ def dashboard(request):
         a_date=todays_date,
     )
     present_count = todays_attendance.filter(a_status=AttendanceStatus.PRESENT).count()
-    absent_count = todays_attendance.filter(a_status=AttendanceStatus.ABSENT).count()
+    absent_count = todays_attendance.filter(a_status__in=[AttendanceStatus.NOT_MARKED,AttendanceStatus.ABSENT]).count()
     context = {
         "student_count": student_count,
         "staff_count": staff_count,

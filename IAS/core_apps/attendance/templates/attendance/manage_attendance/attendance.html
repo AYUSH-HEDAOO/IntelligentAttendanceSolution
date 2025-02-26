@@ -1,15 +1,19 @@
 {% extends "common/common_layout.html" %} 
 {% load static %} 
 {% block title %}
-Student | Attendance
+{{request.user.role_data.role_type | title}} | Attendance
 {% endblock title %} 
 {% block breadcrumb %}
 <div class="pagetitle">
-  <h1>Student</h1>
+  <h1>{{request.user.role_data.role_type | title}}</h1>
   <nav>
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="{% url 'InstituteDashboard' %}">Home</a>
+        {% if request.user.role_data.role_type == 'student' %}
+        <a href="{% url 'StudentDashboard' %}">Home</a>
+        {% elif request.user.role_data.role_type == 'staff' %}
+        <a href="{% url 'StaffDashboard' %}">Home</a>
+        {% endif %}
       </li>
       <li class="breadcrumb-item">Manage Attendance</li>
       <li class="breadcrumb-item active">Attendance</li>
@@ -35,12 +39,12 @@ Student | Attendance
   
             <p>Attendance information.</p>
   
-            {% include "students/manage_attendance/attendance_table.html" %}
+            {% include "attendance/manage_attendance/attendance_table.html" %}
           </div>
         </div>
       </div>
     </div>
   </section>
   
-  {% include "students/manage_attendance/todays_timeline_modal.html" %}
+  {% include "attendance/manage_attendance/todays_timeline_modal.html" %}
 {% endblock content %}
