@@ -5,8 +5,7 @@ from ias.core_apps.institutes.models import (
     Institute,
     Department,
     AcademicSession,
-    AcademicClass,
-    AcademicSection,
+    AcademicClassSection,
 )
 from django.contrib.auth import get_user_model
 
@@ -80,19 +79,16 @@ class AcademicInfo(IASModel):
     """
 
     student = models.ForeignKey(
-        Student, on_delete=models.CASCADE, related_name="student_academic"
+        Student, on_delete=models.CASCADE, related_name="student_academic", null=True, blank=True
     )
-    academic_class = models.ForeignKey(
-        AcademicClass, on_delete=models.CASCADE, related_name="class_academic"
-    )
-    academic_section = models.ForeignKey(
-        AcademicSection, on_delete=models.CASCADE, related_name="section_academic"
+    academic_class_section = models.ForeignKey(
+        AcademicClassSection, on_delete=models.CASCADE, related_name="class_section_academic", null=True, blank=True
     )
     session = models.ForeignKey(
-        AcademicSession, on_delete=models.CASCADE, related_name="session_academic"
+        AcademicSession, on_delete=models.CASCADE, related_name="session_academic", null=True, blank=True
     )
     institute = models.ForeignKey(
-        Institute, on_delete=models.CASCADE, related_name="institute_academic"
+        Institute, on_delete=models.CASCADE, related_name="institute_academic", null=True, blank=True
     )
 
     def __str__(self):

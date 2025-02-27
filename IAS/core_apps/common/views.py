@@ -2,6 +2,7 @@ from django.shortcuts import redirect
 import dlib
 import os
 from datetime import datetime, date
+from django.contrib import messages
 import pickle
 import time
 import numpy as np
@@ -13,11 +14,21 @@ import cv2
 from imutils import face_utils
 import face_recognition
 from django.db import transaction
-from .models import AttendanceStatus
+from .models import AttendanceStatus, BloodGroup, Gender
+from ias.core_apps.institutes.models import Institute
 from ias.core_apps.users.models import Role
 from ias.core_apps.students.models import Student, AcademicInfo
+from ias.core_apps.staffs.models import Staff
 from ias.core_apps.attendance.models import Attendance
+from ias.core_apps.attendance.resources import AttendanceResource
+from django.http import HttpResponse
+from ias.core_apps.attendance.filters import AttendanceFilter
+from ias.core_apps.common.models import RoleType, ROLE_URL_MAP
 from django.contrib.auth import get_user_model
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from ias.core_apps.common.decorators import allowed_users
+from django.contrib.auth.decorators import login_required
 
 User = get_user_model()
 
@@ -160,21 +171,29 @@ def get_attendance_data(current_user, filter_date):
     session_institute = current_user.institute
     attendances = []
     todays_attendance = Attendance.objects.none()
-
-    student = Student.objects.get(role=current_user, institute=session_institute)
-    academic_info = AcademicInfo.objects.filter(student=student).order_by("pkid")
-    if academic_info:
-        academic_info = academic_info[0]
+    if current_user.role_type == RoleType.STUDENT:
+        student = Student.objects.get(role=current_user, institute=session_institute)
+        academic_info = AcademicInfo.objects.filter(student=student).order_by("pkid")
+        if academic_info:
+            academic_info = academic_info[0]
+            attendances = Attendance.objects.filter(
+                academic_info=academic_info, a_date__lt=filter_date
+            ).order_by("-a_date")
+            todays_attendance, is_created = Attendance.objects.get_or_create(
+                a_date=filter_date,
+                institute=session_institute,
+                academic_info=academic_info,
+                academic_class_section=academic_info.academic_class_section,
+                session=academic_info.session,
+                a_type=RoleType.STUDENT,
+            )
+    elif current_user.role_type == RoleType.STAFF:
+        staff = Staff.objects.get(role=current_user, institute=session_institute)
         attendances = Attendance.objects.filter(
-            academic_info=academic_info, a_date__lt=filter_date
+            staff=staff, a_date__lt=filter_date
         ).order_by("-a_date")
         todays_attendance, is_created = Attendance.objects.get_or_create(
-            a_date=filter_date,
-            institute=session_institute,
-            academic_info=academic_info,
-            academic_class=academic_info.academic_class,
-            academic_section=academic_info.academic_section,
-            session=academic_info.session,
+            a_date=filter_date, institute=session_institute, staff=staff, a_type=RoleType.STAFF
         )
     return attendances, todays_attendance
 
@@ -187,7 +206,7 @@ def update_attendance_in_db_in(clock_in_data):
         current_user = Role.objects.get(user=user)
         print("Marking Attendance for User", current_user.user.full_name)
         _, todays_attendance = get_attendance_data(current_user, date.today())
-        todays_attendance = mark_student_attendance(current_user, todays_attendance)
+        todays_attendance = mark_all_attendance(current_user, todays_attendance)
     return True
 
 
@@ -282,7 +301,7 @@ def create_dataset(role_data, max_sample_count=30):
         return False
 
 
-def mark_student_attendance(current_user, todays_attendance):
+def mark_all_attendance(current_user, todays_attendance):
     with transaction.atomic():
         created_by_uuid_role = f"{current_user.user.id}/{current_user.role_type}"
         current_time = get_current_time()
@@ -290,10 +309,105 @@ def mark_student_attendance(current_user, todays_attendance):
             todays_attendance.a_in_time = current_time
             todays_attendance.a_status = AttendanceStatus.PRESENT
             todays_attendance.created_by_uuid_role = created_by_uuid_role
-            todays_attendance.a_type = (current_user.role_type,)
+            todays_attendance.a_type = current_user.role_type
         else:
             todays_attendance.a_out_time = current_time
             todays_attendance.a_type = current_user.role_type
             todays_attendance.a_status = AttendanceStatus.PRESENT
         todays_attendance.save()
     return todays_attendance
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.STUDENT])
+def add_images_to_dataset(request):
+    current_user = request.user.role_data
+    status = create_dataset(current_user, max_sample_count=29)
+    url_name = ROLE_URL_MAP[current_user.role_type]
+    if status:
+        messages.success(request, "Photos added successfully.")
+    else:
+        messages.error(request, "Failed to add photos.")
+    return redirect(reverse(url_name))
+
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.STUDENT, RoleType.OWNER, RoleType.STAFF])
+def profile(request):
+    current_user = request.user.role_data
+    if current_user.role_type == RoleType.STUDENT:
+        student = Student.objects.get(role=current_user)
+        if request.method == "POST":
+            dob = request.POST.get("dob")
+            state = request.POST.get("state", "")
+            about = request.POST.get("about", "")
+            gender = request.POST.get("gender", "")
+            address = request.POST.get("address", "")
+            blood_group = request.POST.get("blood_group", "")
+            profile_image = request.FILES.get("profile_image", "")
+            mobile_no = request.POST.get("mobile_no", "")
+
+            student.dob = dob
+            student.state = state
+            student.about = about
+            student.gender = gender
+            student.address = address
+            student.blood_group = blood_group
+            student.profile_image = profile_image
+            student.mobile_no = mobile_no
+            student.save()
+
+            messages.success(request, "Profile updated successfully.")
+            return redirect(reverse("ProfileUpdateRead"))
+    elif current_user.role_type == RoleType.OWNER:
+        institute = Institute.objects.get(id=current_user.institute.id)
+    elif current_user.role_type == RoleType.STAFF:
+        staff = Staff.objects.get(role=current_user)
+
+    context = {"blood_groups": BloodGroup, "genders": Gender}
+    return render(request, "common/manage_profile/profile.html", context)
+
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])
+def attendance_list(request):
+    # session_institute is the logged in user's institute
+    current_user = request.user.role_data
+    session_institute = request.user.role_data.institute
+    if current_user.role_type == RoleType.STAFF:
+        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False, a_type=RoleType.STUDENT)
+    else:
+        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False)
+    attendance_filter = AttendanceFilter(request.GET, queryset=attendance_queryset)
+    
+    context = {
+        "todays_attendance": attendance_filter.qs,
+        "attendance_filter": attendance_filter
+    }
+    return render(request, "attendance/manage_attendance/attendance.html", context)
+
+@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+@allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])
+def export_attendance_csv(request):
+    current_user = request.user.role_data
+    session_institute = request.user.role_data.institute
+    if current_user.role_type == RoleType.STAFF:
+        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False, a_type=RoleType.STUDENT)
+    else:
+        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False)
+    attendance_filter = AttendanceFilter(request.GET, queryset=attendance_queryset)
+    dataset = AttendanceResource().export(attendance_filter.qs)
+
+    response = HttpResponse(dataset.csv, content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="filtered_attendance.csv"'
+    return response
+
+# @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
+# @allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])
+# def export_attendance_pdf(request):
+#     attendance_queryset = Attendance.objects.all()
+#     attendance_filter = AttendanceFilter(request.GET, queryset=attendance_queryset)
+#     dataset = AttendanceResource().export(attendance_filter.qs)
+
+#     response = HttpResponse(dataset.pdf, content_type="application/pdf")
+#     response["Content-Disposition"] = 'attachment; filename="filtered_attendance.pdf"'
+#     return response

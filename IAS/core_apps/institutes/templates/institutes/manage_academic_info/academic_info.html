@@ -1,4 +1,4 @@
-{% extends "common/institute_layout.html" %} 
+{% extends "common/common_layout.html" %} 
 {% load static %} 
 {% block title %}
 Admin | Academic information.
@@ -57,7 +57,7 @@ Admin | Academic information.
                 <td>{{data.student.role.user.email}}</td>
                 <td>{{data.student.department.department_name}}</td>
                 <td >{{data.student.enrollment_number}}</td>
-                <td>{{data.academic_class.class_name}} - {{data.academic_section.section_name}}</td>
+                <td>{{data.academic_class_section.class_name}} - {{data.academic_class_section.section_name}}</td>
                 <td>{{data.created_at}}</td>
                 <td>
                   <button type="button" class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#deleteAcademicInfo-{{data.id}}">
@@ -85,21 +85,17 @@ Admin | Academic information.
         <!-- Vertical Form -->
         <form class="row g-3" method="POST">
           {% csrf_token %}
-          <div class="col-6">
+          <div class="col-4">
             <label for="{{ form.academic_session.id_for_label }}" class="form-label">Academic Session</label>
             {{ form.academic_session }}
         </div>
-          <div class="col-6">
+          <div class="col-4">
             <label for="{{ form.student.id_for_label }}" class="form-label">Student</label>
             {{ form.student}}
           </div>
-          <div class="col-6">
-            <label for="{{ form.academic_class.id_for_label }}" class="form-label">Academic Class</label>
-            {{ form.academic_class }}
-          </div>
-          <div class="col-6">
-            <label for="{{ form.academic_section.id_for_label }}" class="form-label">Academic Section</label>
-            {{ form.academic_section }}
+          <div class="col-4">
+            <label for="{{ form.academic_class_section.id_for_label }}" class="form-label">Academic Class-Section</label>
+            {{ form.academic_class_section }}
           </div>
           
           

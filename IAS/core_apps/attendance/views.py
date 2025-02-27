@@ -13,4 +13,3 @@ def sync_attendance(request):
     academic_info = AcademicInfo.objects.filter(is_deleted=False)
     today_date  = date.today()
     attendances = Attendance.objects.filter(date=today_date)
-    
