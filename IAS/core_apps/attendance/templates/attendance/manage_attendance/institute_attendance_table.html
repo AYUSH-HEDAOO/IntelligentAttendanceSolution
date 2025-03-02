@@ -6,6 +6,7 @@
         <th scope="col">Name</th>
         <th scope="col">Email</th>
         <th scope="col">Status</th>
+        <th scope="col">Date</th>
         <th scope="col">In - Out Time</th>
       </tr>
     </thead>
@@ -18,6 +19,7 @@
             <td>{{attendance.academic_info.student.role.user.full_name}} ({{attendance.academic_info.academic_class_section.class_name}} - {{attendance.academic_info.academic_class_section.section_name}})</td>
             <td>{{attendance.academic_info.student.role.user.email}}</td>
             <td><span class="badge bg-{{attendance.badge_color}}">{{attendance.a_status}}</span></td>
+            <td>{{attendance.a_date}}</td>
             <td>{{attendance.in_time}} - {{attendance.out_time}}</td>
           </tr>
         {% elif attendance.a_type == "staff" %}
@@ -27,6 +29,7 @@
             <td>{{attendance.staff.role.user.full_name}}</td>
             <td>{{attendance.staff.role.user.email}}</td>
             <td><span class="badge bg-{{attendance.badge_color}}">{{attendance.a_status}}</span></td>
+            <td>{{attendance.a_date}}</td>
             <td>{{attendance.in_time}} - {{attendance.out_time}}</td>
           </tr>
         {% endif %}

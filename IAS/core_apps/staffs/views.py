@@ -23,7 +23,7 @@ def dashboard(request):
         a_type=RoleType.STUDENT,
     )
     present_count = student_todays_attendance.filter(a_status=AttendanceStatus.PRESENT).count()
-    absent_count = student_todays_attendance.filter(a_status__in=[AttendanceStatus.NOT_MARKED,AttendanceStatus.ABSENT]).count()
+    absent_count = student_todays_attendance.filter(a_status__in=[AttendanceStatus.ABSENT]).count()
     if request.method == "POST":
         todays_attendance = mark_all_attendance(current_user, todays_attendance)
         messages.success(request, "Attendance updated successfully.")
