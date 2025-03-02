@@ -23,6 +23,10 @@ runserver:
 superuser:
 	poetry run python -m ias.manage createsuperuser
 
+.PHONY: shell
+shell:
+	poetry run python -m ias.manage shell
+
 .PHONY: train-model
 train-model:
 	poetry run python -m ias.scripts.train_face_recognization_model

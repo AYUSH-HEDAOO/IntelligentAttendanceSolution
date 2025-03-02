@@ -96,15 +96,3 @@ def attendance_create_read(request):
     context = {"attendances": attendances, "todays_attendance": todays_attendance}
     return render(request, "attendance/manage_attendance/attendance.html", context)
 
-
-@login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
-@allowed_users(allowed_roles=[RoleType.STUDENT])
-def add_photos(request):
-    current_user = request.user.role_data
-    status = create_dataset(current_user, max_sample_count=29)
-    url_name = ROLE_URL_MAP[current_user.role_type]
-    if status:
-        messages.success(request, "Photos added successfully.")
-    else:
-        messages.error(request, "Failed to add photos.")
-    return redirect(reverse(url_name))

@@ -30,7 +30,7 @@ class Attendance(IASModel):
     a_status = models.CharField(
         max_length=10,
         choices=AttendanceStatus.choices,
-        default=AttendanceStatus.NOT_MARKED,
+        default=AttendanceStatus.ABSENT,
     )
     a_type = models.CharField(
         max_length=10, choices=RoleType.choices, default=RoleType.STUDENT
@@ -50,7 +50,7 @@ class Attendance(IASModel):
             created_user = AUTH_USER.objects.get(id=uuid)
 
             return f"{created_user.first_name} {created_user.last_name} ({role})"
-        return ""
+        return "System"
 
     @property
     def badge_color(self):
@@ -58,9 +58,9 @@ class Attendance(IASModel):
             return "success"
         elif self.a_status == AttendanceStatus.ABSENT:
             return "danger"
-        elif self.a_status == AttendanceStatus.NOT_MARKED:
-            return "warning"
         elif self.a_status == AttendanceStatus.ON_LEAVE:
+            return "warning"
+        elif self.a_status == AttendanceStatus.WEEKEND:
             return "secondary"
         else:
             return "info"
