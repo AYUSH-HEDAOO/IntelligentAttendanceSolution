@@ -1,12 +1,11 @@
 from django.shortcuts import redirect
 import dlib
 import os
-from datetime import datetime, date
+from datetime import date
 from django.contrib import messages
 import pickle
 import time
 import numpy as np
-from imutils.face_utils import FaceAligner
 from imutils.video import VideoStream
 from sklearn.preprocessing import LabelEncoder
 import imutils
@@ -29,31 +28,22 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from ias.core_apps.common.decorators import allowed_users
 from django.contrib.auth.decorators import login_required
+from ias.core_apps.common.utils.datetime_utils import get_current_time
+from ias.core_apps.common.utils.image_utils import CustomFaceAligner as FaceAligner
+from ias.core_apps.common.utils.image_utils import get_detector, get_predictor
+from ias.ias.general import BASE_DIR, MEDIA_ROOT
 
 User = get_user_model()
 
-from django.conf import settings
-
-BASE_DIR = settings.BASE_DIR
-MEDIA_ROOT = settings.MEDIA_ROOT
-# Add path to the shape predictor
-SHAPE_PREDICTOR_PATH = f"{BASE_DIR}\\shape_predictor_68_face_landmarks.dat"
-
-
-def get_current_time():
-    return datetime.now().strftime("%H:%M:%S")
-
 
 def mark_attendance(request):
-
-    detector = dlib.get_frontal_face_detector()
-
-    predictor = dlib.shape_predictor(SHAPE_PREDICTOR_PATH)
+    detector = get_detector()
+    predictor = get_predictor()
     svc_save_path = f"{BASE_DIR}\\ias\\face_recognition_data\\svc.sav"
 
     with open(svc_save_path, "rb") as f:
         svc = pickle.load(f)
-    fa = FaceAligner(predictor, desiredFaceWidth=96)
+    fa = FaceAligner(predictor, desiredFaceWidth=100)
     encoder = LabelEncoder()
     encoder.classes_ = np.load(f"{BASE_DIR}\\ias\\face_recognition_data\\classes.npy")
 
@@ -193,7 +183,10 @@ def get_attendance_data(current_user, filter_date):
             staff=staff, a_date__lt=filter_date
         ).order_by("-a_date")
         todays_attendance, is_created = Attendance.objects.get_or_create(
-            a_date=filter_date, institute=session_institute, staff=staff, a_type=RoleType.STAFF
+            a_date=filter_date,
+            institute=session_institute,
+            staff=staff,
+            a_type=RoleType.STAFF,
         )
     return attendances, todays_attendance
 
@@ -212,93 +205,77 @@ def update_attendance_in_db_in(clock_in_data):
 
 def create_dataset(role_data, max_sample_count=30):
     try:
-        id = role_data.user.id
+        user = role_data.user
+        user_id = user.id
         institute_id = role_data.institute.id
-        directory = f"{MEDIA_ROOT}/image_dataset/{institute_id}/{id}/"
+        max_sample_count = max_sample_count + user.last_image_number
+        directory = f"{MEDIA_ROOT}/image_dataset/{institute_id}/{user_id}/"
         if not os.path.exists(directory):
             os.makedirs(directory)
 
         # Detect face
         # Loading the HOG face detector and the shape predictpr for allignment
+        print("[INFO] Loading the facial detector")
+        detector = get_detector()
 
-        # print("[INFO] Loading the facial detector")
-        detector = dlib.get_frontal_face_detector()
-
-        predictor = dlib.shape_predictor(SHAPE_PREDICTOR_PATH)
-        fa = FaceAligner(predictor, desiredFaceWidth=96)
+        predictor = get_predictor()
+        fa = FaceAligner(predictor, desiredFaceWidth=100)
         # capture images from the webcam and process and detect the face
         # Initialize the video stream
-        # print("[INFO] Initializing Video stream")
+        print("[INFO] Initializing Video stream")
         vs = VideoStream(src=0).start()
-        # time.sleep(2.0) ####CHECK######
-
-        # Our identifier
-        # We will put the id here and we will store the id with a face, so that later we can identify whose face it is
 
         # Our dataset naming counter
-        sampleNum = 0
+        start_sample_num = user.last_image_number
         # Capturing the faces one by one and detect the faces and showing it on the window
-        while True:
-            # Capturing the image
-            # vs.read each frame
+        while start_sample_num != max_sample_count:
+
             frame = vs.read()
             # Resize each image
             frame = imutils.resize(frame, width=800)
-            # the returned img is a colored image but for the classifier to work we need a greyscale image
-            # to convert
+
             gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            # To store the faces
-            # This will detect all the images in the current frame, and it will return the coordinates of the faces
-            # Takes in image and some other parameter for accurate result
+
             faces = detector(gray_frame, 0)
-            # In above 'faces' variable there can be multiple faces so we have to get each and every face and draw a rectangle around it.
 
             for face in faces:
                 # print("inside for loop")
                 (x, y, w, h) = face_utils.rect_to_bb(face)
 
                 face_aligned = fa.align(frame, gray_frame, face)
-                # Whenever the program captures the face, we will write that is a folder
-                # Before capturing the face, we need to tell the script whose face it is
-                # For that we will need an identifier, here we call it id
-                # So now we captured a face, we need to write it in a file
-                sampleNum = sampleNum + 1
-                # Saving the image dataset, but only the face part, cropping the rest
 
+                start_sample_num = start_sample_num + 1
+
+                # Saving the image dataset, but only the face part, cropping the rest
                 if face is None:
                     print("face is none")
                     continue
 
-                cv2.imwrite(directory + "/" + str(sampleNum) + ".jpg", face_aligned)
+                cv2.imwrite(
+                    directory + "/" + str(start_sample_num) + ".jpg", face_aligned
+                )
                 face_aligned = imutils.resize(face_aligned, width=400)
-                # cv2.imshow("Image Captured",face_aligned)
-                # @params the initial point of the rectangle will be x,y and
-                # @params end point will be x+width and y+height
-                # @params along with color of the rectangle
-                # @params thickness of the rectangle
+
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
-                # Before continuing to the next loop, I want to give it a little pause
-                # waitKey of 100 millisecond
+
                 cv2.waitKey(50)
 
             # Showing the image in another window
             # Creates a window with window name "Face" and with the image img
             cv2.imshow("Add Images", frame)
-            # Before closing it we need to give a wait command, otherwise the open cv wont work
-            # @params with the millisecond of delay 1
-            cv2.waitKey(1)
-            # To get out of the loop
-            if sampleNum > max_sample_count:
-                break
 
-        # Stoping the videostream
-        vs.stop()
-        # destroying all the windows
-        cv2.destroyAllWindows()
+            cv2.waitKey(1)
+
+        user.last_image_number = start_sample_num - 1
+        user.save()
         return True
     except Exception as e:
         print("Error", e)
         return False
+    finally:
+        # Stoping the videostream
+        vs.stop()
+        cv2.destroyAllWindows()
 
 
 def mark_all_attendance(current_user, todays_attendance):
@@ -316,6 +293,7 @@ def mark_all_attendance(current_user, todays_attendance):
             todays_attendance.a_status = AttendanceStatus.PRESENT
         todays_attendance.save()
     return todays_attendance
+
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.STUDENT])
@@ -374,16 +352,21 @@ def attendance_list(request):
     current_user = request.user.role_data
     session_institute = request.user.role_data.institute
     if current_user.role_type == RoleType.STAFF:
-        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False, a_type=RoleType.STUDENT)
+        attendance_queryset = Attendance.objects.filter(
+            institute=session_institute, is_deleted=False, a_type=RoleType.STUDENT
+        )
     else:
-        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False)
+        attendance_queryset = Attendance.objects.filter(
+            institute=session_institute, is_deleted=False
+        )
     attendance_filter = AttendanceFilter(request.GET, queryset=attendance_queryset)
-    
+
     context = {
         "todays_attendance": attendance_filter.qs,
-        "attendance_filter": attendance_filter
+        "attendance_filter": attendance_filter,
     }
     return render(request, "attendance/manage_attendance/attendance.html", context)
+
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])
@@ -391,15 +374,20 @@ def export_attendance_csv(request):
     current_user = request.user.role_data
     session_institute = request.user.role_data.institute
     if current_user.role_type == RoleType.STAFF:
-        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False, a_type=RoleType.STUDENT)
+        attendance_queryset = Attendance.objects.filter(
+            institute=session_institute, is_deleted=False, a_type=RoleType.STUDENT
+        )
     else:
-        attendance_queryset = Attendance.objects.filter(institute=session_institute, is_deleted=False)
+        attendance_queryset = Attendance.objects.filter(
+            institute=session_institute, is_deleted=False
+        )
     attendance_filter = AttendanceFilter(request.GET, queryset=attendance_queryset)
     dataset = AttendanceResource().export(attendance_filter.qs)
 
     response = HttpResponse(dataset.csv, content_type="text/csv")
     response["Content-Disposition"] = 'attachment; filename="filtered_attendance.csv"'
     return response
+
 
 # @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 # @allowed_users(allowed_roles=[RoleType.OWNER, RoleType.STAFF])

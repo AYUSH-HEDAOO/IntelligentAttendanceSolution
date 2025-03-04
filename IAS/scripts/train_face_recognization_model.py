@@ -72,9 +72,7 @@ def start_training(institute) -> bool:
 
 if __name__ == "__main__":
     from ias.core_apps.institutes.models import Institute
-
     institutes = Institute.objects.filter(is_deleted=False)
-
     for institute in institutes:
         result = start_training(institute)
         if result:

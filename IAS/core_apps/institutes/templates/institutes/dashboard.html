@@ -217,58 +217,28 @@
               <div class="card-body ">
                 
                 
-                  <h5 class="card-title">Recent Activity <span>| Today</span></h5>
+                <h5 class="card-title">Recent Activity <span>| Last 7 Days</span></h5>
 
 
                 <div class="activity">
-
+                  {% for recent_activity in recent_activities%}
                   <div class="activity-item d-flex">
-                    <div class="activite-label">10 min</div>
-                    <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+                    <div class="activite-label">{{recent_activity.last_activity_since}}</div>
+                    <i class='bi bi-circle-fill activity-badge text-{{recent_activity.activity_color}} align-self-start'></i>
                     <div class="activity-content">
-                      DBMS Teacher  <a href="#" class="fw-bold text-dark">Sagar Tete</a> Sir
-                    </div>
-                  </div><!-- End activity item-->
+                      {% if  recent_activity.a_type == "student" %}
+                      {{recent_activity.academic_info.student.department.department_name}}
+                      <a href="{% url 'CreateReadAcademicInfo' %}" class="fw-bold text-dark">{{recent_activity.academic_info.student.role.user.full_name}}</a> 
+                      ({{recent_activity.academic_info.academic_class_section.class_name}} - {{recent_activity.academic_info.academic_class_section.section_name}})
+                      {% elif recent_activity.a_type == "staff" %}
+                      {{recent_activity.staff.department.department_name}}
+                      <a href="{% url 'CreateReadStaff' %}" class="fw-bold text-dark">{{recent_activity.staff.role.user.full_name}}</a> 
+                      {{recent_activity.staff.designation.designation_name}}
+                      {% endif %}
 
-                  <div class="activity-item d-flex">
-                    <div class="activite-label">13 min</div>
-                    <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                    <div class="activity-content">
-                      Student Ayush Hedaoo
                     </div>
-                  </div><!-- End activity item-->
-
-                  <div class="activity-item d-flex">
-                    <div class="activite-label">20 min </div>
-                    <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                    <div class="activity-content">
-                      Student Pritish Dighore
-                    </div>
-                  </div><!-- End activity item-->
-
-                  <div class="activity-item d-flex">
-                    <div class="activite-label">30 min</div>
-                    <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                    <div class="activity-content">
-                      HOD of CSE  <a href="#" class="fw-bold text-dark">Mrs Sonal Bawankule</a> Mam
-                    </div>
-                  </div><!-- End activity item-->
-
-                  <div class="activity-item d-flex">
-                    <div class="activite-label">35 min</div>
-                    <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                    <div class="activity-content">
-                      Student Kunal Paunikar
-                    </div>
-                  </div><!-- End activity item-->
-
-                  <div class="activity-item d-flex">
-                    <div class="activite-label">1 hour</div>
-                    <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                    <div class="activity-content">
-                      Housekeeeping staff Sangita 
-                    </div>
-                  </div><!-- End activity item-->
+                  </div>
+                  {% endfor %}
 
                 </div>
 

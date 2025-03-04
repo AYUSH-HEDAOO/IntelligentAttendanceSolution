@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
@@ -49,13 +49,20 @@ def dashboard(request):
         a_date=todays_date,
     )
     present_count = todays_attendance.filter(a_status=AttendanceStatus.PRESENT).count()
-    absent_count = todays_attendance.filter(a_status__in=[AttendanceStatus.NOT_MARKED,AttendanceStatus.ABSENT]).count()
+    absent_count = todays_attendance.filter(a_status__in=[AttendanceStatus.ABSENT]).count()
+    yesterday = todays_date - timedelta(days=7)
+    recent_activities = Attendance.objects.filter(
+        institute=institute,
+        is_deleted=False,
+        a_date__gte=yesterday,
+    )
     context = {
         "student_count": student_count,
         "staff_count": staff_count,
         "present_count": present_count,
         "absent_count": absent_count,
         "todays_attendance": todays_attendance,
+        "recent_activities": recent_activities
     }
     return render(request, "institutes/dashboard.html", context)
 

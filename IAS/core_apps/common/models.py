@@ -43,9 +43,8 @@ class AttendanceStatus(models.TextChoices):
     PRESENT = "present", "Present"
     ABSENT = "absent", "Absent"
     ON_LEAVE = "on leave", "On Leave"
-    NOT_MARKED = "not marked", "Not Marked"
     HOLIDAY = "holiday", "Holiday"
-    weekend = "weekend", "Weekend"
+    WEEKEND = "weekend", "Weekend"
 
 
 class BloodGroup(models.TextChoices):
