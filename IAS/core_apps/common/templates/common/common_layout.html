@@ -38,10 +38,22 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
+      {% if request.user.role_data.role_type == 'student' %}
+      <a href="{% url 'StudentDashboard' %}" class="logo d-flex align-items-center">
         <img src="{% static 'assets/img/logo.png' %}" alt="">
         <span class="d-none d-lg-block">IAS</span>
       </a>
+      {% elif request.user.role_data.role_type == 'owner' %}
+      <a href="{% url 'InstituteDashboard' %}" class="logo d-flex align-items-center">
+        <img src="{% static 'assets/img/logo.png' %}" alt="">
+        <span class="d-none d-lg-block">IAS</span>
+      </a>
+      {% elif request.user.role_data.role_type == 'staff' %}
+      <a href="{% url 'StaffDashboard' %}" class="logo d-flex align-items-center">
+        <img src="{% static 'assets/img/logo.png' %}" alt="">
+        <span class="d-none d-lg-block">IAS</span>
+      </a>
+      {% endif %}
       <i class="bi bi-list toggle-sidebar-btn"></i>
     </div><!-- End Logo -->
 
