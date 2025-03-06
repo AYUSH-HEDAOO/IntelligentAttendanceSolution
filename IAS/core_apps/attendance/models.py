@@ -8,7 +8,7 @@ from ias.core_apps.students.models import (
     AcademicSession,
 )
 from django.contrib.auth import get_user_model
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 AUTH_USER = get_user_model()
 
@@ -94,10 +94,12 @@ class Attendance(IASModel):
 
         result = "N/A"
         if todays_date == self.a_date:
+            time_diff = timedelta(seconds=0)
             if self.a_in_time and not self.a_out_time:
                 time_diff = datetime.combine(todays_date, current_time) - datetime.combine(self.a_date, self.a_in_time)
             elif self.a_in_time and self.a_out_time:
                 time_diff = datetime.combine(todays_date, current_time) - datetime.combine(self.a_date, self.a_out_time)
+
 
             # Convert timedelta to minutes
             total_minutes = int(time_diff.total_seconds() / 60)
