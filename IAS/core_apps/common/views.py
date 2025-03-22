@@ -1,12 +1,11 @@
 from django.shortcuts import redirect
-import dlib
+import requests
 import os
 from datetime import date
 from django.contrib import messages
 import pickle
 import time
 import numpy as np
-from imutils.video import VideoStream
 from sklearn.preprocessing import LabelEncoder
 import imutils
 import cv2
@@ -34,7 +33,7 @@ from ias.core_apps.common.utils.image_utils import get_detector, get_predictor
 from ias.ias.general import BASE_DIR, MEDIA_ROOT
 
 User = get_user_model()
-
+ip = "192.168.252.100"
 
 def mark_attendance(request):
     detector = get_detector()
@@ -53,83 +52,70 @@ def mark_attendance(request):
     present = dict()
     start = dict()
     for i in range(no_of_faces):
-        count[encoder.inverse_transform([i])[0]] = 0
-        present[encoder.inverse_transform([i])[0]] = False
+        user_id = encoder.inverse_transform([i])[0]
+        count[user_id] = 0
+        present[user_id] = False
 
-    vs = VideoStream(src=0).start()
+    # Fetch images from the URL
+    image_url = f"http://{ip}/640x480.jpg"
 
     iterations = 0
     while iterations < 5:
-        # while True:
-        frame = vs.read()
-        frame = imutils.resize(frame, width=800)
-        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = detector(gray_frame, 0)
+        try:
+            response = requests.get(image_url, stream=True)
+            if response.status_code == 200:
+                image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
+                frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+                frame = imutils.resize(frame, width=800)
+                gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                faces = detector(gray_frame, 0)
 
-        for face in faces:
-            print("INFO : inside for loop")
-            (x, y, w, h) = face_utils.rect_to_bb(face)
-            face_aligned = fa.align(frame, gray_frame, face)
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
-            (pred, prob) = predict(face_aligned, svc)
+                for face in faces:
+                    (x, y, w, h) = face_utils.rect_to_bb(face)
+                    face_aligned = fa.align(frame, gray_frame, face)
+                    (pred, prob) = predict(face_aligned, svc)
 
-            if pred != [-1]:
-                user_id = encoder.inverse_transform(np.ravel([pred]))[0]
-                pred = user_id
-                if count[pred] == 0:
-                    start[pred] = time.time()
-                    count[pred] = count.get(pred, 0) + 1
+                    if pred != [-1]:
+                        user_id = encoder.inverse_transform(np.ravel([pred]))[0]
+                        if count[user_id] == 0:
+                            start[user_id] = time.time()
+                            count[user_id] += 1
 
-                if count[pred] == 4 and (time.time() - start[pred]) > 1.2:
-                    count[pred] = 0
-                else:
-                    present[pred] = True
-                    count[pred] = count.get(pred, 0) + 1
-                    print("Found Data", pred, present[pred], count[pred])
+                        if count[user_id] == 4 and (time.time() - start[user_id]) > 1.2:
+                            count[user_id] = 0
+                        else:
+                            present[user_id] = True
+                            count[user_id] += 1
+                            print(f"Found user: {user_id}, Present: {present[user_id]}, Count: {count[user_id]}")
 
-                cv2.putText(
-                    frame,
-                    str(user_id) + str(prob),
-                    (x + 6, y + h - 6),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (0, 255, 0),
-                    1,
-                )
-                break
+                    cv2.putText(
+                        frame,
+                        str(user_id) + str(prob),
+                        (x + 6, y + h - 6),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5,
+                        (0, 255, 0),
+                        1,
+                    )
+
+                cv2.imshow("Mark Attendance - In - Press q to exit", frame)
+                if cv2.waitKey(50) & 0xFF == ord('q'):
+                    break
 
             else:
-                user_id = "unknown"
-                cv2.putText(
-                    frame,
-                    str(user_id),
-                    (x + 6, y + h - 6),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (0, 255, 0),
-                    1,
-                )
+                print(f"Error: Failed to fetch image. Status code: {response.status_code}")
+                break
 
-        # Showing the image in another window
-        # Creates a window with window name "Face" and with the image img
-        cv2.imshow("Mark Attendance - In - Press q to exit", frame)
-
-        # To get out of the loop
-        key = cv2.waitKey(50) & 0xFF
-        if key == ord("q"):
+        except Exception as e:
+            print(f"Error: {e}")
             break
+
         iterations += 1
         time.sleep(1)
 
-    # Stoping the videostream
-    vs.stop()
-
-    # destroying all the windows
     cv2.destroyAllWindows()
-    update_attendance_in_db_in(present)
-    print(present)
-    return redirect("Login")
-
+    name = update_attendance_in_db_in(present)
+    return redirect(f"/?attendance={name}")
 
 def predict(face_aligned, svc, threshold=0.7):
     face_encodings = np.zeros((1, 128))
@@ -193,14 +179,17 @@ def get_attendance_data(current_user, filter_date):
 
 def update_attendance_in_db_in(clock_in_data):
     user_ids = get_user_ids_with_true_values(clock_in_data)
+    name = ""
     for user_id in user_ids:
         # Mark attendance for user_id
         user = User.objects.get(id=user_id)
         current_user = Role.objects.get(user=user)
+        name = current_user.user.full_name
         print("Marking Attendance for User", current_user.user.full_name)
         _, todays_attendance = get_attendance_data(current_user, date.today())
         todays_attendance = mark_all_attendance(current_user, todays_attendance)
-    return True
+    return name
+
 
 
 def create_dataset(role_data, max_sample_count=30):
@@ -214,69 +203,81 @@ def create_dataset(role_data, max_sample_count=30):
             os.makedirs(directory)
 
         # Detect face
-        # Loading the HOG face detector and the shape predictpr for allignment
+        # Loading the HOG face detector and the shape predictor for alignment
         print("[INFO] Loading the facial detector")
         detector = get_detector()
-
         predictor = get_predictor()
         fa = FaceAligner(predictor, desiredFaceWidth=100)
-        # capture images from the webcam and process and detect the face
-        # Initialize the video stream
-        print("[INFO] Initializing Video stream")
-        vs = VideoStream(src=0).start()
+
+        # URL of the image that updates frequently
+        image_url = f"http://{ip}/640x480.jpg"
 
         # Our dataset naming counter
         start_sample_num = user.last_image_number
-        # Capturing the faces one by one and detect the faces and showing it on the window
+
+        # Capturing the faces one by one and detecting the faces
         while start_sample_num != max_sample_count:
+            try:
+                # Fetch the image from the URL
+                response = requests.get(image_url, stream=True)
+                if response.status_code == 200:
+                    # Convert the image to a numpy array
+                    image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
+                    frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
 
-            frame = vs.read()
-            # Resize each image
-            frame = imutils.resize(frame, width=800)
+                    # Resize the frame
+                    frame = imutils.resize(frame, width=800)
 
-            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    # Convert to grayscale for face detection
+                    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    faces = detector(gray_frame, 0)
 
-            faces = detector(gray_frame, 0)
+                    for face in faces:
+                        (x, y, w, h) = face_utils.rect_to_bb(face)
 
-            for face in faces:
-                # print("inside for loop")
-                (x, y, w, h) = face_utils.rect_to_bb(face)
+                        # Align the face
+                        face_aligned = fa.align(frame, gray_frame, face)
 
-                face_aligned = fa.align(frame, gray_frame, face)
+                        # Increment the sample number
+                        start_sample_num += 1
 
-                start_sample_num = start_sample_num + 1
+                        # Save the aligned face image
+                        if face_aligned is not None:
+                            cv2.imwrite(
+                                os.path.join(directory, f"{start_sample_num}.jpg"), face_aligned
+                            )
+                            face_aligned = imutils.resize(face_aligned, width=400)
 
-                # Saving the image dataset, but only the face part, cropping the rest
-                if face is None:
-                    print("face is none")
-                    continue
+                        # Draw a rectangle around the face
+                        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
 
-                cv2.imwrite(
-                    directory + "/" + str(start_sample_num) + ".jpg", face_aligned
-                )
-                face_aligned = imutils.resize(face_aligned, width=400)
+                    # Display the frame
+                    cv2.imshow("Add Images", frame)
 
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
+                    # Wait for a short period (50ms) and check for 'q' key press to exit
+                    if cv2.waitKey(50) & 0xFF == ord('q'):
+                        break
 
-                cv2.waitKey(50)
+                else:
+                    print(f"Error: Failed to fetch image. Status code: {response.status_code}")
+                    break
 
-            # Showing the image in another window
-            # Creates a window with window name "Face" and with the image img
-            cv2.imshow("Add Images", frame)
+            except Exception as e:
+                print(f"Error fetching or processing image: {e}")
+                break
 
-            cv2.waitKey(1)
-
+        # Update the user's last image number
         user.last_image_number = start_sample_num - 1
         user.save()
         return True
-    except Exception as e:
-        print("Error", e)
-        return False
-    finally:
-        # Stoping the videostream
-        vs.stop()
-        cv2.destroyAllWindows()
 
+    except Exception as e:
+        print("Error in create_dataset:", e)
+        return False
+
+    finally:
+        # Clean up
+        cv2.destroyAllWindows()
 
 def mark_all_attendance(current_user, todays_attendance):
     with transaction.atomic():
