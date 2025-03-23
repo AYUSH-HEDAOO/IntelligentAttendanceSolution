@@ -29,6 +29,7 @@ imutils = "^0.5.4"
 dlib = { path = "dependencies/dlib-19.22.99-cp310-cp310-win_amd64.whl" }
 django-import-export = "^4.3.7"
 django-filter = "^25.1"
+requests = "^2.32.3"
 
 
 [build-system]
