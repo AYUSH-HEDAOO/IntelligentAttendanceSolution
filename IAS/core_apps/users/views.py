@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import logout
 from django.contrib import messages
 from .forms import RegistrationForm, LoginForm
+from ..common.views import mark_attendance
 # Create your views here.
 
 def register(request):
@@ -34,7 +35,12 @@ def login(request):
             return redirect(reverse(f'{url_name}'))
     else:
         form = LoginForm()
+
     context = {'form': form}
+    attendance = request.GET.get("attendance")
+    if attendance:
+        context['attendance'] = attendance
+    print(context)
     return render(request,"users/login.html",context)
 
 

@@ -33,7 +33,7 @@ from ias.core_apps.common.utils.image_utils import get_detector, get_predictor
 from ias.ias.general import BASE_DIR, MEDIA_ROOT
 
 User = get_user_model()
-ip = "192.168.252.100"
+ip = "192.168.80.100"
 
 def mark_attendance(request):
     detector = get_detector()
@@ -322,7 +322,7 @@ def profile(request):
             gender = request.POST.get("gender", "")
             address = request.POST.get("address", "")
             blood_group = request.POST.get("blood_group", "")
-            profile_image = request.FILES.get("profile_image", None)
+            profile_image = request.FILES.get("profile_image", "")
             mobile_no = request.POST.get("mobile_no", "")
 
             student.dob = dob
@@ -331,57 +331,16 @@ def profile(request):
             student.gender = gender
             student.address = address
             student.blood_group = blood_group
-            if profile_image:
-                student.profile_image = profile_image
+            student.profile_image = profile_image
             student.mobile_no = mobile_no
             student.save()
+
             messages.success(request, "Profile updated successfully.")
             return redirect(reverse("ProfileUpdateRead"))
     elif current_user.role_type == RoleType.OWNER:
         institute = Institute.objects.get(id=current_user.institute.id)
-        if request.method == "POST":
-            institute_name = request.POST.get("institute_name", "")
-            institute_reg_number = request.POST.get("institute_reg_number", "")
-            phone_number = request.POST.get("phone_number", "")
-            address = request.POST.get("address", "")
-            city = request.POST.get("city", "")
-            institute_image = request.FILES.get("institute_image", None)
-
-            institute.institute_name = institute_name
-            institute.institute_reg_number = institute_reg_number
-            institute.phone_number = phone_number
-            institute.address = address
-            institute.city = city
-            if institute_image:
-                institute.institute_image = institute_image
-            institute.save()
-
-            messages.success(request, "Profile updated successfully.")
-            return redirect(reverse("ProfileUpdateRead"))
-
     elif current_user.role_type == RoleType.STAFF:
         staff = Staff.objects.get(role=current_user)
-        if request.method == "POST":
-            profile_image = request.FILES.get("profile_image", None)
-            dob = request.POST.get("dob", "")
-            state = request.POST.get("state", "")
-            address = request.POST.get("address", "")
-            gender = request.POST.get("gender", "")
-            blood_group = request.POST.get("blood_group", "")
-            mobile_no = request.POST.get("mobile_no", "")
-            about = request.POST.get("about", "")
-            if profile_image:
-                staff.profile_image = profile_image
-            staff.dob = dob
-            staff.state = state
-            staff.address = address
-            staff.blood_group = blood_group
-            staff.gender = gender
-            staff.mobile_no = mobile_no
-            staff.about = about
-            staff.save()
-            messages.success(request, "Profile updated successfully.")
-            return redirect(reverse("ProfileUpdateRead"))
 
     context = {"blood_groups": BloodGroup, "genders": Gender}
     return render(request, "common/manage_profile/profile.html", context)
