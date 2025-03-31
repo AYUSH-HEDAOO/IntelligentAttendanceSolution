@@ -3,10 +3,6 @@
 import os
 import sys
 
-from django.conf import settings
-
-from IAS.utils.general import deep_update, get_settings_from_environment
-
 
 def main():
     """Run administrative tasks."""
@@ -25,13 +21,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    """
-        This takes env variables with matching prefix, strips out the prefix, and adds it to global settings.
-
-        For example:
-            export PORTFOLIO_SETTINGS_IN_DOCKER=true (environment variable)
-            could then be reffered as a global as:
-            IN_DOCKER (where then value would be True)
-    """
-    # global() is a dictionary of global variables
-    deep_update(globals(), get_settings_from_environment(settings.ENVVAR_SETTINGS_PREFIX))

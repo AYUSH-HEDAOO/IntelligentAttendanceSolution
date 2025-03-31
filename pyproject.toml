@@ -2,7 +2,7 @@
 name = "IAS"
 version = "0.1.0"
 description = ""
-authors = ["Praful Patekar <prafulpatekar23@gmail.com>"]
+authors = ["Your Name <your@email.com>"]
 readme = "README.md"
 packages = [{ include = "IAS" }]
 

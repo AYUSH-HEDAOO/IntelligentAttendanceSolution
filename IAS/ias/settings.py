@@ -14,7 +14,9 @@ import os
 from pathlib import Path
 from typing import List
 
-ENVVAR_SETTINGS_PREFIX = "IAS_SETTINGS"
+from IAS.utils.general import deep_update, get_settings_from_environment
+
+ENVVAR_SETTINGS_PREFIX = "IAS_SETTINGS_"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Quick-start development settings - unsuitable for production
@@ -27,12 +29,12 @@ def str_to_bool(value: str) -> bool:
     return value.lower() == "true"
 
 
-IN_DOCKER: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}_IN_DOCKER", "false"))
-SECRET_KEY: str = str(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}_SECRET_KEY"))
-DEBUG: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}_DEBUG", "true"))
+IN_DOCKER: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}IN_DOCKER", "false"))
+SECRET_KEY: str = str(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}SECRET_KEY"))
+DEBUG: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}DEBUG", "true"))
 ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1"]
-CSRF_TRUSTED_ORIGINS: List[str] = ['http://localhost:8080']
-CAMERA_IP = os.getenv(f"{ENVVAR_SETTINGS_PREFIX}_CAMERA_IP", None)
+CSRF_TRUSTED_ORIGINS: List[str] = ["http://localhost:8080"]
+CAMERA_IP = os.getenv(f"{ENVVAR_SETTINGS_PREFIX}CAMERA_IP", None)
 
 if IN_DOCKER:
     ALLOWED_HOSTS = ["*"]
@@ -211,3 +213,13 @@ LOGGING = {
         "handlers": ["console"],
     },
 }
+"""
+    This takes env variables with matching prefix, strips out the prefix, and adds it to global settings.
+
+    For example:
+        export PORTFOLIO_SETTINGS_IN_DOCKER=true (environment variable)
+        could then be reffered as a global as:
+        IN_DOCKER (where then value would be True)
+"""
+# global() is a dictionary of global variables
+deep_update(globals(), get_settings_from_environment(ENVVAR_SETTINGS_PREFIX))

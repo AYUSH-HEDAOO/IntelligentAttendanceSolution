@@ -5,6 +5,10 @@ venv:
 
 .PHONY: install
 install:
+	poetry install
+
+.PHONY: install-win-dev
+install-win-dev:
 	poetry install; pip install dependencies/dlib-19.22.99-cp310-cp310-win_amd64.whl
 
 .PHONY: migrations
