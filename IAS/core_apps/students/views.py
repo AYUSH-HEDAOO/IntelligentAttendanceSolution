@@ -1,23 +1,13 @@
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from ias.core_apps.common.decorators import allowed_users
-from django.contrib.auth.decorators import login_required
-from ias.core_apps.common.models import (
-    RoleType,
-    ROLE_URL_MAP,
-    AttendanceStatus,
-    BloodGroup,
-    Gender,
-)
-from .models import Student
 from datetime import date
-from ias.core_apps.common.views import (
-    create_dataset,
-    mark_all_attendance,
-    get_attendance_data,
-)
-from ias.core_apps.attendance.models import Attendance
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+from IAS.core_apps.attendance.models import Attendance
+from IAS.core_apps.common.decorators import allowed_users
+from IAS.core_apps.common.models import ROLE_URL_MAP, AttendanceStatus, RoleType
+from IAS.core_apps.common.views import get_attendance_data, mark_all_attendance
 
 
 def get_months_map():
@@ -38,31 +28,17 @@ def dashboard(request):
     attendances, todays_attendance = get_attendance_data(current_user, todays_date)
     months_map = get_months_map()
     filter_status = request.GET.get("status")
-    filter_month = request.GET.get(
-        "month", date.today().strftime("%m")
-    )  # Get the month from query params
+    filter_month = request.GET.get("month", date.today().strftime("%m"))  # Get the month from query params
     if filter_month and filter_month.isdigit():  # Validate that the month is a number
         filter_month = int(filter_month)
     present_count = (
-        attendances.filter(
-            a_date__month=filter_month, a_status=AttendanceStatus.PRESENT
-        ).count()
-        if attendances
-        else 0
+        attendances.filter(a_date__month=filter_month, a_status=AttendanceStatus.PRESENT).count() if attendances else 0
     )
     absent_count = (
-        attendances.filter(
-            a_date__month=filter_month, a_status=AttendanceStatus.ABSENT
-        ).count()
-        if attendances
-        else 0
+        attendances.filter(a_date__month=filter_month, a_status=AttendanceStatus.ABSENT).count() if attendances else 0
     )
     leave_count = (
-        attendances.filter(
-            a_date__month=filter_month, a_status=AttendanceStatus.ON_LEAVE
-        ).count()
-        if attendances
-        else 0
+        attendances.filter(a_date__month=filter_month, a_status=AttendanceStatus.ON_LEAVE).count() if attendances else 0
     )
 
     if request.method == "POST":
@@ -71,9 +47,7 @@ def dashboard(request):
         todays_attendance = Attendance.objects.get(id=todays_attendance.id)
 
     context = {
-        "attendances": (
-            attendances.filter(a_status=filter_status) if filter_status else attendances
-        ),
+        "attendances": (attendances.filter(a_status=filter_status) if filter_status else attendances),
         "todays_attendance": todays_attendance,
         "months_map": months_map,
         "present_count": present_count,
@@ -85,14 +59,10 @@ def dashboard(request):
     return render(request, "students/dashboard.html", context)
 
 
-
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.STUDENT, RoleType.OWNER, RoleType.STAFF])
 def attendance_create_read(request):
     current_user = request.user.role_data
-    attendances, todays_attendance = get_attendance_data(
-        current_user, filter_date=date.today()
-    )
+    attendances, todays_attendance = get_attendance_data(current_user, filter_date=date.today())
     context = {"attendances": attendances, "todays_attendance": todays_attendance}
     return render(request, "attendance/manage_attendance/attendance.html", context)
-

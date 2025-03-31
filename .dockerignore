@@ -1,0 +1,12 @@
+static/
+NiceAdmin/
+.github/
+dependencies/
+media/
+.editorconfig
+.gitignore
+db.sqlite3
+mypy.ini
+requirements.txt
+.pre-commit-config.yaml
+.flake8

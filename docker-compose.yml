@@ -1,9 +1,33 @@
-version: "3.3"
+version: '3.8'
+
 services:
-  web:
-    # For Local
-    # build: . 
-    # For Production
-    image: "prafulcoder/ias:latest" 
+
+  prod-db:
+    image: postgres:14.2-alpine
+    restart: unless-stopped
     ports:
-      - "8080:8080"
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgresql-prod-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - '8000:8000'
+    depends_on:
+      - prod-db
+    environment:
+      IAS_SETTINGS_DATABASES: ${IAS_SETTINGS_DATABASES} # JSON string
+      IAS_SETTINGS_IN_DOCKER: ${IAS_SETTINGS_IN_DOCKER} # Boolean values should be passed as strings
+      IAS_SETTINGS_SECRET_KEY: ${IAS_SETTINGS_SECRET_KEY} # String value
+      IAS_SETTINGS_CAMERA_IP: ${IAS_SETTINGS_CAMERA_IP} # Empty string
+      IAS_SETTINGS_DEBUG: ${IAS_SETTINGS_DEBUG} # Boolean values should be passed as strings
+
+volumes:
+  postgresql-prod-data:
+    driver: local

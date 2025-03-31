@@ -1,8 +1,8 @@
-{% extends "common/common_layout.html" %} 
-{% load static %} 
+{% extends "common/common_layout.html" %}
+{% load static %}
 {% block title %}
 {{request.user.role_data.role_type | title}} | Attendance
-{% endblock title %} 
+{% endblock title %}
 {% block breadcrumb %}
 <div class="pagetitle">
   <h1>Attendance Report</h1>
@@ -23,7 +23,7 @@
   </nav>
 </div>
 <!-- End Page Title -->
-{% endblock breadcrumb %} 
+{% endblock breadcrumb %}
 {% block content %}
 
 {% if request.user.role_data.role_type == 'student' %}
@@ -37,11 +37,11 @@
               <button type="button" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#verticalycentered">
                 View Timeline
               </button>
-  
+
             </div>
-  
+
             <p>Attendance information.</p>
-  
+
             {% include "attendance/manage_attendance/attendance_table.html" %}
           </div>
         </div>
@@ -58,7 +58,7 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <h5 class="card-title">All Attendance</h5>
-              
+
               <div class="filter row">
                 <div class="col-4">
                   <a class="icon" href="?" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -83,11 +83,11 @@
                   </ul>
                 </div>
               </div>
-              
-  
+
+
             </div>
 
-  
+
             <!-- Table with stripped rows -->
             {% include 'attendance/manage_attendance/institute_attendance_table.html' %}
           </div>
@@ -95,9 +95,9 @@
       </div>
     </div>
   </section>
-  
+
 <!-- End Large Modal-->
 
   {% endif %}
-  
+
 {% endblock content %}

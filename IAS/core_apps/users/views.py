@@ -1,10 +1,12 @@
-from django.shortcuts import render,redirect
-from django.urls import reverse
-from django.contrib.auth import logout
 from django.contrib import messages
-from .forms import RegistrationForm, LoginForm
-from ..common.views import mark_attendance
+from django.contrib.auth import logout
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
+from IAS.core_apps.users.forms import LoginForm, RegistrationForm
+
 # Create your views here.
+
 
 def register(request):
     if request.method == 'POST':
@@ -23,7 +25,8 @@ def register(request):
     else:
         form = RegistrationForm()
     context = {'form': form}
-    return render(request,"users/register.html",context)
+    return render(request, "users/register.html", context)
+
 
 def login(request):
     if request.method == 'POST':
@@ -40,13 +43,10 @@ def login(request):
     attendance = request.GET.get("attendance")
     if attendance:
         context['attendance'] = attendance
-    print(context)
-    return render(request,"users/login.html",context)
+    return render(request, "users/login.html", context)
 
 
 def user_logout(request):
     logout(request)
-    messages.info(request,"Logged Out Successfully!")
+    messages.info(request, "Logged Out Successfully!")
     return redirect("Login")
-
-

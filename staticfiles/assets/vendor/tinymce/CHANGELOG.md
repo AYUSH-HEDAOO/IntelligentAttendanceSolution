@@ -3590,4 +3590,3 @@ Npm version bump due to package not being fully updated.
 - Fixed so images doesn't get a width/height applied if the image_dimensions option is set to false useful for responsive contents.
 - Fixed so it's possible to pass in an optional arguments object for the nodeChanged function to be passed to all nodechange event listeners.
 - Fixed bug where media plugin embed code didn't update correctly.
-

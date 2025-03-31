@@ -1,17 +1,14 @@
 from django import forms
-from .models import (
-    Department,
-    Designation,
-    AcademicClassSection,
-    AcademicSession,
-)
-from ias.core_apps.staffs.models import Staff
-from django.db import transaction
 from django.contrib.auth import get_user_model
-from ias.core_apps.users.models import Role
 from django.contrib.auth.hashers import make_password
-from ias.core_apps.common.models import RoleType
-from ias.core_apps.students.models import Student,AcademicInfo
+from django.db import transaction
+
+from IAS.core_apps.common.models import RoleType
+from IAS.core_apps.staffs.models import Staff
+from IAS.core_apps.students.models import AcademicInfo, Student
+from IAS.core_apps.users.models import Role
+
+from .models import AcademicClassSection, AcademicSession, Department, Designation
 
 AUTH_USER = get_user_model()
 
@@ -19,9 +16,10 @@ AUTH_USER = get_user_model()
 class DepartmentForm(forms.Form):
     department_name = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(
-            attrs={"class": "form-control", "id": "department_name"}
-        ),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "department_name"
+        }),
     )
 
     def save(self, institute):
@@ -33,9 +31,7 @@ class DepartmentForm(forms.Form):
 
         try:
 
-            Department.objects.create(
-                department_name=department_name, institute=institute
-            )
+            Department.objects.create(department_name=department_name, institute=institute)
 
             return True, "Department created successfully"
 
@@ -46,9 +42,10 @@ class DepartmentForm(forms.Form):
 class DesignationForm(forms.Form):
     designation_name = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(
-            attrs={"class": "form-control", "id": "designation_name"}
-        ),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "designation_name"
+        }),
     )
 
     def save(self, institute):
@@ -60,9 +57,7 @@ class DesignationForm(forms.Form):
 
         try:
 
-            Designation.objects.create(
-                designation_name=designation_name, institute=institute
-            )
+            Designation.objects.create(designation_name=designation_name, institute=institute)
 
             return True, "Designation created successfully"
 
@@ -73,44 +68,56 @@ class DesignationForm(forms.Form):
 class StaffForm(forms.Form):
     first_name = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "first_name"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "first_name"
+        }),
     )
     last_name = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "last_name"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "last_name"
+        }),
     )
     email = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "email"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "email"
+        }),
     )
     password = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "password"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "password"
+        }),
     )
     department = forms.ModelChoiceField(
         queryset=Department.objects.none(),
-        widget=forms.Select(attrs={"class": "form-control", "id": "department"}),
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "id": "department"
+        }),
         empty_label="Select Department",
     )
     designation = forms.ModelChoiceField(
         queryset=Designation.objects.none(),
-        widget=forms.Select(attrs={"class": "form-control", "id": "designation"}),
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "id": "designation"
+        }),
         empty_label="Select Designation",
     )
 
     def __init__(self, *args, **kwargs):
-        self.institute = kwargs.pop(
-            "institute", None
-        )  # Extract the 'institute' argument
+        self.institute = kwargs.pop("institute", None)  # Extract the 'institute' argument
         super().__init__(*args, **kwargs)  # Call the parent class initializer
 
         if self.institute:
-            self.fields["department"].queryset = Department.objects.filter(
-                is_deleted=False, institute=self.institute
-            )
-            self.fields["designation"].queryset = Designation.objects.filter(
-                is_deleted=False, institute=self.institute
-            )
+            self.fields["department"].queryset = Department.objects.filter(is_deleted=False, institute=self.institute)
+            self.fields["designation"].queryset = Designation.objects.filter(is_deleted=False, institute=self.institute)
 
     def save(self):
         first_name = self.cleaned_data["first_name"]
@@ -131,9 +138,7 @@ class StaffForm(forms.Form):
                     password=make_password(password),
                 )
                 # Create the Role
-                role = Role.objects.create(
-                    user=user, institute=self.institute, role_type=RoleType.STAFF
-                )
+                role = Role.objects.create(user=user, institute=self.institute, role_type=RoleType.STAFF)
 
                 # Create the Staff
                 Staff.objects.create(
@@ -152,28 +157,46 @@ class StaffForm(forms.Form):
 class StudentForm(forms.Form):
     first_name = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "first_name"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "first_name"
+        }),
     )
     last_name = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "last_name"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "last_name"
+        }),
     )
     email = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "email"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "email"
+        }),
     )
     password = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "password"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "password"
+        }),
     )
     department = forms.ModelChoiceField(
         queryset=Department.objects.none(),
-        widget=forms.Select(attrs={"class": "form-control", "id": "department"}),
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "id": "department"
+        }),
         empty_label="Select Department",
     )
     enrollment = forms.CharField(
         max_length=200,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "enrollment"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "enrollment"
+        }),
     )
 
     def __init__(self, *args, **kwargs):
@@ -182,9 +205,7 @@ class StudentForm(forms.Form):
         super().__init__(*args, **kwargs)  # Call the parent class initializer
 
         if self.institute:
-            self.fields["department"].queryset = Department.objects.filter(
-                is_deleted=False, institute=self.institute
-            )
+            self.fields["department"].queryset = Department.objects.filter(is_deleted=False, institute=self.institute)
 
     def save(self):
         first_name = self.cleaned_data["first_name"]
@@ -205,9 +226,7 @@ class StudentForm(forms.Form):
                     password=make_password(password),
                 )
                 # Create the Role
-                role = Role.objects.create(
-                    user=user, institute=self.institute, role_type=RoleType.STUDENT
-                )
+                role = Role.objects.create(user=user, institute=self.institute, role_type=RoleType.STUDENT)
                 created_by_uuid_role = f"{self.current_user.user.id}/{self.current_user.role_type}"
 
                 # Create the Student
@@ -228,11 +247,17 @@ class StudentForm(forms.Form):
 class AcademicClassSectionForm(forms.Form):
     class_name = forms.CharField(
         max_length=20,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "class_name"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "class_name"
+        }),
     )
     section_name = forms.CharField(
         max_length=10,
-        widget=forms.TextInput(attrs={"class": "form-control", "id": "section_name"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "id": "section_name"
+        }),
     )
 
     def save(self, institute):
@@ -244,9 +269,7 @@ class AcademicClassSectionForm(forms.Form):
             return False, "Academic Class Section already exists!"
 
         try:
-            AcademicClassSection.objects.create(
-                class_name=class_name, section_name=section_name, institute=institute
-            )
+            AcademicClassSection.objects.create(class_name=class_name, section_name=section_name, institute=institute)
             return True, "Academic Class Section created successfully"
         except Exception as e:
             return False, f"Something went wrong: {e}"
@@ -254,26 +277,28 @@ class AcademicClassSectionForm(forms.Form):
 
 class AcademicSessionForm(forms.Form):
     start_date = forms.DateField(
-        widget=forms.DateInput(attrs={
-            "class": "form-control", 
-            "id": "start_date", 
-            "type": "date"  # Ensures the calendar popup is shown
-        }),
+        widget=forms.DateInput(
+            attrs={
+                "class": "form-control",
+                "id": "start_date",
+                "type": "date"  # Ensures the calendar popup is shown
+            }
+        ),
     )
     end_date = forms.DateField(
-        widget=forms.DateInput(attrs={
-            "class": "form-control", 
-            "id": "end_date", 
-            "type": "date"  # Ensures the calendar popup is shown
-        }),
+        widget=forms.DateInput(
+            attrs={
+                "class": "form-control",
+                "id": "end_date",
+                "type": "date"  # Ensures the calendar popup is shown
+            }
+        ),
     )
 
     def save(self, institute):
         start_date = self.cleaned_data["start_date"]
         end_date = self.cleaned_data["end_date"]
-        academic_session = AcademicSession.is_session_exists(
-            start_date, end_date, institute
-        )
+        academic_session = AcademicSession.is_session_exists(start_date, end_date, institute)
         session_name = f"Session ({start_date} - {end_date})"
         if academic_session:
             return False, "Academic Session already exists!"
@@ -293,39 +318,46 @@ class AcademicSessionForm(forms.Form):
             return False, f"Something went wrong: {e}"
 
 
-
 class AcademicInfoForm(forms.Form):
-    
+
     student = forms.ModelChoiceField(
         queryset=Student.objects.none(),
-        widget=forms.Select(attrs={"class": "form-control", "id": "student"}),
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "id": "student"
+        }),
         empty_label="Select Student",
     )
     academic_class_section = forms.ModelChoiceField(
         queryset=AcademicClassSection.objects.none(),
-        widget=forms.Select(attrs={"class": "form-control", "id": "academic_class_section"}),
-        empty_label="Select Class Section",)
-    
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "id": "academic_class_section"
+        }),
+        empty_label="Select Class Section",
+    )
+
     academic_session = forms.ModelChoiceField(
         queryset=AcademicSession.objects.none(),
-        widget=forms.Select(attrs={"class": "form-control", "id": "academic_session"}),
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "id": "academic_session"
+        }),
         empty_label="Select Session",
     )
+
     def __init__(self, *args, **kwargs):
         self.institute = kwargs.pop("institute", None)
         super().__init__(*args, **kwargs)  # Call the parent class initializer
 
         if self.institute:
-            self.fields["student"].queryset = Student.objects.filter(
-                is_deleted=False, institute=self.institute
-            )
+            self.fields["student"].queryset = Student.objects.filter(is_deleted=False, institute=self.institute)
             self.fields["academic_class_section"].queryset = AcademicClassSection.objects.filter(
                 is_deleted=False, institute=self.institute
             )
             self.fields["academic_session"].queryset = AcademicSession.objects.filter(
                 is_deleted=False, institute=self.institute
             )
-
 
     def save(self):
         student = self.cleaned_data["student"]
@@ -334,19 +366,13 @@ class AcademicInfoForm(forms.Form):
         try:
 
             AcademicInfo.objects.create(
-            student=student,
-            academic_class_section=academic_class_section,
-            session=academic_session,
-            institute=self.institute
+                student=student,
+                academic_class_section=academic_class_section,
+                session=academic_session,
+                institute=self.institute
             )
 
             return True, "Class-Section alloted successfully"
 
         except Exception as e:
             return False, f"Something went wrong: {e}"
-        
-        
-        
-        
-
-       
