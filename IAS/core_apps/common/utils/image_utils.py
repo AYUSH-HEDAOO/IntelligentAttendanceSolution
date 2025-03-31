@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import dlib
 import numpy as np
@@ -8,7 +10,7 @@ from imutils.face_utils.helpers import FACIAL_LANDMARKS_68_IDXS, shape_to_np
 BASE_DIR = settings.BASE_DIR
 
 # Add path to the shape predictor
-SHAPE_PREDICTOR_PATH = f"{BASE_DIR}\\shape_predictor_68_face_landmarks.dat"
+SHAPE_PREDICTOR_PATH = os.path.abspath(os.path.join(BASE_DIR, "shape_predictor_68_face_landmarks.dat"))
 
 
 class CustomFaceAligner(FaceAligner):

@@ -8,9 +8,9 @@ services:
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_DB: IAS
-      POSTGRES_USER: iasadmin
-      POSTGRES_PASSWORD: iaspassword
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgresql-prod-data:/var/lib/postgresql/data
 
@@ -22,11 +22,11 @@ services:
     depends_on:
       - prod-db
     environment:
-      IAS_SETTINGS_DATABASES: '{"default":{"HOST":"prod-db","PORT":"5432"}}'
-      IAS_SETTINGS_IN_DOCKER: 'true' # Boolean values should be passed as strings
-      IAS_SETTINGS_SECRET_KEY: 'hsj%0i%y$0axu_n0f%+#j(7r)cy85la8c0inzpx!wv)=m&!6*f)j' # String value
-      IAS_SETTINGS_CAMERA_IP: '' # Empty string
-      IAS_SETTINGS_DEBUG: 'false' # Boolean values should be passed as strings
+      IAS_SETTINGS_DATABASES: ${IAS_SETTINGS_DATABASES} # JSON string
+      IAS_SETTINGS_IN_DOCKER: ${IAS_SETTINGS_IN_DOCKER} # Boolean values should be passed as strings
+      IAS_SETTINGS_SECRET_KEY: ${IAS_SETTINGS_SECRET_KEY} # String value
+      IAS_SETTINGS_CAMERA_IP: ${IAS_SETTINGS_CAMERA_IP} # Empty string
+      IAS_SETTINGS_DEBUG: ${IAS_SETTINGS_DEBUG} # Boolean values should be passed as strings
 
 volumes:
   postgresql-prod-data:
