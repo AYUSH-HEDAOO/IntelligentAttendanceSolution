@@ -2,41 +2,33 @@
 I am building one web app to manage institute attandence and send notification to respected users of app, attendance by face recoginaztion and manaual marking
 
 ## Requirements
-1. Python 3.12
+1. Python 3.8 if you don't have that you can download from [here](https://www.python.org/downloads/release/python-381) or from `dependencies_for_windows` if windows os
 
-## Installation
+## Installation and run locally
 1. Clone the repository
 ```
 git clone https://github.com/AYUSH-HEDAOO/IntelligentAttendanceSolution.git
 ```
 
-2. Build the app image
+2. Create virtual environment and activate
+For windows
 ```
-docker build -t ias .
-```
-
-3. Run the app with Docker
-```
-docker run -d -p 8000:8000 ias:latest
+py -V:3.8 -m venv venv
+.\venv\Scripts\activate
 ```
 
-## Nginx
+3. Install CMake and Visual Studio Setup for dlib from `dependencies_for_windows` folder
 
-Install Nginx reverse proxy to make this application available
-
-`sudo apt-get update`
-`sudo apt install nginx`
+4. Use Make commands to run any command from the project if you don't have make utility then install from [here](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows)
+- To install project packages and dependencies run `make install`
+- To update and migrate DB changes `make update`
+- Only migrate run `make migrate`
+- To run server `make runserver`
 
 
 # Create a django project and add APPS
-1. `django-admin startproject IAS .` to create django project 
+1. `django-admin startproject IAS .` to create django project
 2. `python manage.py startapp <app name>` to create django app
-
-# Commands to setup project and run (On Windows) without Docker
-1. `python -m venv venv` to create virtual environment
-2. `.\venv\Scripts\activate` to activate virtual environment
-3. `pip install -r requirements.txt` to install requirements
-4. `python manage.py runserver 0.0.0.0:8080` to run project locally
 
 # Commands for migration in Database
 1. `python manage.py makemigrations` to make migration files available
