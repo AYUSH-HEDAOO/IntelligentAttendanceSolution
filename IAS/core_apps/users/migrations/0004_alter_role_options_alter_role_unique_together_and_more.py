@@ -24,16 +24,24 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='role',
             name='institute',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='institute_roles', to='institutes.institute'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='institute_roles', to='institutes.institute'
+            ),
         ),
         migrations.AlterField(
             model_name='role',
             name='role_type',
-            field=models.CharField(choices=[('owner', 'Owner'), ('staff', 'Staff'), ('student', 'Student'), ('anonymous', 'Anonymous')], default='staff', max_length=10),
+            field=models.CharField(
+                choices=[('owner', 'Owner'), ('staff', 'Staff'), ('student', 'Student'), ('anonymous', 'Anonymous')],
+                default='staff',
+                max_length=10
+            ),
         ),
         migrations.AlterField(
             model_name='role',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_roles', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='user_roles', to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

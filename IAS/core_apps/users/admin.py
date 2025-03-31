@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from .forms import UserChangeForm, UserCreationForm
-from .models import User, Role
+from .models import Role, User
 
 
 class UserAdmin(BaseUserAdmin):
@@ -28,8 +28,12 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ["is_staff", "is_active"]
 
     fieldsets = (
-        (_("Login Credentials"), {"fields": ("email", "password")}),
-        (_("Personal Info"), {"fields": ("first_name", "last_name")}),
+        (_("Login Credentials"), {
+            "fields": ("email", "password")
+        }),
+        (_("Personal Info"), {
+            "fields": ("first_name", "last_name")
+        }),
         (
             _("Permissions and Groups"),
             {
@@ -42,14 +46,16 @@ class UserAdmin(BaseUserAdmin):
                 )
             },
         ),
-        (_("Important Dates"), {"fields": ("last_login", "date_joined")}),
-    )
-    add_fieldsets = (
-        (None, {
-            "classes": ("wide",),
-            "fields": ("email", "first_name", "last_name", "password1", "password2"),
+        (_("Important Dates"), {
+            "fields": ("last_login", "date_joined")
         }),
     )
+    add_fieldsets = ((
+        None, {
+            "classes": ("wide",),
+            "fields": ("email", "first_name", "last_name", "password1", "password2"),
+        }
+    ),)
     search_fields = ["email", "first_name", "last_name"]
 
 

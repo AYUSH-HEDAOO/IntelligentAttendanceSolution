@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+
+  db:
+    image: postgres:14.2-alpine
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: IAS
+      POSTGRES_USER: iasadmin
+      POSTGRES_PASSWORD: iaspassword
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+
+volumes:
+  postgresql-data:
+    driver: local

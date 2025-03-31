@@ -61370,7 +61370,7 @@ var candlestickLayout = {
           x: pmin[0],
           y: pmin[1],
           width:  candleWidth ,
-          height:  pmax[1] - pmin[1] 
+          height:  pmax[1] - pmin[1]
         };
       }
       function subPixelOptimizePoint(point) {
@@ -85727,4 +85727,3 @@ use(installUniversalTransition);
 use(installLabelLayout);
 
 export { Axis, ChartView, ComponentModel, ComponentView, SeriesData as List, Model, PRIORITY, SeriesModel, color, connect, dataTool, dependencies, disConnect, disconnect, dispose$1 as dispose, env, extendChartView, extendComponentModel, extendComponentView, extendSeriesModel, format$1 as format, getCoordinateSystemDimensions, getInstanceByDom, getInstanceById, getMap, graphic$1 as graphic, helper, init$1 as init, brushSingle as innerDrawElementOnCanvas, matrix, number, parseGeoJSON, parseGeoJSON as parseGeoJson, registerAction, registerCoordinateSystem, registerLayout, registerLoading, registerLocale, registerMap, registerPostInit, registerPostUpdate, registerPreprocessor, registerProcessor, registerTheme, registerTransform, registerUpdateLifecycle, registerVisual, setCanvasCreator, setPlatformAPI, throttle, time, use, util$1 as util, vector, version$1 as version, util as zrUtil, zrender };
-//# sourceMappingURL=echarts.esm.js.map

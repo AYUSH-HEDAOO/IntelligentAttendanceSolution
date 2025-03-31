@@ -1,8 +1,8 @@
-{% extends "common/common_layout.html" %} 
-{% load static %} 
+{% extends "common/common_layout.html" %}
+{% load static %}
 {% block title %}
 Admin | Academic information.
-{% endblock title %} 
+{% endblock title %}
 {% block breadcrumb %}
 <div class="pagetitle">
   <h1>Academic Information.</h1>
@@ -17,7 +17,7 @@ Admin | Academic information.
   </nav>
 </div>
 <!-- End Page Title -->
-{% endblock breadcrumb %} 
+{% endblock breadcrumb %}
 {% block content %}
 
 <section class="section">
@@ -97,8 +97,8 @@ Admin | Academic information.
             <label for="{{ form.academic_class_section.id_for_label }}" class="form-label">Academic Class-Section</label>
             {{ form.academic_class_section }}
           </div>
-          
-          
+
+
           <div class="text-center">
             <button type="submit" class="btn btn-success">Submit</button>
           </div>

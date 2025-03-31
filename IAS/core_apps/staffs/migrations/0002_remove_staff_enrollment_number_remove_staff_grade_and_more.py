@@ -23,11 +23,21 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='staff',
             name='department',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='staff_department', to='institutes.department'),
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='staff_department',
+                to='institutes.department'
+            ),
         ),
         migrations.AddField(
             model_name='staff',
             name='designation',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='staff_designation', to='institutes.designation'),
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='staff_designation',
+                to='institutes.designation'
+            ),
         ),
     ]

@@ -1,9 +1,30 @@
-version: "3.3"
+version: '3'
+
 services:
-  web:
-    # For Local
-    # build: . 
-    # For Production
-    image: "prafulcoder/ias:latest" 
+
+  prod-db:
+    image: postgres:14.2-alpine
+    restart: unless-stopped
     ports:
-      - "8080:8080"
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: IAS
+      POSTGRES_USER: iasadmin
+      POSTGRES_PASSWORD: iaspassword
+    volumes:
+      - postgresql-prod-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - '8000:8000'
+    depends_on:
+      - prod-db
+    environment:
+      PORTFOLIO_SETTINGS_DATABASES: '{"default":{"HOST":"prod-db","PORT":"5432"}}'
+      PORTFOLIO_SETTINGS_LOCAL_SETTINGS_PATH: 'local/settings.prod.py'
+
+volumes:
+  postgresql-prod-data:
+    driver: local

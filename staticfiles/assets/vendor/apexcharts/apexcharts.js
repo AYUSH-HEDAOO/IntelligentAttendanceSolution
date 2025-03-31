@@ -612,7 +612,7 @@
         // other browser
         return false;
       }
-      // 
+      //
       // Find the Greatest Common Divisor of two numbers
       //
     }, {
@@ -2191,7 +2191,7 @@
         // 1: [1,2,3,4]
         // If the chart is stacked, it can be assumed that any axis with multiple
         // series is stacked.
-        // 
+        //
         // If this is an old chart and we are being backward compatible, it will be
         // expected that each series is associated with it's corresponding yaxis
         // through their indices, one-to-one.
@@ -2199,13 +2199,13 @@
         // A name match where yi != si is interpretted as yaxis[yi] and yaxis[si]
         // will both be scaled to fit the combined series[si] and series[yi].
         // Consider series named: S0,S1,S2 and yaxes A0,A1,A2.
-        // 
+        //
         // Example 1: A0 and A1 scaled the same.
         // A0.seriesName: S0
         // A1.seriesName: S0
         // A2.seriesName: S2
         // Then A1 <-> A0
-        // 
+        //
         // Example 2: A0, A1 and A2 all scaled the same.
         // A0.seriesName: S2
         // A1.seriesName: S0
@@ -11003,7 +11003,7 @@
         // 1: [1,2,3,4]
         // If the chart is stacked, it can be assumed that any axis with multiple
         // series is stacked.
-        // 
+        //
         // If this is an old chart and we are being backward compatible, it will be
         // expected that each series is associated with it's corresponding yaxis
         // through their indices, one-to-one.
@@ -11011,13 +11011,13 @@
         // A name match where yi != si is interpretted as yaxis[yi] and yaxis[si]
         // will both be scaled to fit the combined series[si] and series[yi].
         // Consider series named: S0,S1,S2 and yaxes A0,A1,A2.
-        // 
+        //
         // Example 1: A0 and A1 scaled the same.
         // A0.seriesName: S0
         // A1.seriesName: S0
         // A2.seriesName: S2
         // Then A1 <-> A0
-        // 
+        //
         // Example 2: A0, A1 and A2 all scaled the same.
         // A0.seriesName: S2
         // A1.seriesName: S0
@@ -22565,20 +22565,20 @@
   }();
 
   /**
-   * 
+   *
    * @yr/monotone-cubic-spline (https://github.com/YR/monotone-cubic-spline)
-   * 
+   *
    * The MIT License (MIT)
-   * 
+   *
    * Copyright (c) 2015 yr.no
-   * 
+   *
    * Permission is hereby granted, free of charge, to any person obtaining a copy of
    * this software and associated documentation files (the "Software"), to deal in
    * the Software without restriction, including without limitation the rights to
    * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
    * the Software, and to permit persons to whom the Software is furnished to do so,
    * subject to the following conditions:
-   * 
+   *
    * The above copyright notice and this permission notice shall be included in all
    * copies or substantial portions of the Software.
 

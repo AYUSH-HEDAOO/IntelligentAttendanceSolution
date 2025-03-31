@@ -26,7 +26,7 @@
             <!-- Student Card -->
             <div class="col-xxl-3 col-md-6">
               <div class="card info-card sales-card">
-                  
+
                   <div class="filter">
                     <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
@@ -58,7 +58,7 @@
                   </div>
                 </a>
 
-                
+
                 </div>
               </div>
             <!-- End Student Card -->
@@ -80,7 +80,7 @@
                     </ul>
                   </div>
                 <a href="{% url 'CreateReadStaff' %}" class="cursor-pointer">
-                  
+
                   <div class="card-body">
                     <h5 class="card-title">Staff<span>| This Month</span></h5>
 
@@ -138,7 +138,7 @@
               </div>
 
             </div><!-- End Customers Card -->
-            
+
             <!-- Customers Card -->
             <div class="col-xxl-3 col-md-6">
 
@@ -175,7 +175,7 @@
               </div>
 
             </div><!-- End Customers Card -->
-            
+
           </div>
         </div><!-- End Left side columns -->
 
@@ -215,8 +215,8 @@
               <a  href="{% url 'InstituteTrainModel' %}" class="btn btn-primary text-white btn-md ">SYNC</a>
 
               <div class="card-body ">
-                
-                
+
+
                 <h5 class="card-title">Recent Activity <span>| Last 7 Days</span></h5>
 
 
@@ -228,11 +228,11 @@
                     <div class="activity-content">
                       {% if  recent_activity.a_type == "student" %}
                       {{recent_activity.academic_info.student.department.department_name}}
-                      <a href="{% url 'CreateReadAcademicInfo' %}" class="fw-bold text-dark">{{recent_activity.academic_info.student.role.user.full_name}}</a> 
+                      <a href="{% url 'CreateReadAcademicInfo' %}" class="fw-bold text-dark">{{recent_activity.academic_info.student.role.user.full_name}}</a>
                       ({{recent_activity.academic_info.academic_class_section.class_name}} - {{recent_activity.academic_info.academic_class_section.section_name}})
                       {% elif recent_activity.a_type == "staff" %}
                       {{recent_activity.staff.department.department_name}}
-                      <a href="{% url 'CreateReadStaff' %}" class="fw-bold text-dark">{{recent_activity.staff.role.user.full_name}}</a> 
+                      <a href="{% url 'CreateReadStaff' %}" class="fw-bold text-dark">{{recent_activity.staff.role.user.full_name}}</a>
                       {{recent_activity.staff.designation.designation_name}}
                       {% endif %}
 

@@ -1,14 +1,12 @@
-from ias.core_apps.common.models import IASModel, RoleType, AttendanceStatus
-from django.db import models
-from ias.core_apps.institutes.models import Institute
-from ias.core_apps.staffs.models import Staff
-from ias.core_apps.students.models import (
-    AcademicInfo,
-    AcademicClassSection,
-    AcademicSession,
-)
-from django.contrib.auth import get_user_model
 from datetime import date, datetime, timedelta
+
+from django.contrib.auth import get_user_model
+from django.db import models
+
+from IAS.core_apps.common.models import AttendanceStatus, IASModel, RoleType
+from IAS.core_apps.institutes.models import Institute
+from IAS.core_apps.staffs.models import Staff
+from IAS.core_apps.students.models import AcademicClassSection, AcademicInfo, AcademicSession
 
 AUTH_USER = get_user_model()
 
@@ -33,15 +31,11 @@ class Attendance(IASModel):
         choices=AttendanceStatus.choices,
         default=AttendanceStatus.ABSENT,
     )
-    a_type = models.CharField(
-        max_length=10, choices=RoleType.choices, default=RoleType.STUDENT
-    )
+    a_type = models.CharField(max_length=10, choices=RoleType.choices, default=RoleType.STUDENT)
     institute = models.ForeignKey(
         Institute, on_delete=models.CASCADE, related_name="institute_attendance", null=True, blank=True
     )
-    staff = models.ForeignKey(
-        Staff, on_delete=models.CASCADE, related_name="staff_attendance", null=True, blank=True
-    )
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name="staff_attendance", null=True, blank=True)
     created_by_uuid_role = models.TextField(null=True, blank=True)
 
     @property
@@ -77,16 +71,16 @@ class Attendance(IASModel):
         if self.a_out_time:
             return self.a_out_time.strftime("%H:%M:%S")
         return "Not Yet"
-    
+
     @property
     def activity_color(self):
-        if self.a_in_time  and not self.a_out_time:
+        if self.a_in_time and not self.a_out_time:
             return "success"
         elif self.a_in_time and self.a_out_time:
             return "danger"
         else:
             return "secondary"
-    
+
     @property
     def last_activity_since(self):
         todays_date = date.today()
@@ -100,7 +94,6 @@ class Attendance(IASModel):
             elif self.a_in_time and self.a_out_time:
                 time_diff = datetime.combine(todays_date, current_time) - datetime.combine(self.a_date, self.a_out_time)
 
-
             # Convert timedelta to minutes
             total_minutes = int(time_diff.total_seconds() / 60)
             hours, minutes = divmod(total_minutes, 60)  # Get hours and remaining minutes
@@ -110,7 +103,8 @@ class Attendance(IASModel):
             else:
                 result = f"{minutes} mins"
         else:
-            result =  f"{(todays_date - self.a_date).days} days"  # Difference in days
+            result = f"{(todays_date - self.a_date).days} days"  # Difference in days
         return result
+
     def __str__(self):
         return f"{self.a_type} of {self.a_status} for date {self.a_date}"
