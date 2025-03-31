@@ -33,14 +33,20 @@ jobs:
         with:
           poetry-version: 1.4.2
 
+      - name: Pre-Dependencies Setup
+        run: |
+          poetry config installer.max-workers 20
+          apt-get update && apt-get install -y cmake libopenblas-dev liblapack-dev libx11-dev
+          poetry add dlib
+          poetry install --no-root --no-interaction --no-ansi -vvv
+          poetry env info
+
       - name: Install Dependencies
         run: make install && make install-pre-commit
 
       - name: Lint
         run: make lint
 
-      # - name: Test
       #   run: make test
       #   env:
       #     IAS_SETTINGS_DATABASES: '{"default":{"HOST":"db","PORT":"5432"}}'
-      #     IAS_SETTINGS_LOCAL_SETTINGS_PATH: './IAS/ias/settings/template/settings.github.py'
