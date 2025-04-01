@@ -18,6 +18,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='attendance',
             name='a_status',
-            field=models.CharField(choices=[('present', 'Present'), ('absent', 'Absent'), ('on leave', 'On Leave'), ('not marked', 'Not Marked'), ('holiday', 'Holiday'), ('weekend', 'Weekend')], default='not marked', max_length=10),
+            field=models.CharField(
+                choices=[('present', 'Present'), ('absent', 'Absent'), ('on leave', 'On Leave'),
+                         ('not marked', 'Not Marked'), ('holiday', 'Holiday'), ('weekend', 'Weekend')],
+                default='not marked',
+                max_length=10
+            ),
         ),
     ]

@@ -41,7 +41,7 @@
         </div>
       </div>
 
-      
+
 
       <div class="row mb-3">
         <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
@@ -72,7 +72,7 @@
         </div>
       </div>
 
-      
+
       <div class="row mb-3">
         <label class="col-md-4 col-lg-3 col-form-label">Blood Group</label>
         <div class="col-md-8 col-lg-9">
@@ -158,7 +158,7 @@
         <div class="row mb-3">
           <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
           <div class="col-md-8 col-lg-9">
-  
+
             {% if request.user.role_data.role_staff.profile_image %}
             <img src="{{request.user.role_data.role_staff.profile_image.url}}" alt="Profile">
             {% else %}
@@ -169,45 +169,45 @@
             </div>
           </div>
         </div>
-  
-  
+
+
         <div class="row mb-3">
           <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
           <div class="col-md-8 col-lg-9">
             <textarea name="about" class="form-control" required="true" id="about" style="height: 100px">{{request.user.role_data.role_staff.about}}</textarea>
           </div>
         </div>
-  
+
         <div class="row mb-3">
           <label for="dob" class="col-md-4 col-lg-3 col-form-label">D.O.B</label>
           <div class="col-md-8 col-lg-9">
             <input name="dob" type="date" required="true" class="form-control" id="dob" value="{{request.user.role_data.role_staff.dob | date:'Y-m-d' }}">
           </div>
         </div>
-  
+
         <div class="row mb-3">
           <label for="state" class="col-md-4 col-lg-3 col-form-label">State</label>
           <div class="col-md-8 col-lg-9">
             <input name="state" type="text" class="form-control" required="true" id="state" value="{{request.user.role_data.role_staff.state}}">
           </div>
         </div>
-  
-        
-  
+
+
+
         <div class="row mb-3">
           <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
           <div class="col-md-8 col-lg-9">
             <input name="address" type="text" class="form-control" required="true" id="Address" value="{{request.user.role_data.role_staff.address}}">
           </div>
         </div>
-  
+
         <div class="row mb-3">
           <label for="mobile_no" class="col-md-4 col-lg-3 col-form-label">Phone</label>
           <div class="col-md-8 col-lg-9">
             <input name="mobile_no" type="text" class="form-control" required="true" id="mobile_no" value="{{request.user.role_data.role_staff.mobile_no}}">
           </div>
         </div>
-  
+
         <div class="row mb-3">
           <label class="col-md-4 col-lg-3 col-form-label">Gender</label>
           <div class="col-md-8 col-lg-9">
@@ -222,8 +222,8 @@
             </select>
           </div>
         </div>
-  
-        
+
+
         <div class="row mb-3">
           <label class="col-md-4 col-lg-3 col-form-label">Blood Group</label>
           <div class="col-md-8 col-lg-9">
@@ -238,7 +238,7 @@
             </select>
           </div>
         </div>
-  
+
         <div class="text-center">
           <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
@@ -247,4 +247,4 @@
     {% endif %}
 
 
-</div> 
+</div>

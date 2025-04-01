@@ -14,25 +14,24 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path,include
-from django.conf.urls.static import static
 from django.conf import settings
+from django.contrib import admin
+from django.urls import include, path, re_path
+from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('ias.core_apps.users.urls')),
-    path('common/',include('ias.core_apps.common.urls')),
-    path('institutes/',include('ias.core_apps.institutes.urls')),
-    path('staff/',include('ias.core_apps.staffs.urls')),
-    path('student/',include('ias.core_apps.students.urls')),
-    
+    path('', include('IAS.core_apps.users.urls')),
+    path('common/', include('IAS.core_apps.common.urls')),
+    path('institutes/', include('IAS.core_apps.institutes.urls')),
+    path('staff/', include('IAS.core_apps.staffs.urls')),
+    path('student/', include('IAS.core_apps.students.urls')),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
 ]
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-admin.site.site_header = "IAS Admin" # Text will display at admin site
+admin.site.site_header = "IAS Admin"  # Text will display at admin site
 
-admin.site.site_title = "IAS Admin Portal" # displayed on browser tab
+admin.site.site_title = "IAS Admin Portal"  # displayed on browser tab
 
-admin.site.index_title = "Welcome to IAS Portal" # display at admin index page
+admin.site.index_title = "Welcome to IAS Portal"  # display at admin index page

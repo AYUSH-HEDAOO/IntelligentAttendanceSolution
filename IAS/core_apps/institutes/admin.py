@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Institute, Department, AcademicSession, AcademicClassSection
+
+from .models import AcademicClassSection, AcademicSession, Department, Institute
 
 # Register your models here.
 admin.site.register(Institute)

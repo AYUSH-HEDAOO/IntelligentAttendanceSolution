@@ -11,17 +11,11 @@ Login Page
     <div class="card-body">
 
       <div class="card-body text-center">
-        <h5 class="card-title ">Welcome, have a Good Day!</h5>
+        <h5 class="card-title">Welcome, have a Good Day!</h5>
         {% if attendance %}
-          <div class="btn btn-outline-success">{{attendance}}</div>
+          <div class="btn btn-outline-success ">{{attendance}}</div>
         {% endif %}
-        {% comment %} <a href="{% url 'MarkAttendance' %}" type="button" class="btn btn-outline-success">Clock In</a>
-        <a href="{% url 'MarkAttendance' %}" type="button" class="btn btn-outline-danger">Clock Out</a> {% endcomment %}
-      </div>  
-
-      <div class="pt-4 pb-2">
         <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
-        <p class="text-center small">Enter your email & password to login</p>
       </div>
 
       <form class="row g-3 needs-validation" novalidate method="POST">
@@ -53,9 +47,9 @@ Login Page
         </div>
         <div class="col-12">
           <p class="small mb-0">Don't have account? <a href="{% url 'Register' %}">Create an account</a></p>
-          
+
         </div>
-        
+
       </form>
 
     </div>
@@ -65,5 +59,3 @@ Login Page
     fetch("{% url 'MarkAttendance' %}")
   </script>
 {% endblock auth_form %}
-
-

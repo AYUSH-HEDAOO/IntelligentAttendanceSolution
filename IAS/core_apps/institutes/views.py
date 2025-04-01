@@ -1,46 +1,28 @@
 from datetime import date, timedelta
-from django.shortcuts import render, redirect
-from django.urls import reverse
+
 from django.contrib import messages
-from .forms import (
-    DepartmentForm,
-    DesignationForm,
-    StaffForm,
-    StudentForm,
-    AcademicClassSectionForm,
-    AcademicSessionForm,
-    AcademicInfoForm,
-)
-from ias.core_apps.common.decorators import allowed_users
 from django.contrib.auth.decorators import login_required
-from ias.core_apps.common.models import (
-    RoleType,
-    ROLE_URL_MAP,
-    STUDENT_CRUD_URL_MAP,
-    AttendanceStatus,
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
+from IAS.core_apps.attendance.models import Attendance
+from IAS.core_apps.common.decorators import allowed_users
+from IAS.core_apps.common.models import ROLE_URL_MAP, STUDENT_CRUD_URL_MAP, AttendanceStatus, RoleType
+from IAS.core_apps.institutes.forms import (
+    AcademicClassSectionForm, AcademicInfoForm, AcademicSessionForm, DepartmentForm, DesignationForm, StaffForm,
+    StudentForm
 )
-from .models import (
-    Department,
-    Designation,
-    AcademicClassSection,
-    AcademicSession,
-)
-from ias.core_apps.staffs.models import Staff
-from ias.core_apps.students.models import (
-    Student,
-    AcademicInfo,
-)
-from ias.core_apps.attendance.models import Attendance
-from ias.scripts.train_face_recognization_model import start_training
+from IAS.core_apps.institutes.models import AcademicClassSection, AcademicSession, Department, Designation
+from IAS.core_apps.staffs.models import Staff
+from IAS.core_apps.students.models import AcademicInfo, Student
+from IAS.scripts.train_face_recognization_model import start_training
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.OWNER])
 def dashboard(request):
     institute = request.user.role_data.institute
-    student_count = Student.objects.filter(
-        institute=institute, is_deleted=False
-    ).count()
+    student_count = Student.objects.filter(institute=institute, is_deleted=False).count()
     staff_count = Staff.objects.filter(institute=institute, is_deleted=False).count()
     todays_date = date.today()
     todays_attendance = Attendance.objects.filter(
@@ -62,7 +44,7 @@ def dashboard(request):
         "present_count": present_count,
         "absent_count": absent_count,
         "todays_attendance": todays_attendance,
-        "recent_activities": recent_activities
+        "recent_activities": recent_activities,
     }
     return render(request, "institutes/dashboard.html", context)
 
@@ -87,9 +69,7 @@ def create_read_department(request):
             return redirect(reverse("CreateReadDepartment"))
     else:
         form = DepartmentForm()
-    departments = Department.objects.filter(institute=session_institute).order_by(
-        "pkid"
-    )
+    departments = Department.objects.filter(institute=session_institute).order_by("pkid")
     context = {"form": form, "departments": departments}
     return render(request, "institutes/manage_department/department.html", context)
 
@@ -114,9 +94,7 @@ def create_read_designation(request):
             return redirect(reverse("CreateReadDesignation"))
     else:
         form = DesignationForm()
-    designations = Designation.objects.filter(institute=session_institute).order_by(
-        "pkid"
-    )
+    designations = Designation.objects.filter(institute=session_institute).order_by("pkid")
     context = {"form": form, "designations": designations}
     return render(request, "institutes/manage_designation/designation.html", context)
 
@@ -199,13 +177,9 @@ def create_read_academic_class_section(request):
             return redirect(reverse("CreateReadAcademicClassSection"))
     else:
         form = AcademicClassSectionForm()
-    academic_cs = AcademicClassSection.objects.filter(
-        institute=session_institute, is_deleted=False
-    ).order_by("pkid")
+    academic_cs = AcademicClassSection.objects.filter(institute=session_institute, is_deleted=False).order_by("pkid")
     context = {"form": form, "academic_cs": academic_cs}
-    return render(
-        request, "institutes/manage_academic_cs/academic_class_section.html", context
-    )
+    return render(request, "institutes/manage_academic_cs/academic_class_section.html", context)
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -228,13 +202,9 @@ def create_read_academic_session(request):
             return redirect(reverse("CreateReadAcademicSession"))
     else:
         form = AcademicSessionForm()
-    academic_sessions = AcademicSession.objects.filter(
-        institute=session_institute
-    ).order_by("pkid")
+    academic_sessions = AcademicSession.objects.filter(institute=session_institute).order_by("pkid")
     context = {"form": form, "academic_sessions": academic_sessions}
-    return render(
-        request, "institutes/manage_academic_session/academic_session.html", context
-    )
+    return render(request, "institutes/manage_academic_session/academic_session.html", context)
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -257,13 +227,9 @@ def create_read_academic_info(request):
             return redirect(reverse("CreateReadAcademicInfo"))
     else:
         form = AcademicInfoForm(institute=session_institute)
-    academic_information = AcademicInfo.objects.filter(
-        institute=session_institute, is_deleted=False
-    ).order_by("pkid")
+    academic_information = AcademicInfo.objects.filter(institute=session_institute, is_deleted=False).order_by("pkid")
     context = {"form": form, "academic_info": academic_information}
-    return render(
-        request, "institutes/manage_academic_info/academic_info.html", context
-    )
+    return render(request, "institutes/manage_academic_info/academic_info.html", context)
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])

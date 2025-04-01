@@ -14,6 +14,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='institute',
             name='phone_number',
-            field=phonenumber_field.modelfields.PhoneNumberField(default='', max_length=30, region='IN', verbose_name='phone number'),
+            field=phonenumber_field.modelfields.PhoneNumberField(
+                default='', max_length=30, region='IN', verbose_name='phone number'
+            ),
         ),
     ]

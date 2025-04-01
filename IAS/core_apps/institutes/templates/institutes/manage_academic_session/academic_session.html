@@ -1,8 +1,8 @@
-{% extends "common/common_layout.html" %} 
-{% load static %} 
+{% extends "common/common_layout.html" %}
+{% load static %}
 {% block title %}
 Admin | Academic Session
-{% endblock title %} 
+{% endblock title %}
 {% block breadcrumb %}
 <div class="pagetitle">
   <h1>Academic Session</h1>
@@ -17,7 +17,7 @@ Admin | Academic Session
   </nav>
 </div>
 <!-- End Page Title -->
-{% endblock breadcrumb %} 
+{% endblock breadcrumb %}
 {% block content %}
 
 <section class="section">
@@ -53,10 +53,10 @@ Admin | Academic Session
                 <td>{{academic_session.start_date}}</td>
                 <td>{{academic_session.end_date}}</td>
                 <td>
-                  {% if academic_session.is_current_session %} 
-                    Active 
-                  {% else %} 
-                    Inactive 
+                  {% if academic_session.is_current_session %}
+                    Active
+                  {% else %}
+                    Inactive
                   {% endif %}
                 </td>
                 <td>
@@ -91,7 +91,7 @@ Admin | Academic Session
             <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date</label>
             {{ form.end_date }}
           </div>
-          
+
           <div class="text-center">
             <button type="submit" class="btn btn-success">Submit</button>
           </div>

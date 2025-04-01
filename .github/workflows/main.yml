@@ -1,0 +1,52 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: main
+  cancel-in-progress: true
+
+jobs:
+  quality-assurance:
+    name: Quality Assurance
+    uses: ./.github/workflows/pr.yml
+
+  deploy:
+    name: Deploy
+    needs: quality-assurance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create `.env` File with Secrets
+        run: |
+          echo "IAS_SETTINGS_SECRET_KEY=${{ secrets.IAS_SETTINGS_SECRET_KEY }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "POSTGRES_DB=${{ vars.POSTGRES_DB }}" >> .env
+          echo "POSTGRES_USER=${{ vars.POSTGRES_USER }}" >> .env
+          echo "IAS_SETTINGS_DEBUG=${{ vars.IAS_SETTINGS_DEBUG }}" >> .env
+          echo "IAS_SETTINGS_IN_DOCKER=${{ vars.IAS_SETTINGS_IN_DOCKER }}" >> .env
+          echo "IAS_SETTINGS_CAMERA_IP=${{ vars.IAS_SETTINGS_CAMERA_IP }}" >> .env
+          echo "IAS_SETTINGS_DATABASES=${{ vars.IAS_SETTINGS_DATABASES }}" >> .env
+          cat .env
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/github
+          chmod 600 ~/.ssh/github
+          cat >>~/.ssh/config <<END
+          Host target
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/github
+            LogLevel ERROR
+            StrictHostKeyChecking no
+          END
+      - name: Run deploy
+        run: |
+          ssh target "cd IntelligentAttendanceSolution/ && docker-compose down && git fetch --all && git checkout develop && git pull && docker-compose build && docker-compose up -d --force-recreate"

@@ -1,16 +1,17 @@
 import os
 import pickle
+
+import cv2
 import django
 import face_recognition
-from face_recognition.face_recognition_cli import image_files_in_folder
-import cv2
 import numpy as np
+from django.conf import settings
+from face_recognition.face_recognition_cli import image_files_in_folder
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
-from django.conf import settings
 
 # Set up Django settings if not will 'raise AppRegistryNotReady("Apps aren't loaded yet.")'
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ias.ias.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "IAS.ias.settings")
 django.setup()
 
 BASR_DIR = settings.BASE_DIR
@@ -22,7 +23,7 @@ def start_training(institute) -> bool:
     training_dir = f"{MEDIA_ROOT}\\image_dataset\\{institute.id}"
     if not os.path.exists(training_dir):
         print(f"Training Directory not found for {institute.institute_name}")
-        print(f"Please upload images from any Student, Staff and Institute Login.\n")
+        print("Please upload images from any Student, Staff and Institute Login.\n")
         return False
 
     count = 0
@@ -30,7 +31,7 @@ def start_training(institute) -> bool:
         curr_directory = os.path.join(training_dir, user_id)
         if not os.path.isdir(curr_directory):
             continue
-        for imagefile in image_files_in_folder(curr_directory):
+        for _ in image_files_in_folder(curr_directory):
             count += 1
 
     X = []
@@ -47,7 +48,8 @@ def start_training(institute) -> bool:
 
                 y.append(user_id)
                 i += 1
-            except:
+            except Exception as e:
+                print(f"Error in image {imagefile}: {e}")
                 print("removed")
                 os.remove(imagefile)
 
@@ -56,7 +58,7 @@ def start_training(institute) -> bool:
     y = encoder.transform(y)
     X1 = np.array(X)
 
-    trained_data_path = f"{BASR_DIR}\\ias\\face_recognition_data"  # /{institute.id}
+    trained_data_path = f"{BASR_DIR}\\IAS\\face_recognition_data"
     if not os.path.exists(trained_data_path):
         os.mkdir(trained_data_path)
     np.save(f"{trained_data_path}\\classes.npy", encoder.classes_)
@@ -66,12 +68,12 @@ def start_training(institute) -> bool:
     svc_save_path = f"{trained_data_path}\\svc.sav"
     with open(svc_save_path, "wb") as f:
         pickle.dump(svc, f)
-
+    print(f"Training Completed for {institute.institute_name}.")
     return True
 
 
 if __name__ == "__main__":
-    from ias.core_apps.institutes.models import Institute
+    from IAS.core_apps.institutes.models import Institute
     institutes = Institute.objects.filter(is_deleted=False)
     for institute in institutes:
         result = start_training(institute)

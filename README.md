@@ -11,7 +11,7 @@ git clone https://github.com/AYUSH-HEDAOO/IntelligentAttendanceSolution.git
 ```
 
 2. Create virtual environment and activate
-For windows 
+For windows
 ```
 py -V:3.8 -m venv venv
 .\venv\Scripts\activate
@@ -27,7 +27,7 @@ py -V:3.8 -m venv venv
 
 
 # Create a django project and add APPS
-1. `django-admin startproject IAS .` to create django project 
+1. `django-admin startproject IAS .` to create django project
 2. `python manage.py startapp <app name>` to create django app
 
 # Commands for migration in Database

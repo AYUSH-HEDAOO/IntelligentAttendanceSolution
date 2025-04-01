@@ -18,10 +18,10 @@
 
     <section class="section dashboard">
       <div class="row">
-        
+
         <!-- Left side columns -->
         <div class="col-lg-12">
-          
+
           <div class="row">
             <!-- Sales Card -->
             <div class="col-xxl-3 col-xl-12">
@@ -45,7 +45,7 @@
 
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary text-white">
-                      <i class="bi bi-mortarboard"></i> 
+                      <i class="bi bi-mortarboard"></i>
                       <!-- Replaced with mortarboard icon (graduation cap) -->
 
                     </div>
@@ -72,7 +72,7 @@
                     {% for digit, month in months_map.items %}
                       <li><a class="dropdown-item" href="{% url 'StudentDashboard' %}?month={{digit}}">{{month}}</a></li>
                     {% endfor %}
-                    
+
                   </ul>
                 </div>
 
@@ -170,13 +170,13 @@
           <!-- End Customers Card -->
         </div>
         <!-- End Customers Card -->
-       
+
 
         <!-- Left side columns -->
         <div class="col-lg-8">
-          
+
           <div class="row">
-            
+
             <!-- Recent Sales -->
             <div class="col-12">
               <div class="card recent-sales overflow-auto">
@@ -187,7 +187,7 @@
                     <li class="dropdown-header text-start">
                       <h6>Filter</h6>
                     </li>
-                    
+
                     {% for status in attendance_status %}
                       <li><a class="dropdown-item" href="{% url 'StudentDashboard' %}?status={{status}}">{{status | upper }}</a></li>
                     {% endfor %}
@@ -204,7 +204,7 @@
               </div>
             </div><!-- End Recent Sales -->
 
-            
+
 
           </div>
         </div><!-- End Left side columns -->
@@ -236,7 +236,7 @@
                   Clock In/Clock Out to mark attendance!
                 </p>
                 {% if not todays_attendance.a_in_time and not todays_attendance.a_out_time  %}
-                
+
                 <button type="submit" class="btn btn-primary">  Clock In </button>
                 {% elif not todays_attendance.a_out_time %}
                 <button type="submit" class="btn btn-danger"> Clock Out </button>
@@ -248,18 +248,18 @@
                 <button type="button" class="btn btn-info text-white ml-3" data-bs-toggle="modal" data-bs-target="#verticalycentered">
                   View Timeline
                 </button>
-                
+
                 {% include "attendance/manage_attendance/todays_timeline_modal.html" %}
-                
+
               </form>
 
             </div>
           </div>
 
-          
 
-          
-         
+
+
+
 
         </div><!-- End Right side columns -->
 
