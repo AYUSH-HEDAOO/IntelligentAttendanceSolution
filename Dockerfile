@@ -22,7 +22,7 @@ RUN set -xe \
 # Ensure the correct path to the dlib wheel file or remove this line if not required
 COPY ["pyproject.toml", "./"]
 # Connection pool is full, discarding connection: pypi.org. Connection pool size: 10
-RUN poetry config installer.max-workers 20
+RUN poetry config installer.max-workers 10
 RUN apt-get update && apt-get install -y cmake libopenblas-dev liblapack-dev libx11-dev
 RUN poetry add dlib
 RUN poetry install --no-root --no-interaction --no-ansi -vvv
