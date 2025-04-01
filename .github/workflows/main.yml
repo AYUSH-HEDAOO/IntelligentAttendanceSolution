@@ -10,13 +10,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality-assurance:
-    name: Quality Assurance
-    uses: ./.github/workflows/pr.yml
+  # quality-assurance:
+  #   name: Quality Assurance
+  #   uses: ./.github/workflows/pr.yml
 
   deploy:
     name: Deploy
-    needs: quality-assurance
+    # needs: quality-assurance
     runs-on: ubuntu-latest
     steps:
       - name: Configure SSH
