@@ -24,7 +24,8 @@ COPY ["pyproject.toml", "./"]
 # Connection pool is full, discarding connection: pypi.org. Connection pool size: 10
 RUN poetry config installer.max-workers 10
 RUN apt-get update && apt-get install -y cmake libopenblas-dev liblapack-dev libx11-dev
-RUN poetry add dlib
+RUN pip install cmake dlib --no-cache-dir
+# RUN poetry add dlib
 RUN poetry install --no-root --no-interaction --no-ansi -vvv
 RUN poetry env info
 
