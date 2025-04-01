@@ -54,4 +54,4 @@ jobs:
 
       - name: Run Deploy
         run: |
-          ssh target "cd IntelligentAttendanceSolution/ && docker-compose down && git fetch --all && git checkout develop && git pull && docker-compose build && docker-compose up -d --force-recreate"
+          ssh target "cd IntelligentAttendanceSolution/ && docker-compose down && git fetch --all && git checkout develop && git pull && docker-compose build --no-cache && docker-compose up -d --force-recreate"
