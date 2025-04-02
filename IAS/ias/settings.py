@@ -32,13 +32,14 @@ def str_to_bool(value: str) -> bool:
 IN_DOCKER: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}IN_DOCKER", "false"))
 SECRET_KEY: str = str(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}SECRET_KEY"))
 DEBUG: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}DEBUG", "true"))
-ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS: List[str] = ["*"]
 CSRF_TRUSTED_ORIGINS: List[str] = ["http://localhost:8080"]
 CAMERA_IP = os.getenv(f"{ENVVAR_SETTINGS_PREFIX}CAMERA_IP", None)
 
 if IN_DOCKER:
-    ALLOWED_HOSTS = ["*"]
-    CSRF_TRUSTED_ORIGINS = ["http://localhost:8080", "https://localhost:8000"]
+    CSRF_TRUSTED_ORIGINS = [
+        "http://54.76.20.120:8000", "https://ias.praful-patekar.xyz", "https://www.ias.praful-patekar.xyz"
+    ]
 
 USE_ON_COMMIT_HOOK = True
 CORE_DOMAIN = None
