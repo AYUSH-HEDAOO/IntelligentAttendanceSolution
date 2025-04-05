@@ -1,5 +1,5 @@
 # Use the pre-built dlib base image
-FROM py-dlib-base
+FROM prafulcoder/py-dlib-base:v-1
 
 # Set the working directory
 WORKDIR /opt/project
