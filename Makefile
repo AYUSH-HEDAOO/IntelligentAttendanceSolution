@@ -65,6 +65,14 @@ docker-down:
 	docker-compose -f docker-compose.dev.yml down
 
 # PROD
+# You should have docker login before running this command
+# docker login --username prafulcoder --password <password> --email <email>
+.PHONY: docker-prod-build
+docker-prod-build:
+	docker build -t prafulcoder/ias-app:latest .
+	docker push prafulcoder/ias-app:latest
+
+# PROD
 .PHONY: docker-prod-up
 docker-prod-up:
 	docker-compose -f docker-compose.yml up --force-recreate -d prod-db app

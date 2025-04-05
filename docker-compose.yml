@@ -15,7 +15,7 @@ services:
       - postgresql-prod-data:/var/lib/postgresql/data
 
   app:
-    build: .
+    image: prafulcoder/ias-app:latest
     restart: unless-stopped
     ports:
       - '8000:8000'
