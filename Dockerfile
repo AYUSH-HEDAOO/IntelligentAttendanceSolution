@@ -21,7 +21,7 @@ RUN set -xe \
     && rm -rf /var/lib/apt/lists/*
 
 # Optimize Poetry's connection pool for faster installations
-RUN poetry config installer.max-workers 10
+RUN poetry config installer.max-workers 20
 
 # Install project dependencies without re-installing dlib
 RUN poetry install --no-root --no-interaction --no-ansi -vvv
