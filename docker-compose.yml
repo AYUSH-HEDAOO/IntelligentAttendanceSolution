@@ -22,11 +22,11 @@ services:
     depends_on:
       - prod-db
     environment:
-      IAS_SETTINGS_DATABASES: '{"default":{"HOST":"prod-db","PORT":"5432"}}' # JSON string
-      IAS_SETTINGS_IN_DOCKER: ${IAS_SETTINGS_IN_DOCKER} # Boolean values should be passed as strings
-      IAS_SETTINGS_SECRET_KEY: ${IAS_SETTINGS_SECRET_KEY} # String value
-      IAS_SETTINGS_CAMERA_IP: ${IAS_SETTINGS_CAMERA_IP} # Empty string
-      IAS_SETTINGS_DEBUG: ${IAS_SETTINGS_DEBUG} # Boolean values should be passed as strings
+      IAS_SETTINGS_DATABASES: '{"default":{"HOST":"${POSTGRES_HOST}","PORT":"$POSTGRES_PORT}"}}'
+      IAS_SETTINGS_IN_DOCKER: 'true'
+      IAS_SETTINGS_SECRET_KEY: ${IAS_SETTINGS_SECRET_KEY}
+      IAS_SETTINGS_CAMERA_IP: ${IAS_SETTINGS_CAMERA_IP}
+      IAS_SETTINGS_DEBUG: 'false'
 
 volumes:
   postgresql-prod-data:
