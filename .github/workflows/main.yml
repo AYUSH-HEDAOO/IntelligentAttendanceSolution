@@ -37,7 +37,7 @@ jobs:
   # Deploy Job
   deploy:
     name: Deploy
-    needs: [quality-assurance]
+    needs: [quality-assurance, build]
     runs-on: ubuntu-latest
     steps:
       # Configure SSH for Remote Access
