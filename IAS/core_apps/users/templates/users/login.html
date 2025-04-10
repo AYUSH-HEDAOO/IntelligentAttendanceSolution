@@ -17,6 +17,7 @@ Login Page
         {% endif %}
         {% comment %} <a href="{% url 'MarkAttendance' %}" type="button" class="btn btn-outline-success">Clock In</a>
         <a href="{% url 'MarkAttendance' %}" type="button" class="btn btn-outline-danger">Clock Out</a> {% endcomment %}
+
       </div>  
 
       <div class="pt-4 pb-2">
@@ -58,11 +59,12 @@ Login Page
         
       </form>
 
+
     </div>
   </div>
 
   <script>
-    fetch("{% url 'MarkAttendance' %}")
+    {% comment %} fetch("{% url 'MarkAttendance' %}") {% endcomment %}
   </script>
 {% endblock auth_form %}
 
