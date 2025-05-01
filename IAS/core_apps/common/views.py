@@ -47,7 +47,7 @@ def camera(request):
     return render(request, "common/camera.html")
 
 def register_face(request):
-    return render(request, "common/face_register.html")
+    return render(request, "common/register_face.html")
 
 @csrf_exempt
 def mark_attendance(request):
