@@ -126,6 +126,24 @@
             max-width: 800px;
             display: none;
         }
+
+        .progress {
+            width: 100%;
+            max-width: 800px;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -142,24 +160,28 @@
     </div>
     
     <div class="controls">
-        <button id="startBtn" hidden>Start Camera</button>
+        {% comment %} <button id="startBtn">Start Camera</button> {% endcomment %}
         <button id="stopBtn" disabled>Stop Camera</button>
-        <button id="captureBtn" disabled>Mark Attendance</button>
+        <button id="captureBtn" disabled>Register Face</button>
+    </div>
+    
+    <div class="progress">
+        <div class="progress-bar"></div>
     </div>
     
     <p id="errorMsg" class="error"></p>
 
     <script>
         const video = document.getElementById('video');
-        const startBtn = document.getElementById('startBtn');
+        {% comment %} const startBtn = document.getElementById('startBtn'); {% endcomment %}
         const stopBtn = document.getElementById('stopBtn');
         const captureBtn = document.getElementById('captureBtn');
         const errorMsg = document.getElementById('errorMsg');
         const personIcon = document.querySelector('.person-icon');
+        const progress = document.querySelector('.progress');
+        const progressBar = document.querySelector('.progress-bar');
 
         let stream = null;
-        let frameInterval = null;
-        const FPS = 5; // Reduced frame rate for POST requests
         
         // Start camera function
         async function startCamera() {
@@ -167,99 +189,36 @@
             
             try {
                 const devices = await navigator.mediaDevices.enumerateDevices();
-                const videoDevices = devices.filter(device => device.kind === 'videoinput' && device.label.startsWith('HD camera'));
-                console.log(videoDevices);
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                console.log('Available video devices:', videoDevices);
 
-                stream = await navigator.mediaDevices.getUserMedia({
+                const constraints = {
                     video: {
-                        deviceId: { exact: videoDevices[0].deviceId },
                         width: { ideal: 800 },
                         height: { ideal: 600 },
-                        facingMode: "user" // Front camera
+                        facingMode: "user"
                     },
                     audio: false
-                });
-                
+                };
+
+                // If we found an HD camera, use it
+                const hdCamera = videoDevices.find(device => device.label.toLowerCase().includes('hd'));
+                if (hdCamera) {
+                    constraints.video.deviceId = { exact: hdCamera.deviceId };
+                }
+
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
                 video.style.display = 'block';
                 personIcon.style.display = 'none';
-                startBtn.disabled = true;
+                
+                {% comment %} startBtn.disabled = true; {% endcomment %}
                 stopBtn.disabled = false;
                 captureBtn.disabled = false;
-                await captureAndSendFrame();
 
             } catch (err) {
                 errorMsg.textContent = `Error: ${err.message || 'Could not access camera'}`;
                 console.error("Camera error:", err);
-            }
-        }
-
-        // Capture and send frame for attendance
-        async function captureAndSendFrame() {
-            if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
-            captureBtn.disabled = true;
-            
-            try {
-                let i = 0;
-                const samples = 20;
-                while(i < samples) {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    
-                    // Convert to JPEG blob
-                    const blob = await new Promise(resolve => {
-                        canvas.toBlob(resolve, 'image/jpeg', 0.8);
-                    });
-                    
-                    // Create FormData and send via POST
-                    const formData = new FormData();
-                    formData.append('image', blob, 'frame.jpg');
-                    formData.append('index', i);
-                    if(i+1 == samples)
-                        formData.append('final', true);
-                    
-                    // Get CSRF token
-                    const csrftoken = getCookie('csrftoken');
-                    
-                    // Send to Django backend
-                    const response = await fetch("{% url 'AddImagesToDataset' %}", {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRFToken': csrftoken,
-                        },
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error('Server error');
-                    }
-                    
-                    const data = await response.json();
-                    if (data.success == 'Done') {
-                        errorMsg.textContent = 'Face samples taken successfully!';
-                        errorMsg.style.color = '#05853a';
-                        stopCamera();
-                    } else if (data.success == 'Partial') {
-                        errorMsg.textContent = 'Samples taking ' + (i + 1) + "/" + samples;
-                        errorMsg.style.color = '#05853a';
-                    } else if (data.success == 'Not') {
-                        errorMsg.textContent = 'Face not found';
-                        errorMsg.style.color = 'red';
-                        i -= 1;
-                    } else {
-                        errorMsg.textContent = 'Failed to mark attendance. Please try again.';
-                    }
-                    i += 1;
-                }
-                
-            } catch (error) {
-                console.error('Error sending frame:', error);
-                errorMsg.textContent = 'Error processing attendance. Please try again.';
-            } finally {
-                captureBtn.disabled = false;
             }
         }
 
@@ -270,13 +229,13 @@
                 video.srcObject = null;
                 video.style.display = 'none';
                 personIcon.style.display = 'block';
-                startBtn.disabled = false;
+                {% comment %} startBtn.disabled = false; {% endcomment %}
                 stopBtn.disabled = true;
                 captureBtn.disabled = true;
             }
         }
 
-        // Helper function to get CSRF token
+        // Function to get CSRF token
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -292,17 +251,100 @@
             return cookieValue;
         }
 
+        // Capture and send frame for face registration
+        async function captureAndSendFrame() {
+            if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+                errorMsg.textContent = 'Camera not ready. Please wait...';
+                return;
+            }
+
+            captureBtn.disabled = true;
+            progress.style.display = 'block';
+            errorMsg.textContent = '';
+            
+            try {
+                const totalSamples = 10;
+                for (let i = 0; i < totalSamples; i++) {
+                    // Update progress
+                    const progressPercent = ((i + 1) / totalSamples) * 100;
+                    progressBar.style.width = `${progressPercent}%`;
+
+                    // Create canvas and capture frame
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0);
+
+                    // Convert canvas to blob
+                    const blob = await new Promise((resolve, reject) => {
+                        canvas.toBlob((blob) => {
+                            if (blob) {
+                                resolve(blob);
+                            } else {
+                                reject(new Error('Failed to create blob'));
+                            }
+                        }, 'image/jpeg', 0.8);
+                    });
+
+                    // Create and send form data
+                    const formData = new FormData();
+                    formData.append('image', blob, `frame_${i}.jpg`);
+                    
+                    const response = await fetch("{% url 'AddImagesToDataset' %}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log(data);
+                    if (data.success == "Not") {
+                        errorMsg.textContent = 'No face detected. Please try again!';
+                        errorMsg.style.color = 'red';
+                        i -= 1;
+                    } else {
+                        errorMsg.textContent = 'Saved image ' + (i + 1) + ' of ' + totalSamples;
+                        errorMsg.style.color = '#4CAF50';
+                    }
+
+                    // Wait a short time between captures
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+
+                errorMsg.style.color = '#4CAF50';
+                errorMsg.textContent = 'Face registration completed successfully!';
+                
+                // Redirect to appropriate page after success
+                {% comment %} setTimeout(() => {
+                    window.location.href = "{% url 'Camera' %}";
+                }, 2000); {% endcomment %}
+
+            } catch (error) {
+                console.error('Error sending frame:', error);
+                errorMsg.style.color = 'red';
+                errorMsg.textContent = `Error: ${error.message}. Please try again.`;
+                captureBtn.disabled = false;
+            } finally {
+                progress.style.display = 'none';
+                progressBar.style.width = '0%';
+            }
+        }
+
         // Event listeners
-        startBtn.addEventListener('click', startCamera);
+        {% comment %} startBtn.addEventListener('click', startCamera); {% endcomment %}
+        startCamera();
         stopBtn.addEventListener('click', stopCamera);
         captureBtn.addEventListener('click', captureAndSendFrame);
 
-        window.addEventListener('DOMContentLoaded', startCamera())
-
         // Clean up when page is closed
-        window.addEventListener('beforeunload', () => {
-            stopCamera();
-        });
+        window.addEventListener('beforeunload', stopCamera);
     </script>
 </body>
 </html>
