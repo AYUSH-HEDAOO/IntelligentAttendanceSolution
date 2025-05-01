@@ -11511,4 +11511,3 @@ exports.plugins = plugins;
 exports.registerables = registerables;
 exports.registry = registry;
 exports.scales = scales;
-//# sourceMappingURL=chart.cjs.map

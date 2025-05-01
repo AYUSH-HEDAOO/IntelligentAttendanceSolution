@@ -12,34 +12,49 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from typing import List
 
+from IAS.utils.general import deep_update, get_settings_from_environment
+
+ENVVAR_SETTINGS_PREFIX = "IAS_SETTINGS_"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-b$^zrht1=1!_j7v7oqqw393!b25mkc-(5nc3i9k#$l49se8k*w"
-
 APP_DIR = BASE_DIR / "core_apps"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+def str_to_bool(value: str) -> bool:
+    return value.lower() == "true"
 
+
+IN_DOCKER: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}IN_DOCKER", "false"))
+SECRET_KEY: str = str(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}SECRET_KEY"))
+DEBUG: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}DEBUG", "true"))
+ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1"]
+CSRF_TRUSTED_ORIGINS: List[str] = ["http://localhost:8080"]
+CAMERA_IP = os.getenv(f"{ENVVAR_SETTINGS_PREFIX}CAMERA_IP", None)
+
+if IN_DOCKER:
+    ALLOWED_HOSTS = ["*"]
+    CSRF_TRUSTED_ORIGINS = ["http://localhost:8080", "https://localhost:8000"]
+
+USE_ON_COMMIT_HOOK = True
+CORE_DOMAIN = None
+STOKEN_EXPIRATION_SECONDS = 10
 
 # Application definition
 LOCAL_APPS = [
-    "ias.core_apps.common",
-    "ias.core_apps.users",
-    "ias.core_apps.students",
-    "ias.core_apps.staffs",
-    "ias.core_apps.institutes",
-    "ias.core_apps.attendance",
+    "IAS.core_apps.common",
+    "IAS.core_apps.users",
+    "IAS.core_apps.students",
+    "IAS.core_apps.staffs",
+    "IAS.core_apps.institutes",
+    "IAS.core_apps.attendance",
 ]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = ["corsheaders", "storages"]
 
 DJANGO_APPS = [
     "django.contrib.admin",
@@ -54,8 +69,10 @@ INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "IAS.utils.middleware.LoggingMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -63,7 +80,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "ias.ias.urls"
+if IN_DOCKER:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+ROOT_URLCONF = "IAS.ias.urls"
 
 TEMPLATES = [
     {
@@ -81,29 +101,31 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "ias.ias.wsgi.application"
+WSGI_APPLICATION = "IAS.ias.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if IN_DOCKER:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "IAS",
+            "USER": "iasadmin",
+            "PASSWORD": "iaspassword",
+            "HOST": "localhost",  # will be changed when running in docker
+            "PORT": "5432",
+            "ATOMIC_REQUESTS": True,
+            "CONN_MAX_AGE": 0,
+        }
     }
-}
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'IAS',
-#         'USER': 'root',
-#         'PASSWORD': '',
-#         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
-#         'PORT': '3306',
-#     }
-# }
-
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -123,22 +145,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
-
+TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -147,10 +162,64 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
 
-
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "staticfiles")]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            "format": "%(asctime)s %(levelname)s %(name)s %(message)s"
+        },
+        "colored": {
+            "()": "colorlog.ColoredFormatter",
+            "format": "%(log_color)s%(asctime)s %(levelname)s %(name)s %(bold_white)s%(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+            "filters": [],
+        },
+    },
+    "loggers": {
+        logger_name: {
+            "level": "WARNING",
+            "propagate": True,
+        } for logger_name in (
+            "django",
+            "django.request",
+            "django.db.backends",
+            "django.template",
+            "IAS",
+            "urllib3",
+            "asyncio",
+        )
+    },
+    "root": {
+        "level": "DEBUG",
+        "handlers": ["console"],
+    },
+}
+"""
+    This takes env variables with matching prefix, strips out the prefix, and adds it to global settings.
+
+    For example:
+        export PORTFOLIO_SETTINGS_IN_DOCKER=true (environment variable)
+        could then be reffered as a global as:
+        IN_DOCKER (where then value would be True)
+"""
+# global() is a dictionary of global variables
+deep_update(globals(), get_settings_from_environment(ENVVAR_SETTINGS_PREFIX))

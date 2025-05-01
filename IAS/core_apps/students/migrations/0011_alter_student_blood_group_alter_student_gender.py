@@ -13,11 +13,25 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='student',
             name='blood_group',
-            field=models.CharField(blank=True, choices=[('A+', 'A+'), ('B+', 'B+'), ('AB+', 'AB+'), ('O+', 'O+'), ('A-', 'A-'), ('B-', 'B-'), ('AB-', 'AB-'), ('O-', 'O-'), ('Other', 'Other')], default='Other', max_length=10, null=True),
+            field=models.CharField(
+                blank=True,
+                choices=[('A+', 'A+'), ('B+', 'B+'), ('AB+', 'AB+'), ('O+', 'O+'), ('A-', 'A-'), ('B-', 'B-'),
+                         ('AB-', 'AB-'), ('O-', 'O-'), ('Other', 'Other')],
+                default='Other',
+                max_length=10,
+                null=True
+            ),
         ),
         migrations.AlterField(
             model_name='student',
             name='gender',
-            field=models.CharField(blank=True, choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other'), ('transgender', 'Transgender'), ('prefer not to answer', 'Prefer not to answer')], default='prefer not to answer', max_length=20, null=True),
+            field=models.CharField(
+                blank=True,
+                choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other'), ('transgender', 'Transgender'),
+                         ('prefer not to answer', 'Prefer not to answer')],
+                default='prefer not to answer',
+                max_length=20,
+                null=True
+            ),
         ),
     ]

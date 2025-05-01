@@ -1,12 +1,15 @@
 from datetime import date
-from django.shortcuts import render
+
 from django.contrib import messages
-from ias.core_apps.common.decorators import allowed_users
 from django.contrib.auth.decorators import login_required
-from ias.core_apps.common.models import RoleType, ROLE_URL_MAP, AttendanceStatus
-from ias.core_apps.attendance.models import Attendance
-from ias.core_apps.students.models import Student
-from ias.core_apps.common.views import get_attendance_data, mark_all_attendance
+from django.shortcuts import render
+
+from IAS.core_apps.attendance.models import Attendance
+from IAS.core_apps.common.decorators import allowed_users
+from IAS.core_apps.common.models import ROLE_URL_MAP, AttendanceStatus, RoleType
+from IAS.core_apps.common.views import get_attendance_data, mark_all_attendance
+from IAS.core_apps.students.models import Student
+
 
 # Create your views here.
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -35,7 +38,7 @@ def dashboard(request):
         "student_count": student_count,
         "present_count": present_count,
         "absent_count": absent_count,
-        "student_todays_attendance": student_todays_attendance
+        "student_todays_attendance": student_todays_attendance,
     }
     return render(request, "staffs/dashboard.html", context)
 

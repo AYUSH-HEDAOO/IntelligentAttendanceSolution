@@ -142,7 +142,7 @@
     </div>
     
     <div class="controls">
-        <button id="startBtn">Start Camera</button>
+        <button id="startBtn" hidden>Start Camera</button>
         <button id="stopBtn" disabled>Stop Camera</button>
         <button id="captureBtn" disabled>Mark Attendance</button>
     </div>
@@ -168,112 +168,99 @@
             errorMsg.textContent = '';
             
             try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput' && device.label.startsWith('HD camera'));
+                console.log(videoDevices);
+
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        deviceId: { exact: '23cf7ab92ff7945cdbc78f4284f871ae6348de0741f8d29735bbb665a0825bed'},
                         width: { ideal: 800 },
                         height: { ideal: 600 },
                         facingMode: "user" // Front camera
                     },
                     audio: false
                 });
-
-                {% comment %} const devices = await navigator.mediaDevices.enumerateDevices();
-                const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                console.log(videoDevices); {% endcomment %}
                 
                 video.srcObject = stream;
                 video.style.display = 'block';
                 personIcon.style.display = 'none';
+                
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
                 captureBtn.disabled = false;
-                captureAndSendFrame();
-
+                
+                // Start sending frames
+                startFrameCapture();
             } catch (err) {
-                errorMsg.textContent = `Error: ${err.message || 'Could not access camera'}`;
-                console.error("Camera error:", err);
+                console.error('Error accessing camera:', err);
+                errorMsg.textContent = 'Error accessing camera. Please make sure you have granted camera permissions.';
             }
         }
-
-        // Capture and send frame for attendance
-        async function captureAndSendFrame() {
-            if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
-            
-            processingMsg.style.display = 'block';
-            captureBtn.disabled = true;
-            
-            try {
-                // Create canvas to capture frame
-                const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                
-                // Convert to JPEG blob
-                const blob = await new Promise(resolve => {
-                    canvas.toBlob(resolve, 'image/jpeg', 0.8);
-                });
-                
-                // Create FormData and send via POST
-                const formData = new FormData();
-                formData.append('image', blob, 'frame.jpg');
-                
-                // Get CSRF token
-                const csrftoken = getCookie('csrftoken');
-                
-                // Send to Django backend
-                const response = await fetch("{% url 'MarkAttendance' %}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': csrftoken,
-                    },
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Server error');
-                }
-                
-                const data = await response.json();
-                
-                // Redirect after successful processing
-                if (data.name) {
-                    fetch(`${window.location}?attendance=${data.name}`, {
-                        method: 'GET',
-                        headers: {
-                            'X-CSRFToken': csrftoken,
-                        },
-                    });
-                } else {
-                    errorMsg.textContent = 'No face recognized. Please try again.';
-                }
-                
-            } catch (error) {
-                console.error('Error sending frame:', error);
-                errorMsg.textContent = 'Error processing attendance. Please try again.';
-            } finally {
-                processingMsg.style.display = 'none';
-                captureBtn.disabled = false;
-            }
-            captureAndSendFrame();
-        }
-
+        
         // Stop camera function
         function stopCamera() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
-                video.srcObject = null;
-                video.style.display = 'none';
-                personIcon.style.display = 'block';
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-                captureBtn.disabled = true;
+                stream = null;
             }
+            
+            if (frameInterval) {
+                clearInterval(frameInterval);
+                frameInterval = null;
+            }
+            
+            video.srcObject = null;
+            video.style.display = 'none';
+            personIcon.style.display = 'block';
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            captureBtn.disabled = true;
         }
-
-        // Helper function to get CSRF token
+        
+        // Frame capture function
+        function startFrameCapture() {
+            if (frameInterval) {
+                clearInterval(frameInterval);
+            }
+            
+            frameInterval = setInterval(async () => {
+                if (!stream) return;
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                
+                // Convert to base64
+                const imageData = canvas.toDataURL('image/jpeg', 0.8);
+                
+                try {
+                    const response = await fetch('/process-frame/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({ frame: imageData })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    
+                    const data = await response.json();
+                    console.log('Frame processed:', data);
+                    
+                } catch (error) {
+                    console.error('Error processing frame:', error);
+                }
+            }, 1000 / FPS);
+        }
+        
+        // Function to get CSRF token
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -288,16 +275,41 @@
             }
             return cookieValue;
         }
-
+        
         // Event listeners
         startBtn.addEventListener('click', startCamera);
         stopBtn.addEventListener('click', stopCamera);
-        captureBtn.addEventListener('click', captureAndSendFrame);
-
-        // Clean up when page is closed
-        window.addEventListener('beforeunload', () => {
-            stopCamera();
+        captureBtn.addEventListener('click', async () => {
+            processingMsg.style.display = 'block';
+            try {
+                const response = await fetch('/mark-attendance/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to mark attendance');
+                }
+                
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    errorMsg.textContent = data.message || 'Failed to mark attendance';
+                }
+            } catch (error) {
+                console.error('Error marking attendance:', error);
+                errorMsg.textContent = 'Error marking attendance. Please try again.';
+            } finally {
+                processingMsg.style.display = 'none';
+            }
         });
+        
+        // Start camera automatically when page loads
+        window.addEventListener('load', startCamera);
     </script>
 </body>
 </html>

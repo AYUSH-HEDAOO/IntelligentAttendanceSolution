@@ -166,3 +166,6 @@ NiceAdmin
 face_recognition_data
 media/image_dataset/
 *venv/
+local/
+static/
+media/

@@ -1,13 +1,9 @@
-from django.db import models
-from ias.core_apps.common.models import IASModel, BloodGroup, Gender
-from ias.core_apps.users.models import Role
-from ias.core_apps.institutes.models import (
-    Institute,
-    Department,
-    AcademicSession,
-    AcademicClassSection,
-)
 from django.contrib.auth import get_user_model
+from django.db import models
+
+from IAS.core_apps.common.models import BloodGroup, Gender, IASModel
+from IAS.core_apps.institutes.models import AcademicClassSection, AcademicSession, Department, Institute
+from IAS.core_apps.users.models import Role
 
 AUTH_USER = get_user_model()
 
@@ -19,13 +15,9 @@ def student_directory_path(instance, filename):
 
 # Create your models here.
 class Student(IASModel):
-    role = models.OneToOneField(
-        Role, on_delete=models.CASCADE, related_name="role_student"
-    )
+    role = models.OneToOneField(Role, on_delete=models.CASCADE, related_name="role_student")
     enrollment_number = models.CharField(max_length=100, unique=True)
-    institute = models.ForeignKey(
-        Institute, on_delete=models.CASCADE, related_name="institute_student", null=True
-    )
+    institute = models.ForeignKey(Institute, on_delete=models.CASCADE, related_name="institute_student", null=True)
     department = models.ForeignKey(
         Department,
         on_delete=models.CASCADE,
@@ -67,9 +59,7 @@ class Student(IASModel):
         if self.created_by_uuid_role and "/" in self.created_by_uuid_role:
             uuid, role = str(self.created_by_uuid_role).split("/")
             created_user = AUTH_USER.objects.get(id=uuid)
-            created_name = (
-                f"{created_user.first_name} {created_user.last_name} ({role})"
-            )
+            created_name = (f"{created_user.first_name} {created_user.last_name} ({role})")
         return created_name
 
 

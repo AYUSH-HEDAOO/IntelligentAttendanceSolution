@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "ias"
+name = "IAS"
 version = "0.1.0"
 description = ""
-authors = ["Praful Patekar <prafulpatekar23@gmail.com>"]
+authors = ["Your Name <your@email.com>"]
 readme = "README.md"
-packages = [{ include = "ias" }]
+packages = [{ include = "IAS" }]
 
 [tool.poetry.dependencies]
 python = "~3.10"
@@ -26,11 +26,39 @@ pytz = "2020.4"
 scikit-learn = "1.6.1"
 scipy = "1.7.3"
 imutils = "^0.5.4"
-dlib = { path = "dependencies/dlib-19.22.99-cp310-cp310-win_amd64.whl" }
 django-import-export = "^4.3.7"
 django-filter = "^25.1"
 requests = "^2.32.3"
+pyyaml = "^6.0.2"
+django-cors-headers = "^4.7.0"
+colorlog = "^6.9.0"
+django-storages = "^1.14.5"
+psycopg2 = "^2.9.10"
 
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^7.2.0"
+python-dotenv = "^1.1.0"
+pre-commit = "^4.2.0"
+
+
+[tool.isort]
+multi_line_output = 5
+line_length = 120
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "IAS.ias.settings"
+django_find_project = false
+python_files = "test_*.py"
+testpaths = ["IAS"]
+filterwarnings = "ignore::DeprecationWarning:^(?!node\\.).*:"
+
+[tool.yapf]
+based_on_style = "google"
+align_closing_bracket_with_visual_indent = true
+coalesce_brackets = true
+column_limit = 120
+dedent_closing_brackets = true
 
 [build-system]
 requires = ["poetry-core"]

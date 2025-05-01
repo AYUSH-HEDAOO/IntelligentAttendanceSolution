@@ -1,6 +1,9 @@
-import django_filters
-from .models import Attendance
 from datetime import date
+
+import django_filters
+
+from .models import Attendance
+
 
 class AttendanceFilter(django_filters.FilterSet):
     date_range = django_filters.ChoiceFilter(

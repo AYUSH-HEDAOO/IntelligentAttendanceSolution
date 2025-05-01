@@ -7,29 +7,37 @@ venv:
 install:
 	poetry install
 
+.PHONY: install-win-dev
+install-win-dev:
+	poetry install; pip install dependencies/dlib-19.22.99-cp310-cp310-win_amd64.whl
+
 .PHONY: migrations
 migrations:
-	poetry run python -m ias.manage makemigrations
+	poetry run python -m IAS.manage makemigrations
 
 .PHONY: migrate
 migrate:
-	poetry run python -m ias.manage migrate
+	poetry run python -m IAS.manage migrate
+
+.PHONY: collectstatic
+collectstatic:
+	poetry run python -m IAS.manage collectstatic --no-input
 
 .PHONY: runserver
 runserver:
-	poetry run python -m ias.manage runserver 8080
+	poetry run python -m IAS.manage runserver 8080
 
 .PHONY: superuser
 superuser:
-	poetry run python -m ias.manage createsuperuser
+	poetry run python -m IAS.manage createsuperuser
 
 .PHONY: shell
 shell:
-	poetry run python -m ias.manage shell
+	poetry run python -m IAS.manage shell
 
 .PHONY: train-model
 train-model:
-	poetry run python -m ias.scripts.train_face_recognization_model
+	poetry run python -m IAS.scripts.train_face_recognization_model
 
 .PHONY: update
 update: install migrate;
@@ -50,7 +58,7 @@ lint:
 .PHONY: docker-up
 docker-up:
 	test -f .env || touch .env
-	docker-compose -f docker-compose.dev.yml up --force-recreate db -d
+	docker-compose -f docker-compose.dev.yml up --force-recreate -d db app
 
 .PHONY: docker-down
 docker-down:
@@ -59,10 +67,8 @@ docker-down:
 # PROD
 .PHONY: docker-prod-up
 docker-prod-up:
-	docker-compose -f docker-compose.yml up --force-recreate prod-db app -d
+	docker-compose -f docker-compose.yml up --force-recreate -d prod-db app
 
 .PHONY: docker-prod-down
 docker-prod-down:
 	docker-compose -f docker-compose.yml down
-
-

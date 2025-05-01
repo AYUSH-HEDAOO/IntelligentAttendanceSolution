@@ -1,15 +1,20 @@
-from imutils.face_utils.helpers import shape_to_np, FACIAL_LANDMARKS_68_IDXS
-from imutils.face_utils import FaceAligner
-import numpy as np
+import os
+
 import cv2
 import dlib
-from ias.ias.general import BASE_DIR, MEDIA_ROOT
+import numpy as np
+from django.conf import settings
+from imutils.face_utils import FaceAligner
+from imutils.face_utils.helpers import FACIAL_LANDMARKS_68_IDXS, shape_to_np
 
+BASE_DIR = settings.BASE_DIR
 
 # Add path to the shape predictor
-SHAPE_PREDICTOR_PATH = f"{BASE_DIR}\\shape_predictor_68_face_landmarks.dat"
+SHAPE_PREDICTOR_PATH = os.path.abspath(os.path.join(BASE_DIR, "shape_predictor_68_face_landmarks.dat"))
+
 
 class CustomFaceAligner(FaceAligner):
+
     def align(self, image, gray, rect):
         # Convert landmarks to NumPy array
         shape = self.predictor(gray, rect)
@@ -29,13 +34,12 @@ class CustomFaceAligner(FaceAligner):
         angle = np.degrees(np.arctan2(dY, dX)) - 180
 
         # Compute scale factor
-        dist = np.sqrt((dX ** 2) + (dY ** 2))
+        dist = np.sqrt((dX**2) + (dY**2))
         desiredDist = (1.0 - self.desiredLeftEye[0] - self.desiredLeftEye[0]) * self.desiredFaceWidth
         scale = desiredDist / dist
 
         # Fix: Ensure integer values for eyesCenter
-        eyesCenter = (int(leftEyeCenter[0] + rightEyeCenter[0]) // 2, 
-                      int(leftEyeCenter[1] + rightEyeCenter[1]) // 2)
+        eyesCenter = (int(leftEyeCenter[0] + rightEyeCenter[0]) // 2, int(leftEyeCenter[1] + rightEyeCenter[1]) // 2)
 
         # Fix: Handle missing values gracefully
         if not (np.isfinite(eyesCenter[0]) and np.isfinite(eyesCenter[1])):
@@ -56,6 +60,7 @@ class CustomFaceAligner(FaceAligner):
 
 def get_detector():
     return dlib.get_frontal_face_detector()
+
 
 def get_predictor():
     return dlib.shape_predictor(SHAPE_PREDICTOR_PATH)
