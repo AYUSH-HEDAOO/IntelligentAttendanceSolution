@@ -202,7 +202,7 @@
                 };
 
                 // If we found an HD camera, use it
-                const hdCamera = videoDevices.find(device => device.label.toLowerCase().includes('hd'));
+                const hdCamera = videoDevices.find(device => device.label.toLowerCase().includes('hd camera'));
                 if (hdCamera) {
                     constraints.video.deviceId = { exact: hdCamera.deviceId };
                 }
