@@ -1,26 +1,20 @@
-from django.shortcuts import redirect
 import base64
-import requests
-import datetime
-from django.http import JsonResponse
+import json
 import os
 import pickle
+import tempfile
 import time
-import json
-import numpy as np
-from sklearn.preprocessing import LabelEncoder
-import imutils
+from datetime import date
+
 import cv2
 import imutils
-from datetime import date
 import numpy as np
 import requests
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -40,19 +34,18 @@ from IAS.core_apps.institutes.models import Institute
 from IAS.core_apps.staffs.models import Staff
 from IAS.core_apps.students.models import AcademicInfo, Student
 from IAS.core_apps.users.models import Role
-from IAS.ias.general import MEDIA_ROOT
-import tempfile
+from IAS.ias.general import BASE_DIR, CAMERA_IP, MEDIA_ROOT
 
 User = get_user_model()
-CAMERA_IP = settings.CAMERA_IP
-BASE_DIR = settings.BASE_DIR
 
 
 def camera(request):
     return render(request, "common/camera.html")
 
+
 def register_face(request):
     return render(request, "common/register_face.html")
+
 
 @csrf_exempt
 def mark_attendance(request):
@@ -79,7 +72,7 @@ def mark_attendance(request):
     count = dict()
     present = dict()
     start = dict()
-    
+
     for i in range(no_of_faces):
         user_id = encoder.inverse_transform([i])[0]
         count[user_id] = 0
@@ -163,6 +156,7 @@ def update_attendance_in_db_in(clock_in_data):
         todays_attendance = mark_all_attendance(current_user, todays_attendance)
     return name
 
+
 def create_dataset(role_data, max_sample_count=30):
     try:
         user = role_data.user
@@ -243,6 +237,7 @@ def create_dataset(role_data, max_sample_count=30):
 
     finally:
         cv2.destroyAllWindows()
+
 
 # def create_dataset(role_data, max_sample_count=30):
 #     try:
@@ -331,6 +326,7 @@ def create_dataset(role_data, max_sample_count=30):
 #         # Clean up
 #         cv2.destroyAllWindows()
 
+
 def mark_all_attendance(current_user, todays_attendance):
     with transaction.atomic():
         created_by_uuid_role = f"{current_user.user.id}/{current_user.role_type}"
@@ -347,6 +343,7 @@ def mark_all_attendance(current_user, todays_attendance):
         todays_attendance.save()
     return todays_attendance
 
+
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.STUDENT, RoleType.STAFF])
 def add_images_to_dataset(request):
@@ -358,9 +355,9 @@ def add_images_to_dataset(request):
 
         image_file = request.FILES['image']
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
-                for chunk in image_file.chunks():
-                    tmp.write(chunk)
-                tmp_path = tmp.name
+            for chunk in image_file.chunks():
+                tmp.write(chunk)
+            tmp_path = tmp.name
         image_array = np.asarray(bytearray(open(tmp_path, 'rb').read()), dtype=np.uint8)
         frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
         frame = imutils.resize(frame, width=800)
@@ -383,9 +380,7 @@ def add_images_to_dataset(request):
 
             # Save the aligned face image
             if face_aligned is not None:
-                cv2.imwrite(
-                    os.path.join(directory, f"{start_sample_num}.jpg"), face_aligned
-                )
+                cv2.imwrite(os.path.join(directory, f"{start_sample_num}.jpg"), face_aligned)
                 face_aligned = imutils.resize(face_aligned, width=400)
                 msg = "Done"
 
@@ -396,6 +391,7 @@ def add_images_to_dataset(request):
         user.save()
 
     return JsonResponse({'success': msg})
+
 
 # @csrf_exempt
 # @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
@@ -528,6 +524,7 @@ def export_attendance_csv(request):
     response["Content-Disposition"] = 'attachment; filename="filtered_attendance.csv"'
     return response
 
+
 @csrf_exempt
 def process_frame(request):
     if request.method != 'POST':
@@ -541,7 +538,7 @@ def process_frame(request):
 
         # Remove the data URL prefix to get the base64 data
         frame_data = frame_data.split(',')[1]
-        
+
         # Convert base64 to image
         image_bytes = base64.b64decode(frame_data)
         image_array = np.frombuffer(image_bytes, dtype=np.uint8)
@@ -579,13 +576,7 @@ def process_frame(request):
                     'bbox': [x, y, w, h]
                 })
 
-        return JsonResponse({
-            'success': True,
-            'faces': detected_faces
-        })
+        return JsonResponse({'success': True, 'faces': detected_faces})
 
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

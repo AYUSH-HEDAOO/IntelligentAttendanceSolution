@@ -16,30 +16,30 @@
             margin: 0;
             background-color: #f0f0f0;
         }
-        
+
         .logo-container {
             display: flex;
             justify-content: center;
             padding: 1rem 0;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
             text-decoration: none;
         }
-        
+
         .logo img {
             height: 30px;
             margin-right: 10px;
         }
-        
+
         .logo span {
             font-size: 1.5rem;
             font-weight: bold;
             color: #333;
         }
-        
+
         .camera-container {
             position: relative;
             width: 800px;
@@ -53,7 +53,7 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         video {
             width: 100%;
             height: 100%;
@@ -61,19 +61,19 @@
             transform: scaleX(-1); /* Mirror effect */
             display: none; /* Hidden by default */
         }
-        
+
         .person-icon {
             font-size: 200px;
             color: #888;
             display: block; /* Visible by default */
         }
-        
+
         .controls {
             margin-top: 20px;
             display: flex;
             gap: 10px;
         }
-        
+
         button {
             padding: 12px 24px;
             background-color: #4CAF50;
@@ -84,41 +84,41 @@
             font-size: 16px;
             transition: all 0.3s;
         }
-        
+
         button:hover {
             background-color: #45a049;
             transform: scale(1.05);
         }
-        
+
         button:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
             transform: none;
         }
-        
+
         #stopBtn {
             background-color: #f44336;
         }
-        
+
         #stopBtn:hover {
             background-color: #d32f2f;
         }
-        
+
         #captureBtn {
             background-color: #2196F3;
         }
-        
+
         #captureBtn:hover {
             background-color: #0b7dda;
         }
-        
+
         .error {
             color: red;
             margin-top: 20px;
             text-align: center;
             max-width: 800px;
         }
-        
+
         .processing {
             color: #2196F3;
             margin-top: 20px;
@@ -135,18 +135,18 @@
             <span class="d-none d-lg-block">IAS</span>
         </a>
     </div>
-    
+
     <div class="camera-container">
         <div class="person-icon">👤</div>
         <video id="video" autoplay playsinline></video>
     </div>
-    
+
     <div class="controls">
         {% comment %} <button id="startBtn">Start Camera</button> {% endcomment %}
         <button id="stopBtn" disabled>Stop Camera</button>
         <button id="captureBtn" disabled>Mark Attendance</button>
     </div>
-    
+
     <p id="errorMsg" class="error"></p>
 
     <script>
@@ -160,11 +160,11 @@
         let stream = null;
         let frameInterval = null;
         const FPS = 5; // Reduced frame rate for POST requests
-        
+
         // Start camera function
         async function startCamera() {
             errorMsg.textContent = '';
-            
+
             try {
 
                 const constraints = {
@@ -185,7 +185,7 @@
                 }
 
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
-                
+
                 video.srcObject = stream;
                 video.style.display = 'block';
                 personIcon.style.display = 'none';
@@ -204,9 +204,9 @@
         // Capture and send frame for attendance
         async function captureAndSendFrame() {
             if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
-            
+
             captureBtn.disabled = true;
-            
+
             try {
                 // Create canvas to capture frame
                 const canvas = document.createElement('canvas');
@@ -214,19 +214,19 @@
                 canvas.height = video.videoHeight;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                
+
                 // Convert to JPEG blob
                 const blob = await new Promise(resolve => {
                     canvas.toBlob(resolve, 'image/jpeg', 0.8);
                 });
-                
+
                 // Create FormData and send via POST
                 const formData = new FormData();
                 formData.append('image', blob, 'frame.jpg');
-                
+
                 // Get CSRF token
                 const csrftoken = getCookie('csrftoken');
-                
+
                 // Send to Django backend
                 const response = await fetch("{% url 'MarkAttendance' %}", {
                     method: 'POST',
@@ -235,13 +235,13 @@
                         'X-CSRFToken': csrftoken,
                     },
                 });
-                
+
                 if (!response.ok) {
                     throw new Error('Server error');
                 }
-                
+
                 const data = await response.json();
-                
+
                 // Redirect after successful processing
                 if (data.name) {
                     errorMsg.textContent = 'Marked Attendance for ' + data.name;
@@ -256,7 +256,7 @@
                     errorMsg.textContent = 'No face recognized. Please try again.';
                     errorMsg.style.color = 'red';
                 }
-                
+
             } catch (error) {
                 console.error('Error sending frame:', error);
                 errorMsg.textContent = 'Error processing attendance. Please try again.';
