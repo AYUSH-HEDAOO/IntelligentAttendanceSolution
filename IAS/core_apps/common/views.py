@@ -9,7 +9,6 @@ from datetime import date
 import cv2
 import imutils
 import numpy as np
-import requests
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -27,14 +26,14 @@ from IAS.core_apps.attendance.resources import AttendanceResource
 from IAS.core_apps.common.decorators import allowed_users
 from IAS.core_apps.common.models import ROLE_URL_MAP, AttendanceStatus, BloodGroup, Gender, RoleType
 from IAS.core_apps.common.utils.datetime_utils import get_current_time
-from IAS.core_apps.common.utils.face_detection_utils import predict, prepare_directory
+from IAS.core_apps.common.utils.face_detection_utils import predict
 from IAS.core_apps.common.utils.image_utils import CustomFaceAligner as FaceAligner
 from IAS.core_apps.common.utils.image_utils import get_detector, get_predictor
 from IAS.core_apps.institutes.models import Institute
 from IAS.core_apps.staffs.models import Staff
 from IAS.core_apps.students.models import AcademicInfo, Student
 from IAS.core_apps.users.models import Role
-from IAS.ias.general import BASE_DIR, CAMERA_IP, MEDIA_ROOT
+from IAS.ias.general import BASE_DIR, MEDIA_ROOT
 
 User = get_user_model()
 
@@ -49,11 +48,11 @@ def register_face(request):
 
 @csrf_exempt
 def mark_attendance(request):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Only POST method allowed'}, status=400)
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST method allowed"}, status=400)
 
-    if 'image' not in request.FILES:
-        return JsonResponse({'error': 'No image provided'}, status=400)
+    if "image" not in request.FILES:
+        return JsonResponse({"error": "No image provided"}, status=400)
 
     # Initialize face recognition components
     detector = get_detector()
@@ -79,7 +78,7 @@ def mark_attendance(request):
         present[user_id] = False
 
     # Process the uploaded image
-    image_file = request.FILES['image']
+    image_file = request.FILES["image"]
     image_array = np.asarray(bytearray(image_file.read()), dtype=np.uint8)
     frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
     frame = imutils.resize(frame, width=800)
@@ -105,7 +104,7 @@ def mark_attendance(request):
                 print(f"Found user: {user_id}, Present: {present[user_id]}, Count: {count[user_id]}")
 
     name = update_attendance_in_db_in(present)
-    return JsonResponse({'name': name})
+    return JsonResponse({"name": name})
 
 
 def get_user_ids_with_true_values(input_dict):
@@ -157,176 +156,6 @@ def update_attendance_in_db_in(clock_in_data):
     return name
 
 
-def create_dataset(role_data, max_sample_count=30):
-    try:
-        user = role_data.user
-        user_id = user.id
-        institute_id = role_data.institute.id
-        directory = prepare_directory(institute_id, user_id)
-        print("[INFO] Loading the facial detector")
-        detector = get_detector()
-        predictor = get_predictor()
-        fa = FaceAligner(predictor, desiredFaceWidth=100)
-
-        # URL of the image that updates frequently
-        image_url = f"http://{CAMERA_IP}/640x480.jpg"
-
-        # Our dataset naming counter
-        start_sample_num = user.last_image_number
-
-        # Capturing the faces one by one and detecting the faces
-        while start_sample_num != max_sample_count:
-            try:
-                # Fetch the image from the URL
-                response = requests.get(image_url, stream=True)
-                if response.status_code == 200:
-                    # Convert the image to a numpy array
-                    image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
-                    frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-
-                    # Resize the frame
-                    frame = imutils.resize(frame, width=800)
-
-                    # Convert to grayscale for face detection
-                    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    faces = detector(gray_frame, 0)
-
-                    for face in faces:
-                        (x, y, w, h) = face_utils.rect_to_bb(face)
-
-                        # Align the face
-                        face_aligned = fa.align(frame, gray_frame, face)
-
-                        # Increment the sample number
-                        start_sample_num += 1
-
-                        # Save the aligned face image
-                        if face_aligned is not None:
-                            cv2.imwrite(
-                                os.path.join(directory, f"{start_sample_num}.jpg"),
-                                face_aligned,
-                            )
-                            face_aligned = imutils.resize(face_aligned, width=400)
-
-                        # Draw a rectangle around the face
-                        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
-
-                    # Display the frame
-                    cv2.imshow("Add Images", frame)
-
-                    # Wait for a short period (50ms) and check for 'q' key press to exit
-                    if cv2.waitKey(50) & 0xFF == ord("q"):
-                        break
-
-                else:
-                    print(f"Error: Failed to fetch image. Status code: {response.status_code}")
-                    break
-
-            except Exception as e:
-                print(f"Error fetching or processing image: {e}")
-                break
-
-        # Update the user's last image number
-        user.last_image_number = start_sample_num - 1
-        user.save()
-        return True
-
-    except Exception as e:
-        print("Error in create_dataset:", e)
-        return False
-
-    finally:
-        cv2.destroyAllWindows()
-
-
-# def create_dataset(role_data, max_sample_count=30):
-#     try:
-#         user = role_data.user
-#         user_id = user.id
-#         institute_id = role_data.institute.id
-#         max_sample_count = max_sample_count + user.last_image_number
-#         directory = f"{MEDIA_ROOT}/image_dataset/{institute_id}/{user_id}/"
-#         if not os.path.exists(directory):
-#             os.makedirs(directory)
-
-#         # Detect face
-#         # Loading the HOG face detector and the shape predictor for alignment
-#         print("[INFO] Loading the facial detector")
-#         detector = get_detector()
-#         predictor = get_predictor()
-#         fa = FaceAligner(predictor, desiredFaceWidth=100)
-
-#         # URL of the image that updates frequently
-#         image_url = f"http://{ip}/640x480.jpg"
-
-#         # Our dataset naming counter
-#         start_sample_num = user.last_image_number
-
-#         # Capturing the faces one by one and detecting the faces
-#         while start_sample_num != max_sample_count:
-#             try:
-#                 # Fetch the image from the URL
-#                 response = requests.get(image_url, stream=True)
-#                 if response.status_code == 200:
-#                     # Convert the image to a numpy array
-#                     image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
-#                     frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-
-#                     # Resize the frame
-#                     frame = imutils.resize(frame, width=800)
-
-#                     # Convert to grayscale for face detection
-#                     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-#                     faces = detector(gray_frame, 0)
-
-#                     for face in faces:
-#                         (x, y, w, h) = face_utils.rect_to_bb(face)
-
-#                         # Align the face
-#                         face_aligned = fa.align(frame, gray_frame, face)
-
-#                         # Increment the sample number
-#                         start_sample_num += 1
-
-#                         # Save the aligned face image
-#                         if face_aligned is not None:
-#                             cv2.imwrite(
-#                                 os.path.join(directory, f"{start_sample_num}.jpg"), face_aligned
-#                             )
-#                             face_aligned = imutils.resize(face_aligned, width=400)
-
-#                         # Draw a rectangle around the face
-#                         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
-
-#                     # Display the frame
-#                     cv2.imshow("Add Images", frame)
-
-#                     # Wait for a short period (50ms) and check for 'q' key press to exit
-#                     if cv2.waitKey(50) & 0xFF == ord('q'):
-#                         break
-
-#                 else:
-#                     print(f"Error: Failed to fetch image. Status code: {response.status_code}")
-#                     break
-
-#             except Exception as e:
-#                 print(f"Error fetching or processing image: {e}")
-#                 break
-
-#         # Update the user's last image number
-#         user.last_image_number = start_sample_num - 1
-#         user.save()
-#         return True
-
-#     except Exception as e:
-#         print("Error in create_dataset:", e)
-#         return False
-
-#     finally:
-#         # Clean up
-#         cv2.destroyAllWindows()
-
-
 def mark_all_attendance(current_user, todays_attendance):
     with transaction.atomic():
         created_by_uuid_role = f"{current_user.user.id}/{current_user.role_type}"
@@ -347,70 +176,50 @@ def mark_all_attendance(current_user, todays_attendance):
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.STUDENT, RoleType.STAFF])
 def add_images_to_dataset(request):
-    if request.method == "POST" and request.FILES.get('image'):
-        user = request.user.role_data.user
-        user_id = user.id
-        institute_id = request.user.role_data.institute.id
-        directory = f"{MEDIA_ROOT}/image_dataset/{institute_id}/{user_id}/"
+    try:
+        if request.method == "POST" and request.FILES.get("image"):
+            user = request.user.role_data.user
+            user_id = user.id
+            institute_id = request.user.role_data.institute.id
+            directory = f"{MEDIA_ROOT}\\image_dataset\\{institute_id}\\{user_id}"
 
-        image_file = request.FILES['image']
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            for chunk in image_file.chunks():
-                tmp.write(chunk)
-            tmp_path = tmp.name
-        image_array = np.asarray(bytearray(open(tmp_path, 'rb').read()), dtype=np.uint8)
-        frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-        frame = imutils.resize(frame, width=800)
-        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        detector = get_detector()
-        faces = detector(gray_frame, 0)
-        predictor = get_predictor()
-        fa = FaceAligner(predictor, desiredFaceWidth=100)
-        start_sample_num = user.last_image_number
-        print(directory)
-        msg = "Not"
-        for face in faces:
-            (x, y, w, h) = face_utils.rect_to_bb(face)
+            image_file = request.FILES["image"]
+            with tempfile.NamedTemporaryFile(delete=False) as tmp:
+                for chunk in image_file.chunks():
+                    tmp.write(chunk)
+                tmp_path = tmp.name
+            image_array = np.asarray(bytearray(open(tmp_path, "rb").read()), dtype=np.uint8)
+            frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+            frame = imutils.resize(frame, width=800)
+            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            detector = get_detector()
+            faces = detector(gray_frame, 0)
+            predictor = get_predictor()
+            fa = FaceAligner(predictor, desiredFaceWidth=100)
+            start_sample_num = user.last_image_number
+            # Ensure the directory exists
+            os.makedirs(directory, exist_ok=True)
+            print(f"faces detected: {len(faces)}")
 
-            # Align the face
-            face_aligned = fa.align(frame, gray_frame, face)
+            for face in faces:
+                # fa.align is being used to align the face
+                face_aligned = fa.align(frame, gray_frame, face)
+                current_image = os.path.join(directory, f"{start_sample_num}.jpg")
+                cv2.imwrite(current_image, face_aligned)
+                print(f"Image saved: {current_image}")
 
-            # Increment the sample number
-            start_sample_num += 1
+            user.last_image_number += 1
+            user.save()
 
-            # Save the aligned face image
-            if face_aligned is not None:
-                cv2.imwrite(os.path.join(directory, f"{start_sample_num}.jpg"), face_aligned)
-                face_aligned = imutils.resize(face_aligned, width=400)
-                msg = "Done"
-
-            # Draw a rectangle around the face
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
-
-        user.last_image_number = start_sample_num - 1
-        user.save()
-
-    return JsonResponse({'success': msg})
-
-
-# @csrf_exempt
-# @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
-# @allowed_users(allowed_roles=[RoleType.STUDENT])
-# def add_images_to_dataset(request):
-#     current_user = request.user.role_data
-#     status = create_dataset(current_user, max_sample_count=29)
-#     url_name = ROLE_URL_MAP[current_user.role_type]
-#     if status:
-#         messages.success(request, "Photos added successfully.")
-#     else:
-#         messages.error(request, "Failed to add photos.")
-#     return redirect(reverse(url_name))
+        return JsonResponse({"success": "Done"})
+    except Exception as e:
+        print("Error in add_images_to_dataset:", e)
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.STUDENT, RoleType.OWNER, RoleType.STAFF])
 def profile(request):
-
     current_user = request.user.role_data
     if current_user.role_type == RoleType.STUDENT:
         student = Student.objects.get(role=current_user)
@@ -527,17 +336,17 @@ def export_attendance_csv(request):
 
 @csrf_exempt
 def process_frame(request):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Only POST method allowed'}, status=400)
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST method allowed"}, status=400)
 
     try:
         data = json.loads(request.body)
-        frame_data = data.get('frame')
+        frame_data = data.get("frame")
         if not frame_data:
-            return JsonResponse({'error': 'No frame data provided'}, status=400)
+            return JsonResponse({"error": "No frame data provided"}, status=400)
 
         # Remove the data URL prefix to get the base64 data
-        frame_data = frame_data.split(',')[1]
+        frame_data = frame_data.split(",")[1]
 
         # Convert base64 to image
         image_bytes = base64.b64decode(frame_data)
@@ -570,13 +379,13 @@ def process_frame(request):
                 user_id = encoder.inverse_transform(np.ravel([pred]))[0]
                 user = User.objects.get(id=user_id)
                 detected_faces.append({
-                    'user_id': user_id,
-                    'name': user.full_name,
-                    'confidence': float(prob[0]),
-                    'bbox': [x, y, w, h]
+                    "user_id": user_id,
+                    "name": user.full_name,
+                    "confidence": float(prob[0]),
+                    "bbox": [x, y, w, h],
                 })
 
-        return JsonResponse({'success': True, 'faces': detected_faces})
+        return JsonResponse({"success": True, "faces": detected_faces})
 
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

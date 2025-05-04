@@ -16,6 +16,19 @@ django.setup()
 
 BASR_DIR = settings.BASE_DIR
 MEDIA_ROOT = settings.MEDIA_ROOT
+IN_DOCKER = settings.IN_DOCKER
+
+
+def delete_trained_images(training_dir: str) -> None:
+    """Delete all images in the training directory."""
+    for user_id in os.listdir(training_dir):
+        curr_directory = os.path.join(training_dir, user_id)
+        if not os.path.isdir(curr_directory):
+            continue
+        for imagefile in image_files_in_folder(curr_directory):
+            os.remove(imagefile)
+        os.rmdir(curr_directory)
+        print(f"Deleted images for user {user_id} in {curr_directory}.")
 
 
 def start_training(institute) -> bool:
@@ -69,6 +82,8 @@ def start_training(institute) -> bool:
     with open(svc_save_path, "wb") as f:
         pickle.dump(svc, f)
     print(f"Training Completed for {institute.institute_name}.")
+    if IN_DOCKER:
+        delete_trained_images(training_dir)
     return True
 
 
