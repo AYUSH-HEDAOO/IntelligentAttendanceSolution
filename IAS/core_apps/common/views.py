@@ -220,6 +220,7 @@ def add_images_to_dataset(request):
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.STUDENT, RoleType.OWNER, RoleType.STAFF])
 def profile(request):
+
     current_user = request.user.role_data
     if current_user.role_type == RoleType.STUDENT:
         student = Student.objects.get(role=current_user)
