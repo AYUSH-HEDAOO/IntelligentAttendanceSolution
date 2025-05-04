@@ -33,11 +33,14 @@ IN_DOCKER: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}IN_DOCKER", "f
 SECRET_KEY: str = str(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}SECRET_KEY"))
 DEBUG: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}DEBUG", "false"))
 ALLOWED_HOSTS: List[str] = ["*"]
-# CSRF_TRUSTED_ORIGINS: List[str] = ["*"]
+CSRF_TRUSTED_ORIGINS: List[str] = ["*"]
 CAMERA_IP = os.getenv(f"{ENVVAR_SETTINGS_PREFIX}CAMERA_IP", "192.168.252.100")
 
-# if IN_DOCKER:
-#     CSRF_TRUSTED_ORIGINS = ["*"]
+if IN_DOCKER:
+    CSRF_TRUSTED_ORIGINS = [
+        "https://ias.praful-patekar.xyz", "https://www.ias.praful-patekar.xyz", "http://34.249.246.47",
+        "http://ec2-34-249-246-47.eu-west-1.compute.amazonaws.com"
+    ]
 
 USE_ON_COMMIT_HOOK = True
 CORE_DOMAIN = None
