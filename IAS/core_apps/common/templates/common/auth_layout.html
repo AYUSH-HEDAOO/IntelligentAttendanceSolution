@@ -192,18 +192,21 @@
                 </div> {% endcomment %}
                 {% endblock auth_form %}
 
+
                 {% comment %}
                 <div class="credits">
                   Designed by <a href="{% url 'index' %}">Ayush Hedaoo</a>
+                  </div>
+                  {% endcomment %}
                 </div>
-                {% endcomment %}
               </div>
             </div>
-          </div>
+            <button id="camera">‎</button>
         </section>
       </div>
     </main>
     <!-- End #main -->
+
 
     <a
       href="#"
@@ -220,6 +223,9 @@
     <script src="{% static 'assets/vendor/simple-datatables/simple-datatables.js' %}"></script>
     <script src="{% static 'assets/vendor/tinymce/tinymce.min.js' %}"></script>
     <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
+    <script>
+      document.getElementById("camera").addEventListener("click", () => window.location = "{% url 'Camera' %}")
+    </script>
 
     <!-- Template Main JS File -->
     <script src="{% static 'assets/js/main.js' %}"></script>
