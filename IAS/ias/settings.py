@@ -31,7 +31,7 @@ def str_to_bool(value: str) -> bool:
 
 IN_DOCKER: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}IN_DOCKER", "false"))
 SECRET_KEY: str = str(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}SECRET_KEY"))
-DEBUG: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}DEBUG", "true"))
+DEBUG: bool = str_to_bool(os.getenv(f"{ENVVAR_SETTINGS_PREFIX}DEBUG", "false"))
 ALLOWED_HOSTS: List[str] = ["*"]
 # CSRF_TRUSTED_ORIGINS: List[str] = ["*"]
 CAMERA_IP = os.getenv(f"{ENVVAR_SETTINGS_PREFIX}CAMERA_IP", "192.168.252.100")
@@ -195,7 +195,7 @@ LOGGING = {
     },
     "loggers": {
         logger_name: {
-            "level": "WARNING",
+            "level": "DEBUG",
             "propagate": True,
         } for logger_name in (
             "django",
