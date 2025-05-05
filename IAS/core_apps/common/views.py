@@ -184,7 +184,9 @@ def add_images_to_dataset(request):
             user = request.user.role_data.user
             user_id = user.id
             institute_id = request.user.role_data.institute.id
-            directory = f"{MEDIA_ROOT}/image_dataset/{institute_id}/{user_id}/"
+            directory = os.path.join(MEDIA_ROOT, 'image_dataset', str(institute_id), str(user_id))
+            # Ensure the directory exists
+            os.makedirs(directory, exist_ok=True)
 
             image_file = request.FILES["image"]
             with tempfile.NamedTemporaryFile(delete=False) as tmp:
@@ -200,8 +202,7 @@ def add_images_to_dataset(request):
             predictor = get_predictor()
             fa = FaceAligner(predictor, desiredFaceWidth=100)
             start_sample_num = user.last_image_number
-            # Ensure the directory exists
-            os.makedirs(directory, exist_ok=True)
+
             logger.info(f"faces detected: {len(faces)}")
 
             for face in faces:

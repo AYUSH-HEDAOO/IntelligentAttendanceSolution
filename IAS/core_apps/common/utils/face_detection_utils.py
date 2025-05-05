@@ -1,5 +1,4 @@
 import logging
-import os
 
 import face_recognition
 import numpy as np
@@ -29,9 +28,3 @@ def predict(face_aligned, svc, threshold=0.7):
         return ([-1], prob[0][result[0]])
 
     return (result[0], prob[0][result[0]])
-
-
-def prepare_directory(institute_id, user_id):
-    directory = f"{MEDIA_ROOT}/image_dataset/{institute_id}/{user_id}/"
-    os.makedirs(directory, exist_ok=True)
-    return directory
