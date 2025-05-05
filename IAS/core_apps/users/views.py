@@ -40,9 +40,6 @@ def login(request):
         form = LoginForm()
 
     context = {'form': form}
-    attendance = request.GET.get("attendance")
-    if attendance:
-        context['attendance'] = attendance
     return render(request, "users/login.html", context)
 
 
