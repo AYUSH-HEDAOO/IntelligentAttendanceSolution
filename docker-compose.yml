@@ -28,8 +28,9 @@ services:
       IAS_SETTINGS_CAMERA_IP: ${IAS_SETTINGS_CAMERA_IP}
       IAS_SETTINGS_DEBUG: 'false'
     volumes:
-      - ./media:/opt/project/media
-      - ./logs:/var/log/django
+      - /media:/opt/project/media
+      - /face_recognition_data:/opt/project/face_recognition_data
+      - /logs:/var/log/django
 
 volumes:
   postgresql-prod-data:

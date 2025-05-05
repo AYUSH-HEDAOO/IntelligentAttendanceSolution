@@ -2,11 +2,6 @@ import logging
 
 import face_recognition
 import numpy as np
-from django.conf import settings
-
-MEDIA_ROOT = settings.MEDIA_ROOT
-BASE_DIR = settings.BASE_DIR
-CAMERA_IP = settings.CAMERA_IP
 
 logger = logging.getLogger(__name__)
 

@@ -163,9 +163,8 @@ cython_debug/
 NiceAdmin
 # Adding folder vscode folder to ignore from tracking
 .vscode/
-face_recognition_data
-media/image_dataset/
+face_recognition_data/
+image_dataset/
 *venv/
 local/
 static/
-media/

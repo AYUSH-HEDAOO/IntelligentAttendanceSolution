@@ -34,7 +34,7 @@ from IAS.core_apps.institutes.models import Institute
 from IAS.core_apps.staffs.models import Staff
 from IAS.core_apps.students.models import AcademicInfo, Student
 from IAS.core_apps.users.models import Role
-from IAS.ias.general import BASE_DIR, MEDIA_ROOT
+from IAS.ias.general import BASE_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -60,13 +60,14 @@ def mark_attendance(request):
     # Initialize face recognition components
     detector = get_detector()
     predictor = get_predictor()
-    svc_save_path = f"{BASE_DIR}/ias/face_recognition_data/svc.sav"
+    svc_save_path = os.path.join(BASE_DIR, "face_recognition_data/svc.sav")
 
     with open(svc_save_path, "rb") as f:
         svc = pickle.load(f)
     fa = FaceAligner(predictor, desiredFaceWidth=100)
     encoder = LabelEncoder()
-    encoder.classes_ = np.load(f"{BASE_DIR}/ias/face_recognition_data/classes.npy")
+    clss_path = os.path.join(BASE_DIR, "face_recognition_data/classes.npy")
+    encoder.classes_ = np.load(clss_path)
 
     # Initialize counters
     faces_encodings = np.zeros((1, 128))
@@ -184,9 +185,7 @@ def add_images_to_dataset(request):
             user = request.user.role_data.user
             user_id = user.id
             institute_id = request.user.role_data.institute.id
-            logger.info(f"MEDIA_ROOT: {MEDIA_ROOT}")
-            directory = os.path.join(MEDIA_ROOT, f"image_dataset/{institute_id}/{user_id}")
-            # directory = f"{MEDIA_ROOT}/image_dataset/{institute_id}/{user_id}"
+            directory = os.path.join(BASE_DIR, f"image_dataset//{institute_id}//{user_id}")
             logger.info(f"Directory: {directory}")
             # Ensure the directory exists
             os.makedirs(directory, exist_ok=True)
@@ -363,13 +362,14 @@ def process_frame(request):
         # Initialize face recognition components
         detector = get_detector()
         predictor = get_predictor()
-        svc_save_path = f"{BASE_DIR}/ias/face_recognition_data/svc.sav"
+        svc_save_path = os.path.join(BASE_DIR, "face_recognition_data/svc.sav")
 
         with open(svc_save_path, "rb") as f:
             svc = pickle.load(f)
         fa = FaceAligner(predictor, desiredFaceWidth=100)
         encoder = LabelEncoder()
-        encoder.classes_ = np.load(f"{BASE_DIR}/ias/face_recognition_data/classes.npy")
+        class_path = os.path.join(BASE_DIR, "face_recognition_data/classes.npy")
+        encoder.classes_ = np.load(class_path)
 
         # Process frame
         frame = imutils.resize(frame, width=800)
