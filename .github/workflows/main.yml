@@ -80,6 +80,7 @@ jobs:
           ssh target << 'EOF'
           cd IntelligentAttendanceSolution/
           docker-compose down
+          docker rmi ${{ secrets.DOCKER_USERNAME }}/ias-app:latest || true
           git fetch --all
           git checkout develop
           git pull
