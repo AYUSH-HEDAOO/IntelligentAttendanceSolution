@@ -197,12 +197,6 @@ LOGGING = {
             "formatter": "standard",
             "filters": [],
         },
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": "/var/log/django/app.log",
-            "formatter": "standard",
-        },
     },
     "loggers": {
         logger_name: {
