@@ -1,3 +1,4 @@
+import logging
 import os
 
 import face_recognition
@@ -8,6 +9,8 @@ MEDIA_ROOT = settings.MEDIA_ROOT
 BASE_DIR = settings.BASE_DIR
 CAMERA_IP = settings.CAMERA_IP
 
+logger = logging.getLogger(__name__)
+
 
 def predict(face_aligned, svc, threshold=0.7):
     try:
@@ -17,7 +20,7 @@ def predict(face_aligned, svc, threshold=0.7):
             return ([-1], [0])
 
     except Exception as e:
-        print(f"Error in face recognition: {e}")
+        logger.error(f"Error in face recognition: {e}")
         return ([-1], [0])
 
     prob = svc.predict_proba(faces_encodings)

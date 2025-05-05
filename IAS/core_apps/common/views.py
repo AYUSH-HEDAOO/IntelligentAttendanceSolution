@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import os
 import pickle
 import tempfile
@@ -34,6 +35,8 @@ from IAS.core_apps.staffs.models import Staff
 from IAS.core_apps.students.models import AcademicInfo, Student
 from IAS.core_apps.users.models import Role
 from IAS.ias.general import BASE_DIR, MEDIA_ROOT
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -101,7 +104,7 @@ def mark_attendance(request):
             else:
                 present[user_id] = True
                 count[user_id] += 1
-                print(f"Found user: {user_id}, Present: {present[user_id]}, Count: {count[user_id]}")
+                logger.info(f"Found user: {user_id}, Present: {present[user_id]}, Count: {count[user_id]}")
 
     name = update_attendance_in_db_in(present)
     return JsonResponse({"name": name})
@@ -150,7 +153,7 @@ def update_attendance_in_db_in(clock_in_data):
         user = User.objects.get(id=user_id)
         current_user = Role.objects.get(user=user)
         name = current_user.user.full_name
-        print("Marking Attendance for User", current_user.user.full_name)
+        logger.info(f"Marking Attendance for User {current_user.user.full_name}")
         _, todays_attendance = get_attendance_data(current_user, date.today())
         todays_attendance = mark_all_attendance(current_user, todays_attendance)
     return name
@@ -181,7 +184,7 @@ def add_images_to_dataset(request):
             user = request.user.role_data.user
             user_id = user.id
             institute_id = request.user.role_data.institute.id
-            directory = f"{MEDIA_ROOT}\\image_dataset\\{institute_id}\\{user_id}"
+            directory = f"{MEDIA_ROOT}/image_dataset/{institute_id}/{user_id}/"
 
             image_file = request.FILES["image"]
             with tempfile.NamedTemporaryFile(delete=False) as tmp:
@@ -199,28 +202,27 @@ def add_images_to_dataset(request):
             start_sample_num = user.last_image_number
             # Ensure the directory exists
             os.makedirs(directory, exist_ok=True)
-            print(f"faces detected: {len(faces)}")
+            logger.info(f"faces detected: {len(faces)}")
 
             for face in faces:
                 # fa.align is being used to align the face
                 face_aligned = fa.align(frame, gray_frame, face)
                 current_image = os.path.join(directory, f"{start_sample_num}.jpg")
                 cv2.imwrite(current_image, face_aligned)
-                print(f"Image saved: {current_image}")
+                logger.info(f"Image saved: {current_image}")
 
             user.last_image_number += 1
             user.save()
 
         return JsonResponse({"success": "Done"})
     except Exception as e:
-        print("Error in add_images_to_dataset:", e)
+        logger.error(f"Error in add_images_to_dataset: {e}")
         return JsonResponse({"error": str(e)}, status=500)
 
 
 @login_required(login_url=ROLE_URL_MAP[RoleType.ANONYMOUS])
 @allowed_users(allowed_roles=[RoleType.STUDENT, RoleType.OWNER, RoleType.STAFF])
 def profile(request):
-
     current_user = request.user.role_data
     if current_user.role_type == RoleType.STUDENT:
         student = Student.objects.get(role=current_user)

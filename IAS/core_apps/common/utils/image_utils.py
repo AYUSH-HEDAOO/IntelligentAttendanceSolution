@@ -1,3 +1,4 @@
+import logging
 import os
 
 import cv2
@@ -9,6 +10,7 @@ from imutils.face_utils.helpers import FACIAL_LANDMARKS_68_IDXS, shape_to_np
 
 BASE_DIR = settings.BASE_DIR
 
+logger = logging.getLogger(__name__)
 # Add path to the shape predictor
 SHAPE_PREDICTOR_PATH = os.path.abspath(os.path.join(BASE_DIR, "shape_predictor_68_face_landmarks.dat"))
 
@@ -43,7 +45,7 @@ class CustomFaceAligner(FaceAligner):
 
         # Fix: Handle missing values gracefully
         if not (np.isfinite(eyesCenter[0]) and np.isfinite(eyesCenter[1])):
-            print("[ERROR] Invalid eye center values!")
+            logger.debug("Invalid eye center values!")
             return None
 
         # Compute rotation matrix

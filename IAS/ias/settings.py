@@ -38,8 +38,10 @@ CAMERA_IP = os.getenv(f"{ENVVAR_SETTINGS_PREFIX}CAMERA_IP", "192.168.252.100")
 
 if IN_DOCKER:
     CSRF_TRUSTED_ORIGINS = [
-        "https://ias.praful-patekar.xyz", "https://www.ias.praful-patekar.xyz", "http://34.249.246.47",
-        "http://ec2-34-249-246-47.eu-west-1.compute.amazonaws.com"
+        "https://ias.praful-patekar.xyz",
+        "https://www.ias.praful-patekar.xyz",
+        "http://34.249.246.47",
+        "http://ec2-34-249-246-47.eu-west-1.compute.amazonaws.com",
     ]
 
 USE_ON_COMMIT_HOOK = True
@@ -190,16 +192,23 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "standard",
             "filters": [],
+        },
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "/var/log/django/app.log",
+            "formatter": "standard",
         },
     },
     "loggers": {
         logger_name: {
             "level": "DEBUG",
-            "propagate": True,
+            "propagate": False,
+            "handlers": ["console"],
         } for logger_name in (
             "django",
             "django.request",
