@@ -27,6 +27,8 @@ services:
       IAS_SETTINGS_SECRET_KEY: ${IAS_SETTINGS_SECRET_KEY}
       IAS_SETTINGS_CAMERA_IP: ${IAS_SETTINGS_CAMERA_IP}
       IAS_SETTINGS_DEBUG: 'false'
+    volumes:
+      - ./logs:/var/log/django
 
 volumes:
   postgresql-prod-data:

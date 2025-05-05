@@ -1,3 +1,4 @@
+import logging
 import os
 import pickle
 
@@ -17,6 +18,7 @@ django.setup()
 BASR_DIR = settings.BASE_DIR
 MEDIA_ROOT = settings.MEDIA_ROOT
 IN_DOCKER = settings.IN_DOCKER
+logger = logging.getLogger(__name__)
 
 
 def delete_trained_images(training_dir: str) -> None:
@@ -28,15 +30,15 @@ def delete_trained_images(training_dir: str) -> None:
         for imagefile in image_files_in_folder(curr_directory):
             os.remove(imagefile)
         os.rmdir(curr_directory)
-        print(f"Deleted images for user {user_id} in {curr_directory}.")
+        logging.info(f"Deleted images for user {user_id} in {curr_directory}.")
 
 
 def start_training(institute) -> bool:
-    print(f"Training Started for {institute.institute_name}.")
-    training_dir = f"{MEDIA_ROOT}\\image_dataset\\{institute.id}"
+    logger.info(f"Training Started for {institute.institute_name}.")
+    training_dir = f"{MEDIA_ROOT}/image_dataset/{institute.id}"
     if not os.path.exists(training_dir):
-        print(f"Training Directory not found for {institute.institute_name}")
-        print("Please upload images from any Student, Staff and Institute Login.\n")
+        logger.info(f"Training Directory not found for {institute.institute_name}")
+        logger.info("Please upload images from any Student, Staff and Institute Login.\n")
         return False
 
     count = 0
@@ -62,9 +64,9 @@ def start_training(institute) -> bool:
                 y.append(user_id)
                 i += 1
             except Exception as e:
-                print(f"Error in image {imagefile}: {e}")
-                print("removed")
+                logger.error(f"Error in image {imagefile}: {e}")
                 os.remove(imagefile)
+                logger.info(f"removed imagefile {imagefile}")
 
     encoder = LabelEncoder()
     encoder.fit(y)
@@ -81,7 +83,7 @@ def start_training(institute) -> bool:
     svc_save_path = f"{trained_data_path}\\svc.sav"
     with open(svc_save_path, "wb") as f:
         pickle.dump(svc, f)
-    print(f"Training Completed for {institute.institute_name}.")
+    logger.info(f"Training Completed for {institute.institute_name}.")
     if IN_DOCKER:
         delete_trained_images(training_dir)
     return True
@@ -93,6 +95,6 @@ if __name__ == "__main__":
     for institute in institutes:
         result = start_training(institute)
         if result:
-            print(f"Training Completed for {institute.institute_name}.")
+            logger.info(f"Training Completed for {institute.institute_name}.")
         else:
-            print(f"Training Failed for {institute.institute_name}.")
+            logger.info(f"Training Failed for {institute.institute_name}.")
