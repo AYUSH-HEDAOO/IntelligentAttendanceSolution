@@ -14,6 +14,23 @@ services:
     volumes:
       - postgresql-data:/var/lib/postgresql/data
 
+  app:
+    context: .
+    restart: unless-stopped
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+    environment:
+      IAS_SETTINGS_DATABASES: '{"default":{"HOST":"${POSTGRES_HOST}","PORT":"$POSTGRES_PORT}"}}'
+      IAS_SETTINGS_IN_DOCKER: 'true'
+      IAS_SETTINGS_SECRET_KEY: ${IAS_SETTINGS_SECRET_KEY}
+      IAS_SETTINGS_CAMERA_IP: ${IAS_SETTINGS_CAMERA_IP}
+      IAS_SETTINGS_DEBUG: 'false'
+    volumes:
+      - ./media:/opt/project/media
+      - ./logs:/var/log/django
+
 volumes:
   postgresql-data:
     driver: local

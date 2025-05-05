@@ -28,6 +28,7 @@ services:
       IAS_SETTINGS_CAMERA_IP: ${IAS_SETTINGS_CAMERA_IP}
       IAS_SETTINGS_DEBUG: 'false'
     volumes:
+      - ./media:/opt/project/media
       - ./logs:/var/log/django
 
 volumes:
