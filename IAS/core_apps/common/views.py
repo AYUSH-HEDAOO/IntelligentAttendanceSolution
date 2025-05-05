@@ -184,7 +184,9 @@ def add_images_to_dataset(request):
             user = request.user.role_data.user
             user_id = user.id
             institute_id = request.user.role_data.institute.id
+            logger.info(f"MEDIA_ROOT: {MEDIA_ROOT}")
             directory = os.path.join(MEDIA_ROOT, 'image_dataset', str(institute_id), str(user_id))
+            logger.info(f"Directory: {directory}")
             # Ensure the directory exists
             os.makedirs(directory, exist_ok=True)
 
