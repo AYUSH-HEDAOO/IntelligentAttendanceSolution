@@ -2,7 +2,6 @@ static/
 NiceAdmin/
 .github/
 dependencies/
-media/
 .editorconfig
 .gitignore
 db.sqlite3

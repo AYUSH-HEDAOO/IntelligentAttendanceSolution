@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
 
-  db:
+  prod-db:
     image: postgres:14.2-alpine
     restart: unless-stopped
     ports:
@@ -15,12 +15,12 @@ services:
       - postgresql-data:/var/lib/postgresql/data
 
   app:
-    context: .
+    build: .
     restart: unless-stopped
     ports:
       - '8000:8000'
     depends_on:
-      - db
+      - prod-db
     environment:
       IAS_SETTINGS_DATABASES: '{"default":{"HOST":"${POSTGRES_HOST}","PORT":"$POSTGRES_PORT}"}}'
       IAS_SETTINGS_IN_DOCKER: 'true'

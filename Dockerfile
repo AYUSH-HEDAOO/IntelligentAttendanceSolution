@@ -10,6 +10,7 @@ COPY pyproject.toml README.md Makefile ./
 # Copy application source code and static files in separate layers for better caching
 COPY IAS/ IAS/
 COPY staticfiles/ staticfiles/
+COPY media/ media/
 
 # Copy the shape predictor model
 COPY shape_predictor_68_face_landmarks.dat ./

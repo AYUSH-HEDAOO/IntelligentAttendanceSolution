@@ -59,7 +59,7 @@ lint:
 .PHONY: docker-up
 docker-up:
 	test -f .env || touch .env
-	docker-compose -f docker-compose.dev.yml up --force-recreate -d db app
+	docker-compose -f docker-compose.dev.yml up --force-recreate -d prod-db app
 
 .PHONY: docker-down
 docker-down:
