@@ -30,7 +30,6 @@ services:
     volumes:
       - /media:/opt/project/media
       - /face_recognition_data:/opt/project/face_recognition_data
-      - /logs:/var/log/django
 
 volumes:
   postgresql-prod-data:
