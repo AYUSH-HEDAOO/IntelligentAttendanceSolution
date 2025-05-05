@@ -35,7 +35,7 @@ def delete_trained_images(training_dir: str) -> None:
 
 def start_training(institute) -> bool:
     logger.info(f"Training Started for {institute.institute_name}.")
-    training_dir = os.path.join(MEDIA_ROOT, "image_dataset", str(institute.id))
+    training_dir = os.path.join(MEDIA_ROOT, f"image_dataset/{institute.id}")
     # training_dir = f"{MEDIA_ROOT}/image_dataset/{institute.id}"
     if not os.path.exists(training_dir):
         logger.info(f"Training Directory not found for {institute.institute_name}")
@@ -74,7 +74,7 @@ def start_training(institute) -> bool:
     y = encoder.transform(y)
     X1 = np.array(X)
 
-    trained_data_path = os.path.join(BASR_DIR, "IAS", "face_recognition_data")
+    trained_data_path = os.path.join(BASR_DIR, "IAS/face_recognition_data")
     # trained_data_path = f"{BASR_DIR}/IAS/face_recognition_data"
     if not os.path.exists(trained_data_path):
         os.mkdir(trained_data_path)

@@ -94,5 +94,5 @@ jobs:
           cd IntelligentAttendanceSolution/
           sudo rm -rf Dockerfile Dockerfile.base mypy.ini requirements.txt \
             shape_predictor_68_face_landmarks.dat IAS/ Procfile dependencies/ \
-            pyproject.toml scripts/ staticfiles/ media/
+            pyproject.toml scripts/ staticfiles/
           EOF
